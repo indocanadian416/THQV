@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Threat Hunting Query Viewer</title>
+  <style>
+    body {
+      background-color: #0f0f0f;
+      color: #f0f0f0;
+      font-family: Consolas, monospace;
+      padding: 2rem;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    h1 {
+      margin-bottom: 1rem;
+      color: #00ffc8;
+      text-align: center;
+    }
+    select {
+      background-color: #1f1f1f;
+      color: #fff;
+      border: 1px solid #00ffc8;
+      padding: 0.5rem;
+      margin-bottom: 1.5rem;
+      width: 250px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    pre {
+      background-color: #1e1e1e;
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid #00ffc8;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      max-width: 1000px;
+      width: 100%;
+      margin-bottom: 2rem;
+      box-sizing: border-box;
+    }
+    .cheatsheet {
+      max-width: 1000px;
+      width: 100%;
+      padding: 1rem 1.5rem;
+      background-color: #1a1a1a;
+      border: 1px solid #444;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+    .cheatsheet h2 {
+      color: #ffcc00;
+      margin-top: 1.2rem;
+      margin-bottom: 0.4rem;
+      border-bottom: 1px solid #444;
+      padding-bottom: 4px;
+    }
+    .cheatsheet code {
+      background: #2b2b2b;
+      display: block;
+      padding: 0.5rem 1rem;
+      margin-top: 0.5rem;
+      white-space: pre-wrap;
+      border-left: 4px solid #00ffc8;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+    /* Scrollbar styling for code blocks */
+    pre::-webkit-scrollbar {
+      height: 8px;
+    }
+    pre::-webkit-scrollbar-thumb {
+      background: #00ffc8;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Threat Hunting Query Viewer</h1>
+  <label for="criteria" style="text-align:center; display:block; width: 250px; margin: 0 auto 1rem;">Select Hunting Criterion:</label>
+  <select id="criteria" onchange="showQuery()">
+    <option value="">-- Select --</option>
+    <option value="ip">IP</option>
+    <option value="hash">Hash</option>
+    <option value="domain">Domain</option>
+    <option value="commandline">Command Line</option>
+    <option value="process">Process</option>
+    <option value="filepath">File Path</option>
+    <option value="email">Email</option>
+    <option value="persistence">Persistence</option>
+    <option value="network">Network Activity</option>
+    <option value="remote_tools">Remote Tools</option>
+    <option value="browser">Browser Abuse</option>
+    <option value="exfiltration">Exfiltration</option>
+    <option value="lateral_movement">Lateral Movement</option>
+  </select>
+
+  <pre id="queryOutput" aria-live="polite" aria-label="Query output will appear here"></pre>
+
+  <div class="cheatsheet" role="region" aria-label="Threat Hunting Cheatsheet">
+    <h2>MITRE ATT&CK Mapped Threat Hunting Cheatsheet</h2>
+
+    <h2>💻 Persistence (T1053, T1547, T1098)</h2>
+    <code>DeviceProcessEvents
+| where ProcessCommandLine contains "/tn FastDiskCleanup"  // Scheduled Task creation</code>
+
+    <h2>🔐 Lateral Movement (T1021, T1076)</h2>
+    <code>SecurityEvent
+| where EventID == 4624 and LogonType == 10
+| where AccountType == "User"
+| project TimeGenerated, Account, Computer</code>
+
+    <h2>📤 Exfiltration (T1041, T1020)</h2>
+    <code>DeviceProcessEvents
+| where FileName in~ ("powershell.exe", "cmd.exe", "curl.exe")
+| where ProcessCommandLine has_any ("example.com/upload", "ftp.example.com")
+| project Timestamp, DeviceName, FileName, ProcessCommandLine</code>
+
+    <h2>🧪 Suspicious Tools Execution (T1218, T1059)</h2>
+    <code>DeviceProcessEvents
+| where FileName in~ ("powershell.exe", "curl.exe", "mshta.exe", "certutil.exe", "rundll32.exe")</code>
+
+    <h2>🌐 Network Indicators of Compromise (T1071)</h2>
+    <code>DeviceNetworkEvents
+| where RemoteUrl has_any ("example.com", "githubusercontent.com")</code>
+
+    <h2>📁 Suspicious File Paths (T1547.001)</h2>
+    <code>DeviceFileEvents
+| where FolderPath contains "\\Startup\\"</code>
+
+    <h2>📩 Email Attachment Abuse (T1566)</h2>
+    <code>EmailEvents
+| where Subject has "invoice"
+| join kind=inner (EmailAttachmentInfo) on NetworkMessageId</code>
+
+    <h2>🔎 Process Creation Monitoring (T1059)</h2>
+    <code>SecurityEvent
+| where EventID == 4688
+| where NewProcessName endswith_cs "powershell.exe"
+  or NewProcessName endswith_cs "cmd.exe"
+  or NewProcessName endswith_cs "mshta.exe"
+  or NewProcessName endswith_cs "curl.exe"
+  or NewProcessName endswith_cs "rundll32.exe"
+  or NewProcessName endswith_cs "certutil.exe"</code>
+
+    <h2>🛠 Remote Tools Usage (T1021.002)</h2>
+    <code>DeviceProcessEvents
+| where FileName in~ ("anydesk.exe", "teamviewer.exe")</code>
+
+    <h2>🕵️‍♂️ Suspicious Browser Activity (T1059.003)</h2>
+    <code>DeviceProcessEvents
+| where ProcessCommandLine contains ".sqlite" or ProcessCommandLine contains ".dat"</code>
+
+    <h2>🛡 MITRE ATT&CK Quick Reference</h2>
+    <code>
+T1021 - Remote Services (RDP, SMB, SSH)  
+T1059 - Command and Scripting Interpreter (PowerShell, cmd, mshta)  
+T1041 - Exfiltration Over C2 Channel  
+T1105 - Remote File Copy (Certutil, Curl)  
+T1218 - Signed Binary Proxy Execution (rundll32.exe, mshta.exe)  
+T1547 - Boot or Logon Autostart Execution  
+T1566 - Phishing (Email Attachment)  
+T1071 - Application Layer Protocol (HTTP/S, DNS)  
+T1086 - PowerShell  
+T1076 - Remote Desktop Protocol  
+T1132 - Data Encoding  
+T1055 - Process Injection  
+T1057 - Process Discovery
+    </code>
+  </div>
+
+  <script>
+    const queries = {
+      ip: `// CrowdStrike
+#event_simpleName="NetworkConnectIP4"
+| RemoteAddressIP4 == "8.8.8.8"
+
+// Microsoft Sentinel
+DeviceNetworkEvents
+| where RemoteIP == "8.8.8.8"
+| project TimeGenerated, DeviceName, RemoteIP, ActionType
+
+// Defender
+DeviceNetworkEvents
+| where RemoteIP == "8.8.8.8"`,
+
+      hash: `// CrowdStrike
+#event_simpleName="ProcessRollup2"
+| SHA256HashData in ("abc123...", "def456...")
+
+// Defender
+DeviceProcessEvents
+| where SHA256 == "abc123..."`,
+
+      domain: `// CrowdStrike
+#event_simpleName="DnsRequest"
+| DomainName contains "example.com"
+
+// Sentinel
+DeviceNetworkEvents
+| where RemoteUrl has "example.com"
+
+// Defender
+DeviceNetworkEvents
+| where RemoteUrl contains "example.com"`,
+
+      commandline: `// CrowdStrike
+#event_simpleName="ProcessRollup2"
+| CommandLine contains "script.ps1"
+
+// Sentinel
+SecurityEvent
+| where EventID == 4688
+| where CommandLine contains "script.ps1"
+
+// Defender
+DeviceProcessEvents
+| where ProcessCommandLine contains "%TEMP%\\\\script.ps1"`,
+
+      process: `// CrowdStrike
+#event_simpleName="ProcessRollup2"
+| ImageFileName endswith "abc.exe"
+
+// Sentinel
+SecurityEvent
+| where NewProcessName endswith_cs "abc.exe"
+
+// Defender
+DeviceProcessEvents
+| where FileName == "abc.exe"`,
+
+      filepath: `// CrowdStrike
+#event_simpleName="FileRollup2"
+| FilePath contains "\\\\Startup\\\\"
+
+// Defender
+DeviceFileEvents
+| where FolderPath contains "Startup"`,
+
+      email: `// Sentinel
+EmailAttachmentInfo
+| where FileType in ("png", "jpg")
+| join kind=inner (EmailEvents) on NetworkMessageId
+| where Subject contains "invoice"
+
+// Defender
+EmailEvents
+| where Subject has "scan"
+| join kind=inner (AADSignInEventsBeta) on RecipientEmailAddress`,
+
+      persistence: `// CrowdStrike
+#event_simpleName="ProcessRollup2"
+| CommandLine contains "/tn FastDiskCleanup"
+
+// Defender
+DeviceProcessEvents
+| where ProcessCommandLine contains "/tn FastDiskCleanup"`,
+
+      network: `// Sentinel
+DeviceNetworkEvents
+| where RemoteUrl has_any ("example.com", "githubusercontent.com")
+
+// Defender
+DeviceNetworkEvents
+| where ActionType == "DnsQuery"
+| where RemoteUrl contains "example.com"`,
+
+      remote_tools: `// CrowdStrike
+#event_simpleName="ProcessRollup2"
+| ImageFileName in~ ("*anydesk*", "*teamviewer*")
+
+// Defender
+DeviceProcessEvents
+| where FileName in~ ("anydesk.exe", "teamviewer.exe")`,
+
+      browser: `// CrowdStrike
+#event_simpleName="ProcessRollup2"
+| CommandLine contains "browser history"
+
+// Defender
+DeviceProcessEvents
+| where ProcessCommandLine contains ".sqlite" or ProcessCommandLine contains ".dat"`,
+
+      exfiltration: `// MITRE T1041 - Exfiltration Over C2 Channel
+DeviceProcessEvents
+| where FileName in~ ("powershell.exe", "cmd.exe", "curl.exe")
+| where ProcessCommandLine has_any ("example.com/upload", "ftp.example.com")
+| project Timestamp, DeviceName, FileName, ProcessCommandLine`,
+
+      lateral_movement: `// MITRE T1021 - Remote Services
+SecurityEvent
+| where EventID == 4624 and LogonType == 10
+| where Account contains "admin"
+| project TimeGenerated, Account, Computer, IPAddress`
+    };
+
+    function showQuery() {
+      const value = document.getElementById("criteria").value;
+      document.getElementById("queryOutput").textContent = queries[value] || "";
+    }
+  </script>
+</body>
+</html>
