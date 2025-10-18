@@ -3,305 +3,497 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Threat Hunting Query Viewer</title>
+  <title>Threat Hunting & MITRE Detection Hub</title>
   <style>
+    :root {
+      --bg: #0d0d0d;
+      --panel: #1a1a1a;
+      --accent: #00ffc8;
+      --highlight: #ffcc00;
+      --text: #efefef;
+      --muted: #888;
+      --danger: #ff5148;
+      --low: #0095ff;
+      --medium: #ffbb33;
+    }
+
     body {
-      background-color: #0f0f0f;
-      color: #f0f0f0;
+      background: var(--bg);
+      color: var(--text);
       font-family: Consolas, monospace;
-      padding: 2rem;
       margin: 0;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
+    }
+
+    header {
+      background: #111;
+      border-bottom: 2px solid var(--accent);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
       align-items: center;
-      min-height: 100vh;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
-    h1 {
-      margin-bottom: 1rem;
-      color: #00ffc8;
-      text-align: center;
+
+    header h1 {
+      color: var(--accent);
+      margin: 0;
+      font-size: 1.4rem;
     }
-    select {
-      background-color: #1f1f1f;
-      color: #fff;
-      border: 1px solid #00ffc8;
-      padding: 0.5rem;
-      margin-bottom: 1.5rem;
-      width: 250px;
-      border-radius: 6px;
-      cursor: pointer;
+
+    .content {
+      flex-grow: 1;
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 1.5rem;
+      padding: 2rem;
+      overflow: hidden;
     }
-    pre {
-      background-color: #1e1e1e;
-      padding: 1rem;
+
+    section {
+      background: var(--panel);
       border-radius: 8px;
-      border: 1px solid #00ffc8;
+      padding: 1rem 1.5rem;
+      border: 1px solid #222;
+      max-height: 600px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    h2 {
+      color: var(--highlight);
+      border-bottom: 1px solid #333;
+      padding-bottom: 0.3rem;
+      margin-top: 0;
+      margin-bottom: 1rem;
+      position: sticky;
+      top: 0;
+      background: var(--panel);
+      z-index: 10;
+      font-size: 1.1rem;
+    }
+
+    select, button {
+      background: #111;
+      color: var(--text);
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      padding: 0.5rem 1rem;
+      margin: 0 0 1rem 0;
+      cursor: pointer;
+      width: 100%;
+      font-size: 1rem;
+    }
+
+    pre {
+      background: #151515;
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      padding: 1rem;
       white-space: pre-wrap;
       overflow-x: auto;
-      max-width: 1000px;
-      width: 100%;
-      margin-bottom: 2rem;
-      box-sizing: border-box;
-    }
-    .cheatsheet {
-      max-width: 1000px;
-      width: 100%;
-      padding: 1rem 1.5rem;
-      background-color: #1a1a1a;
-      border: 1px solid #444;
-      border-radius: 8px;
-      box-sizing: border-box;
-    }
-    .cheatsheet h2 {
-      color: #ffcc00;
-      margin-top: 1.2rem;
-      margin-bottom: 0.4rem;
-      border-bottom: 1px solid #444;
-      padding-bottom: 4px;
-    }
-    .cheatsheet code {
-      background: #2b2b2b;
-      display: block;
-      padding: 0.5rem 1rem;
-      margin-top: 0.5rem;
-      white-space: pre-wrap;
-      border-left: 4px solid #00ffc8;
-      font-size: 0.9rem;
+      min-height: 160px;
+      font-size: 0.85rem;
       line-height: 1.4;
+      flex-grow: 1;
     }
-    /* Scrollbar styling for code blocks */
-    pre::-webkit-scrollbar {
-      height: 8px;
+
+    .query-info {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-top: 0.3rem;
+      text-align: right;
+      user-select: none;
     }
-    pre::-webkit-scrollbar-thumb {
-      background: #00ffc8;
+
+    .feed-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      flex-grow: 1;
+      overflow-y: auto;
+    }
+
+    .feed-item {
+      background: #121212;
+      padding: 0.8rem 1rem;
+      border-left: 4px solid var(--accent);
       border-radius: 4px;
+      word-break: break-word;
+      transition: background-color 0.2s ease;
+    }
+
+    .feed-item:hover {
+      background-color: #222222;
+    }
+
+    .feed-item a {
+      color: var(--highlight);
+      text-decoration: none;
+      display: block;
+      font-weight: bold;
+      margin-bottom: 0.15rem;
+    }
+
+    .feed-item span {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .intel-card {
+      margin-bottom: 0.8rem;
+      background: #151515;
+      border: 1px solid #333;
+      border-left: 4px solid var(--accent);
+      padding: 0.8rem 1rem;
+      border-radius: 4px;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .intel-card:hover {
+      box-shadow: 0 0 15px var(--accent);
+    }
+
+    .intel-card.high { border-left-color: var(--danger); }
+    .intel-card.medium { border-left-color: var(--medium); }
+    .intel-card.low { border-left-color: var(--low); }
+
+    .victim-list {
+      margin-top: 0.5rem;
+      background: #121212;
+      padding: 0.6rem;
+      border-radius: 6px;
+      border: 1px solid #333;
+      max-height: 280px;
+      overflow-y: auto;
+      font-size: 0.9rem;
+      user-select: text;
+    }
+    
+    .victim-list a {
+      color: var(--highlight);
+      text-decoration: none;
+      display: block;
+      padding: 0.15rem 0;
+      border-bottom: 1px solid #222;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .victim-list a:last-child {
+      border-bottom: none;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      padding: 1rem;
+      border-top: 1px solid #222;
+      user-select: none;
+      font-size: 0.9rem;
     }
   </style>
 </head>
+
 <body>
-  <h1>Threat Hunting Query Viewer</h1>
-  <label for="criteria" style="text-align:center; display:block; width: 250px; margin: 0 auto 1rem;">Select Hunting Criterion:</label>
-  <select id="criteria" onchange="showQuery()">
-    <option value="">-- Select --</option>
-    <option value="ip">IP</option>
-    <option value="hash">Hash</option>
-    <option value="domain">Domain</option>
-    <option value="commandline">Command Line</option>
-    <option value="process">Process</option>
-    <option value="filepath">File Path</option>
-    <option value="email">Email</option>
-    <option value="persistence">Persistence</option>
-    <option value="network">Network Activity</option>
-    <option value="remote_tools">Remote Tools</option>
-    <option value="browser">Browser Abuse</option>
-    <option value="exfiltration">Exfiltration</option>
-    <option value="lateral_movement">Lateral Movement</option>
-  </select>
+  <header>
+    <h1>Threat Hunting & MITRE Detection Hub</h1>
+    <span>Updated: <time id="clock" aria-live="polite" aria-atomic="true"></time></span>
+  </header>
 
-  <pre id="queryOutput" aria-live="polite" aria-label="Query output will appear here"></pre>
+  <div class="content" role="main">
+    <!-- Query Builder -->
+    <section id="query-builder" aria-label="Multi-Platform MITRE Detection Query Builder">
+      <h2>Multi-Platform MITRE Detection Query Builder</h2>
+      <select id="technique" onchange="showDetectionQuery()" aria-describedby="descTechniques" aria-required="true">
+        <option value="">-- Select MITRE Technique --</option>
+        <option value="T1059">T1059 - Command and Scripting Interpreter</option>
+        <option value="T1566">T1566 - Phishing</option>
+        <option value="T1021">T1021 - Remote Services</option>
+        <option value="T1041">T1041 - Exfiltration Over C2 Channel</option>
+        <option value="T1105">T1105 - Remote File Copy</option>
+        <option value="T1547">T1547 - Boot or Logon Autostart Execution</option>
+        <option value="T1071">T1071 - Application Layer Protocol</option>
+        <option value="T1110">T1110 - Brute Force</option>
+        <option value="T1055">T1055 - Process Injection</option>
+        <option value="T1621">T1621 - Multi-Factor Authentication Fatigue</option>
+      </select>
 
-  <div class="cheatsheet" role="region" aria-label="Threat Hunting Cheatsheet">
-    <h2>MITRE ATT&CK Mapped Threat Hunting Cheatsheet</h2>
+      <pre id="queryOutput" aria-live="polite" tabindex="0" aria-label="Detection query output">Select a technique to view detection queries.</pre>
+      <div id="descTechniques" class="query-info">Platform examples: Microsoft Sentinel, Splunk, Elastic, CrowdStrike Falcon, Wazuh SIEM</div>
+    </section>
 
-    <h2>💻 Persistence (T1053, T1547, T1098)</h2>
-    <code>DeviceProcessEvents
-| where ProcessCommandLine contains "/tn FastDiskCleanup"  // Scheduled Task creation</code>
+    <!-- Live Threat Feeds -->
+    <section aria-label="Live Cyber Threat Intelligence Feed">
+      <h2>Live Cyber Threat Intelligence Feed</h2>
+      <div id="feedArea" class="feed-container" tabindex="0" aria-live="polite" aria-atomic="false">Loading latest threat intel...</div>
+    </section>
 
-    <h2>🔐 Lateral Movement (T1021, T1076)</h2>
-    <code>SecurityEvent
-| where EventID == 4624 and LogonType == 10
-| where AccountType == "User"
-| project TimeGenerated, Account, Computer</code>
+    <!-- Global Intelligence -->
+    <section aria-label="Active Global Threat Intelligence mapped to MITRE ATT&CK">
+      <h2>Active Global Threat Intelligence (MITRE Mapped)</h2>
 
-    <h2>📤 Exfiltration (T1041, T1020)</h2>
-    <code>DeviceProcessEvents
-| where FileName in~ ("powershell.exe", "cmd.exe", "curl.exe")
-| where ProcessCommandLine has_any ("example.com/upload", "ftp.example.com")
-| project Timestamp, DeviceName, FileName, ProcessCommandLine</code>
+      <div id="intelCards" class="feed-container" aria-live="polite" aria-atomic="true">
+        <div class="intel-card high" tabindex="0" role="region" aria-label="High priority threat - Scattered Spider group">
+          <strong>Scattered Spider (T1566, T1078, T1059)</strong><br>
+          Actively exploiting Okta & Azure AD tenants. Focused on cloud credential theft.<br>
+          <em>Action:</em> Validate MFA, monitor PowerShell logs and login anomalies.
+        </div>
 
-    <h2>🧪 Suspicious Tools Execution (T1218, T1059)</h2>
-    <code>DeviceProcessEvents
-| where FileName in~ ("powershell.exe", "curl.exe", "mshta.exe", "certutil.exe", "rundll32.exe")</code>
+        <div class="intel-card medium" tabindex="0" role="region" aria-label="Medium priority threat - Akira Ransomware">
+          <strong>Akira Ransomware (T1486, T1567, T1105)</strong><br>
+          Exploiting Cisco AnyConnect misconfigurations and SMB exfil channels.<br>
+          <em>Action:</em> Check lateral movement through SMB and anomalous data volume.
+        </div>
 
-    <h2>🌐 Network Indicators of Compromise (T1071)</h2>
-    <code>DeviceNetworkEvents
-| where RemoteUrl has_any ("example.com", "githubusercontent.com")</code>
+        <div class="intel-card medium" tabindex="0" role="region" aria-label="Medium priority threat - APT42">
+          <strong>APT42 (T1059, T1082, T1027)</strong><br>
+          Iranian threat actor leveraging PowerShell and encoded payloads for espionage.<br>
+          <em>Action:</em> Look for encoded Base64 strings and unsigned scripts in DeviceProcessEvents.
+        </div>
 
-    <h2>📁 Suspicious File Paths (T1547.001)</h2>
-    <code>DeviceFileEvents
-| where FolderPath contains "\\Startup\\"</code>
+        <div class="intel-card low" tabindex="0" role="region" aria-label="Low priority threat - RDP Brute Force">
+          <strong>RDP Brute-force Surge (T1110, T1078)</strong><br>
+          Increased global spike in brute-force attempts across exposed RDP endpoints.<br>
+          <em>Action:</em> Restrict external RDP, enable lockouts, monitor EventID 4625 frequency.
+        </div>
 
-    <h2>📩 Email Attachment Abuse (T1566)</h2>
-    <code>EmailEvents
-| where Subject has "invoice"
-| join kind=inner (EmailAttachmentInfo) on NetworkMessageId</code>
+        <div class="intel-card high" tabindex="0" role="region" aria-label="High priority threat - Initial Access Phishing Campaign">
+          <strong>Initial Access Phishing Campaign (T1566)</strong><br>
+          New phishing wave targeting enterprise users with malicious attachments.<br>
+          <em>Action:</em> Enhance email gateway rules, user training, and attachment sandboxing.
+        </div>
 
-    <h2>🔎 Process Creation Monitoring (T1059)</h2>
-    <code>SecurityEvent
-| where EventID == 4688
-| where NewProcessName endswith_cs "powershell.exe"
-  or NewProcessName endswith_cs "cmd.exe"
-  or NewProcessName endswith_cs "mshta.exe"
-  or NewProcessName endswith_cs "curl.exe"
-  or NewProcessName endswith_cs "rundll32.exe"
-  or NewProcessName endswith_cs "certutil.exe"</code>
+        <div class="intel-card medium" tabindex="0" role="region" aria-label="Medium priority threat - Cobalt Strike Deployments">
+          <strong>Cobalt Strike Deployments (T1059, T1086)</strong><br>
+          Increased use observed in post-exploitation for lateral movement and persistence.<br>
+          <em>Action:</em> Monitor command-line execution and PowerShell decoding.
+        </div>
 
-    <h2>🛠 Remote Tools Usage (T1021.002)</h2>
-    <code>DeviceProcessEvents
-| where FileName in~ ("anydesk.exe", "teamviewer.exe")</code>
+        <div class="intel-card low" tabindex="0" role="region" aria-label="Low priority threat - IoT Botnet Activity">
+          <strong>Emerging IoT Botnet Activity (T1489)</strong><br>
+          Botnets targeting smart devices with DDoS and proxy functionality.<br>
+          <em>Action:</em> Review firewall rules and IoT device segmentation.
+        </div>
 
-    <h2>🕵️‍♂️ Suspicious Browser Activity (T1059.003)</h2>
-    <code>DeviceProcessEvents
-| where ProcessCommandLine contains ".sqlite" or ProcessCommandLine contains ".dat"</code>
+        <div class="intel-card medium" tabindex="0" role="region" aria-label="Medium priority threat - Supply Chain Attacks">
+          <strong>Supply Chain Attacks (T1195)</strong><br>
+          Compromise via third-party software updates and installers.<br>
+          <em>Action:</em> Enforce integrity checks and validate vendor signatures.
+        </div>
 
-    <h2>🛡 MITRE ATT&CK Quick Reference</h2>
-    <code>
-T1021 - Remote Services (RDP, SMB, SSH)  
-T1059 - Command and Scripting Interpreter (PowerShell, cmd, mshta)  
-T1041 - Exfiltration Over C2 Channel  
-T1105 - Remote File Copy (Certutil, Curl)  
-T1218 - Signed Binary Proxy Execution (rundll32.exe, mshta.exe)  
-T1547 - Boot or Logon Autostart Execution  
-T1566 - Phishing (Email Attachment)  
-T1071 - Application Layer Protocol (HTTP/S, DNS)  
-T1086 - PowerShell  
-T1076 - Remote Desktop Protocol  
-T1132 - Data Encoding  
-T1055 - Process Injection  
-T1057 - Process Discovery
-    </code>
+        <div class="intel-card high" tabindex="0" role="region" aria-label="High priority threat - Recent Zero-Day Exploits">
+          <strong>Recent Zero-Day Exploits (T1203)</strong><br>
+          Newly reported critical vulnerabilities in major enterprise software.<br>
+          <em>Action:</em> Patch immediately and monitor exploit activity.
+        </div>
+
+        <div class="intel-card medium" tabindex="0" role="region" aria-label="Medium priority threat - Credential Dumping">
+          <strong>Credential Dumping (T1003)</strong><br>
+          Continued attempts to acquire credential hashes from memory and SAM.<br>
+          <em>Action:</em> Monitor authentication logs and isolate suspicious endpoints.
+        </div>
+      </div>
+    </section>
+
+    <!-- Ransomware Victims -->
+    <section style="grid-column: span 2;" aria-label="Recent ransomware victim disclosures from ransomware.live">
+      <h2>Recent Ransomware Victim Disclosures (via <a href="https://www.ransomware.live/" target="_blank" rel="noopener noreferrer" style="color: var(--highlight); text-decoration: underline;">Ransomware.live</a>)</h2>
+      <p style="font-size:0.85rem; color: var(--muted); margin-bottom:0.75rem;">
+        For full disclosures list, visit the official site above.
+      </p>
+      <div id="ransomwareVictims" class="victim-list" aria-live="polite" aria-atomic="true">
+        Loading ransomware victim data...
+      </div>
+    </section>
   </div>
 
+  <footer>Created by Pratik</footer>
+
   <script>
-    const queries = {
-      ip: `// CrowdStrike
-#event_simpleName="NetworkConnectIP4"
-| RemoteAddressIP4 == "8.8.8.8"
+    // MITRE detection queries mapped to multiple SIEMs and EDR tools
+    const detections = {
+      T1059: `
+Microsoft Sentinel (KQL):
+SecurityEvent | where EventID == 4688 and (NewProcessName has_any ("powershell.exe", "cmd.exe", "cscript.exe")) | project TimeGenerated, NewProcessName, Account
 
-// Microsoft Sentinel
-DeviceNetworkEvents
-| where RemoteIP == "8.8.8.8"
-| project TimeGenerated, DeviceName, RemoteIP, ActionType
+Splunk (SPL):
+index=security sourcetype=Sysmon EventCode=1 (NewProcessName="*powershell.exe" OR NewProcessName="*cmd.exe")
 
-// Defender
-DeviceNetworkEvents
-| where RemoteIP == "8.8.8.8"`,
+CrowdStrike Falcon (CQL):
+event_simpleName="ProcessRollup2" CommandLine contains_any ("powershell", "cmd", "mshta")
 
-      hash: `// CrowdStrike
-#event_simpleName="ProcessRollup2"
-| SHA256HashData in ("abc123...", "def456...")
+Elastic SIEM:
+process.name:(powershell.exe OR cmd.exe OR mshta.exe)
 
-// Defender
-DeviceProcessEvents
-| where SHA256 == "abc123..."`,
+Wazuh:
+rule.id:18107 OR rule.groups:"windows,execution"
+      `,
+      T1566: `
+Microsoft Sentinel:
+EmailEvents | where Subject has_any ("urgent","invoice","account") | join kind=inner (EmailAttachmentInfo) on NetworkMessageId
 
-      domain: `// CrowdStrike
-#event_simpleName="DnsRequest"
-| DomainName contains "example.com"
+Splunk:
+index=o365 sourcetype="o365:messageTrace" (subject="*invoice*" OR subject="*password*")
 
-// Sentinel
-DeviceNetworkEvents
-| where RemoteUrl has "example.com"
+CrowdStrike Falcon:
+event_simpleName="EmailAttachment" FileName endswith ".exe"
 
-// Defender
-DeviceNetworkEvents
-| where RemoteUrl contains "example.com"`,
+Elastic:
+email.subject:(invoice OR password) AND attachment.file.extension:(.exe .js .zip)
+      `,
+      T1021: `
+Microsoft Sentinel:
+SecurityEvent | where EventID == 4624 and LogonType == 10
 
-      commandline: `// CrowdStrike
-#event_simpleName="ProcessRollup2"
-| CommandLine contains "script.ps1"
+Splunk:
+index=wineventlog EventCode=4624 LogonType=10
 
-// Sentinel
-SecurityEvent
-| where EventID == 4688
-| where CommandLine contains "script.ps1"
+CrowdStrike Falcon:
+event_simpleName="RemoteConnection" RemoteProtocol has_any ("RDP","SMB","SSH")
+      `,
+      T1041: `
+Microsoft Sentinel:
+DeviceProcessEvents | where FileName in~ ("powershell.exe","curl.exe") | where ProcessCommandLine has_any ("ftp://","http://","upload")
 
-// Defender
-DeviceProcessEvents
-| where ProcessCommandLine contains "%TEMP%\\\\script.ps1"`,
+Splunk:
+index=network action="data_transfer" dest_ip!="internal_network"
+      `,
+      T1105: `
+Microsoft Sentinel:
+DeviceNetworkEvents | where RemoteUrl contains ".exe" or RemoteUrl contains ".dll"
 
-      process: `// CrowdStrike
-#event_simpleName="ProcessRollup2"
-| ImageFileName endswith "abc.exe"
+Splunk:
+index=network sourcetype=cisco:asa (msg="File transfer initiated" OR msg="TFTP put")
+      `,
+      T1547: `
+Microsoft Sentinel:
+DeviceProcessEvents | where ProcessCommandLine contains "/tn FastDiskCleanup"
 
-// Sentinel
-SecurityEvent
-| where NewProcessName endswith_cs "abc.exe"
+Splunk:
+index=windows sourcetype=WinEventLog:System (Message="Creating autostart*" OR Message="Run Registry:")
+      `,
+      T1071: `
+Microsoft Sentinel:
+DeviceNetworkEvents | where RemoteUrl contains "example.com" or RemoteUrl has_any ("http", "https")
 
-// Defender
-DeviceProcessEvents
-| where FileName == "abc.exe"`,
+CrowdStrike:
+event_simpleName="NetworkConnectIP4" | RemoteAddressIP4 != "Internal"
+      `,
+      T1110: `
+Microsoft Sentinel:
+SecurityEvent | where EventID == 4625 | summarize count() by Account | where count_ > 10
 
-      filepath: `// CrowdStrike
-#event_simpleName="FileRollup2"
-| FilePath contains "\\\\Startup\\\\"
+Splunk:
+index=auth sourcetype=windows EventCode=4625 | stats count by user | where count>10
+      `,
+      T1055: `
+Microsoft Sentinel:
+DeviceProcessEvents | where ProcessCommandLine contains "rundll32" or ProcessCommandLine contains "inject"
 
-// Defender
-DeviceFileEvents
-| where FolderPath contains "Startup"`,
-
-      email: `// Sentinel
-EmailAttachmentInfo
-| where FileType in ("png", "jpg")
-| join kind=inner (EmailEvents) on NetworkMessageId
-| where Subject contains "invoice"
-
-// Defender
-EmailEvents
-| where Subject has "scan"
-| join kind=inner (AADSignInEventsBeta) on RecipientEmailAddress`,
-
-      persistence: `// CrowdStrike
-#event_simpleName="ProcessRollup2"
-| CommandLine contains "/tn FastDiskCleanup"
-
-// Defender
-DeviceProcessEvents
-| where ProcessCommandLine contains "/tn FastDiskCleanup"`,
-
-      network: `// Sentinel
-DeviceNetworkEvents
-| where RemoteUrl has_any ("example.com", "githubusercontent.com")
-
-// Defender
-DeviceNetworkEvents
-| where ActionType == "DnsQuery"
-| where RemoteUrl contains "example.com"`,
-
-      remote_tools: `// CrowdStrike
-#event_simpleName="ProcessRollup2"
-| ImageFileName in~ ("*anydesk*", "*teamviewer*")
-
-// Defender
-DeviceProcessEvents
-| where FileName in~ ("anydesk.exe", "teamviewer.exe")`,
-
-      browser: `// CrowdStrike
-#event_simpleName="ProcessRollup2"
-| CommandLine contains "browser history"
-
-// Defender
-DeviceProcessEvents
-| where ProcessCommandLine contains ".sqlite" or ProcessCommandLine contains ".dat"`,
-
-      exfiltration: `// MITRE T1041 - Exfiltration Over C2 Channel
-DeviceProcessEvents
-| where FileName in~ ("powershell.exe", "cmd.exe", "curl.exe")
-| where ProcessCommandLine has_any ("example.com/upload", "ftp.example.com")
-| project Timestamp, DeviceName, FileName, ProcessCommandLine`,
-
-      lateral_movement: `// MITRE T1021 - Remote Services
-SecurityEvent
-| where EventID == 4624 and LogonType == 10
-| where Account contains "admin"
-| project TimeGenerated, Account, Computer, IPAddress`
+Splunk:
+index=security sourcetype=Sysmon EventCode=8 (TargetImage="*rundll32.exe" OR TargetImage="*inject.exe")
+      `,
+      T1621: `
+Microsoft Sentinel:
+SigninLogs | where Status == "failed" and ConditionalAccessStatus == "notApplied"
+| summarize FailCount = count() by UserPrincipalName, AppDisplayName | where FailCount > 10
+      `
     };
 
-    function showQuery() {
-      const value = document.getElementById("criteria").value;
-      document.getElementById("queryOutput").textContent = queries[value] || "";
+    function showDetectionQuery() {
+      const val = document.getElementById('technique').value;
+      document.getElementById('queryOutput').textContent = detections[val] || "Select a technique to view detection queries.";
     }
+
+    // RSS feed list for cyber threat news
+    const rssFeeds = [
+      'https://www.bleepingcomputer.com/feed/',
+      'https://feeds.feedburner.com/TheHackersNews',
+      'https://threatpost.com/feed/',
+      'https://www.darkreading.com/rss.xml',
+      'https://krebsonsecurity.com/feed/',
+      'https://www.securityweek.com/feed/',
+      'https://nakedsecurity.sophos.com/feed/',
+      'https://www.schneier.com/feed/atom/',
+      'https://www.infosecurity-magazine.com/rss/news/',
+      'https://www.cisa.gov/uscert/ncas/current-activity.xml',
+      'https://www.zdnet.com/topic/security/rss.xml',
+      'https://www.csoonline.com/index.rss',
+      'https://www.helpnetsecurity.com/feed/',
+      'https://www.scmagazine.com/feed/',
+      'https://www.cyberscoop.com/feed/',
+      'https://www.cybersecuritydive.com/feeds/news/',
+      'https://www.databreachtoday.com/rss-feeds',
+      'https://www.bankinfosecurity.com/rss-feeds',
+      'https://www.govinfosecurity.com/rss-feeds',
+      'https://www.healthcareinfosecurity.com/rss-feeds'
+    ];
+
+    async function fetchFeed(url) {
+      try {
+        const resp = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
+        const data = await resp.json();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(data.contents, "application/xml");
+        return Array.from(doc.querySelectorAll("item, entry")).slice(0, 3).map(i => ({
+          title: i.querySelector("title")?.textContent || 'No title',
+          link: i.querySelector("link")?.textContent || i.querySelector("link")?.getAttribute("href") || '#',
+          pubDate: i.querySelector("pubDate, updated")?.textContent || ''
+        }));
+      } catch (e) {
+        console.error(e);
+        return [];
+      }
+    }
+
+    async function loadFeeds() {
+      const area = document.getElementById('feedArea');
+      area.innerHTML = '';
+      let articleCount = 0;
+      for (const feed of rssFeeds) {
+        if(articleCount >= 15) break; // limit total articles displayed
+        const items = await fetchFeed(feed);
+        for(const it of items) {
+          if(articleCount >= 15) break;
+          const div = document.createElement('div');
+          div.className = 'feed-item';
+          div.innerHTML = `<a href="${it.link}" target="_blank" rel="noopener noreferrer">${it.title}</a><span>${new Date(it.pubDate).toLocaleString() || ''}</span>`;
+          area.appendChild(div);
+          articleCount++;
+        }
+      }
+      if(articleCount === 0) area.textContent = 'No threat intelligence articles could be loaded at this time.';
+    }
+
+    // Ransomware victims list with a simple link to ransomware.live homepage
+    async function loadRansomwareVictims() {
+      const container = document.getElementById('ransomwareVictims');
+      container.innerHTML = `
+        For the latest ransomware victim disclosures, visit the official site:<br/>
+        <a href="https://www.ransomware.live/" target="_blank" rel="noopener noreferrer" style="color: var(--highlight); text-decoration: underline;">
+          https://www.ransomware.live/
+        </a>
+      `;
+    }
+
+    // Clock update
+    setInterval(() => {
+      document.getElementById('clock').textContent = new Date().toLocaleString();
+    }, 1000);
+
+    // Initial load
+    window.onload = () => {
+      showDetectionQuery();
+      loadFeeds();
+      loadRansomwareVictims();
+    };
   </script>
 </body>
 </html>
