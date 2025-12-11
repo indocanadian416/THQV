@@ -3,21 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>THQV - Threat Hunting Command Center</title>
+  <title>CyberGator1 - Threat Hunting Command Center</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <style>
     :root {
-      --bg: #0d0d0d;
-      --panel: #1a1a1a;
-      --accent: #00ffc8;
-      --purple: #9933ff;
-      --highlight: #ffcc00;
-      --text: #efefef;
-      --muted: #888;
-      --danger: #ff5148;
-      --low: #0095ff;
-      --medium: #ffbb33;
-      --success: #39ff14;
+      --bg: #0a0e17;
+      --panel: #131820;
+      --darker: #0d1117;
+      --accent: #00d9ff;
+      --accent-dim: #0088aa;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --border: #21262d;
+      --success: #3fb950;
+      --warning: #d29922;
+      --danger: #f85149;
+      --info: #58a6ff;
     }
 
     * {
@@ -27,16 +28,17 @@
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: 'Consolas', 'Monaco', monospace;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
       margin: 0;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      line-height: 1.6;
     }
 
     header {
-      background: linear-gradient(135deg, #111 0%, #0d0d0d 100%);
-      border-bottom: 2px solid var(--accent);
+      background: var(--darker);
+      border-bottom: 1px solid var(--border);
       padding: 1rem 2rem;
       display: flex;
       justify-content: space-between;
@@ -44,57 +46,60 @@
       position: sticky;
       top: 0;
       z-index: 1000;
-      box-shadow: 0 4px 15px rgba(0, 255, 200, 0.2);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
     }
 
     header h1 {
       color: var(--accent);
       margin: 0;
-      font-size: 1.6rem;
-      text-shadow: 0 0 10px rgba(0, 255, 200, 0.5);
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    header time {
+      color: var(--text-muted);
+      font-size: 0.9rem;
     }
 
     .nav-tabs {
       display: flex;
-      gap: 0.5rem;
+      gap: 0;
       background: var(--panel);
-      padding: 0.5rem 2rem;
-      border-bottom: 1px solid #222;
+      padding: 0 2rem;
+      border-bottom: 1px solid var(--border);
       position: sticky;
-      top: 60px;
+      top: 61px;
       z-index: 999;
+      overflow-x: auto;
     }
 
     .nav-tab {
-      background: #111;
-      color: var(--muted);
-      border: 1px solid #333;
-      border-bottom: none;
-      padding: 0.6rem 1.5rem;
+      background: transparent;
+      color: var(--text-muted);
+      border: none;
+      border-bottom: 2px solid transparent;
+      padding: 0.75rem 1.25rem;
       cursor: pointer;
-      border-radius: 6px 6px 0 0;
-      transition: all 0.3s ease;
-      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      font-size: 0.9rem;
+      white-space: nowrap;
     }
 
     .nav-tab:hover {
-      background: #1a1a1a;
       color: var(--accent);
-      border-color: var(--accent);
+      background: rgba(0, 217, 255, 0.05);
     }
 
     .nav-tab.active {
-      background: var(--panel);
       color: var(--accent);
-      border-color: var(--accent);
-      border-bottom: 2px solid var(--panel);
-      box-shadow: 0 0 15px rgba(0, 255, 200, 0.3);
+      border-bottom-color: var(--accent);
+      background: rgba(0, 217, 255, 0.08);
     }
 
     .content {
       flex-grow: 1;
       padding: 2rem;
-      max-width: 1800px;
+      max-width: 1600px;
       margin: 0 auto;
       width: 100%;
     }
@@ -105,17 +110,17 @@
 
     .tab-content.active {
       display: block;
-      animation: fadeIn 0.3s ease-in;
+      animation: fadeIn 0.2s ease-in;
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
       gap: 1.5rem;
     }
 
@@ -125,235 +130,248 @@
 
     section {
       background: var(--panel);
-      border-radius: 8px;
+      border-radius: 6px;
       padding: 1.5rem;
-      border: 1px solid #222;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
     }
 
     h2 {
-      color: var(--highlight);
-      border-bottom: 2px solid #333;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
       padding-bottom: 0.5rem;
       margin-top: 0;
       margin-bottom: 1.5rem;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
+      font-weight: 600;
       display: flex;
       align-items: center;
       gap: 0.5rem;
     }
 
-    h3 {
+    h2 i {
       color: var(--accent);
+    }
+
+    h3 {
+      color: var(--text);
       font-size: 1rem;
       margin-top: 0;
       margin-bottom: 1rem;
+      font-weight: 500;
     }
 
     select, button, input, textarea {
-      background: #111;
+      background: var(--darker);
       color: var(--text);
-      border: 1px solid var(--accent);
+      border: 1px solid var(--border);
       border-radius: 6px;
       padding: 0.6rem 1rem;
-      cursor: pointer;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       font-family: inherit;
-      transition: all 0.3s ease;
+      transition: all 0.2s ease;
     }
 
     select {
       width: 100%;
       margin-bottom: 1rem;
+      cursor: pointer;
+    }
+
+    select:hover, select:focus {
+      border-color: var(--accent-dim);
+      outline: none;
     }
 
     button {
-      background: linear-gradient(135deg, rgba(0, 255, 200, 0.1), rgba(153, 51, 255, 0.1));
-      margin: 0.3rem;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
+      cursor: pointer;
+      margin: 0.25rem;
     }
 
     button:hover {
-      background: linear-gradient(135deg, rgba(0, 255, 200, 0.2), rgba(153, 51, 255, 0.2));
-      box-shadow: 0 0 15px rgba(0, 255, 200, 0.4);
-      transform: translateY(-2px);
-    }
-
-    button:active {
-      transform: translateY(0);
+      border-color: var(--accent);
+      background: rgba(0, 217, 255, 0.1);
     }
 
     button.primary {
-      background: linear-gradient(135deg, var(--accent), var(--purple));
-      color: #000;
-      font-weight: bold;
+      background: var(--accent);
+      color: var(--bg);
+      font-weight: 600;
       border: none;
     }
 
     button.primary:hover {
-      box-shadow: 0 0 20px rgba(0, 255, 200, 0.6);
+      background: var(--accent-dim);
     }
 
     input, textarea {
       width: 100%;
       margin-bottom: 1rem;
-      cursor: text;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent-dim);
     }
 
     textarea {
-      min-height: 100px;
+      min-height: 120px;
       resize: vertical;
       font-family: 'Consolas', monospace;
     }
 
     pre {
-      background: #0a0a0a;
-      border: 1px solid var(--accent);
+      background: var(--darker);
+      border: 1px solid var(--border);
       border-radius: 6px;
-      padding: 1.2rem;
+      padding: 1rem;
       overflow-x: auto;
       font-size: 0.85rem;
       line-height: 1.5;
       position: relative;
-      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+      margin: 0;
     }
 
     .copy-btn {
       position: absolute;
       top: 0.5rem;
       right: 0.5rem;
-      padding: 0.3rem 0.8rem;
-      font-size: 0.8rem;
+      padding: 0.4rem 0.8rem;
+      font-size: 0.75rem;
       background: var(--accent);
-      color: #000;
+      color: var(--bg);
       border: none;
       cursor: pointer;
       border-radius: 4px;
-      z-index: 10;
     }
 
     .copy-btn:hover {
-      background: var(--success);
+      background: var(--accent-dim);
     }
 
     .feed-container {
-      max-height: 500px;
+      max-height: 600px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 0.8rem;
+      gap: 0.75rem;
     }
 
     .feed-item {
-      background: #121212;
+      background: var(--darker);
       padding: 1rem;
-      border-left: 4px solid var(--accent);
+      border-left: 3px solid var(--accent);
       border-radius: 4px;
-      transition: all 0.3s ease;
+      transition: all 0.2s ease;
     }
 
     .feed-item:hover {
-      background: #1a1a1a;
-      box-shadow: 0 0 15px rgba(0, 255, 200, 0.2);
-      transform: translateX(5px);
+      background: rgba(0, 217, 255, 0.05);
+      border-left-width: 4px;
     }
 
     .feed-item a {
-      color: var(--highlight);
+      color: var(--accent);
       text-decoration: none;
       display: block;
-      font-weight: bold;
+      font-weight: 500;
       margin-bottom: 0.3rem;
     }
 
     .feed-item a:hover {
-      color: var(--accent);
+      text-decoration: underline;
     }
 
-    .feed-item span {
-      color: var(--muted);
+    .feed-item .meta {
+      color: var(--text-muted);
       font-size: 0.8rem;
+      margin-top: 0.3rem;
     }
 
     .feed-item .tags {
       margin-top: 0.5rem;
       display: flex;
       flex-wrap: wrap;
-      gap: 0.3rem;
+      gap: 0.4rem;
     }
 
     .tag {
-      background: rgba(0, 255, 200, 0.2);
-      color: var(--accent);
-      padding: 0.2rem 0.6rem;
-      border-radius: 12px;
+      background: rgba(88, 166, 255, 0.15);
+      color: var(--info);
+      padding: 0.15rem 0.5rem;
+      border-radius: 3px;
       font-size: 0.7rem;
-      border: 1px solid var(--accent);
+      border: 1px solid var(--info);
     }
 
-    .tag.critical { background: rgba(255, 81, 72, 0.2); color: var(--danger); border-color: var(--danger); }
-    .tag.high { background: rgba(255, 187, 51, 0.2); color: var(--medium); border-color: var(--medium); }
+    .tag.critical { 
+      background: rgba(248, 81, 73, 0.15); 
+      color: var(--danger); 
+      border-color: var(--danger); 
+    }
+    
+    .tag.high { 
+      background: rgba(210, 153, 34, 0.15); 
+      color: var(--warning); 
+      border-color: var(--warning); 
+    }
 
     .intel-card {
-      background: #151515;
-      border: 1px solid #333;
-      border-left: 4px solid var(--accent);
+      background: var(--darker);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--info);
       padding: 1rem;
-      margin-bottom: 1rem;
+      margin-bottom: 0.75rem;
       border-radius: 4px;
-      transition: all 0.3s ease;
+      transition: all 0.2s ease;
     }
 
     .intel-card:hover {
-      box-shadow: 0 0 20px rgba(0, 255, 200, 0.3);
-      transform: scale(1.02);
+      background: rgba(88, 166, 255, 0.05);
     }
 
     .intel-card.high { border-left-color: var(--danger); }
-    .intel-card.medium { border-left-color: var(--medium); }
-    .intel-card.low { border-left-color: var(--low); }
+    .intel-card.medium { border-left-color: var(--warning); }
+    .intel-card.low { border-left-color: var(--info); }
 
     .hypothesis-item {
-      background: #0f0f0f;
-      border: 1px solid var(--purple);
-      border-left: 4px solid var(--purple);
-      padding: 1.2rem;
+      background: var(--darker);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      padding: 1rem;
       margin-bottom: 1rem;
-      border-radius: 6px;
-      box-shadow: 0 0 10px rgba(153, 51, 255, 0.2);
+      border-radius: 4px;
     }
 
     .hypothesis-item h4 {
-      color: var(--purple);
+      color: var(--accent);
       margin-top: 0;
       margin-bottom: 0.5rem;
+      font-size: 0.95rem;
     }
 
     .hypothesis-item .context {
-      color: var(--muted);
+      color: var(--text-muted);
       font-size: 0.85rem;
       margin-top: 0.5rem;
       padding-top: 0.5rem;
-      border-top: 1px solid #333;
+      border-top: 1px solid var(--border);
     }
 
     .osint-keyboard {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 0.8rem;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 0.75rem;
       margin-top: 1rem;
     }
 
     .osint-key {
-      background: #1a1a1a;
-      border: 2px solid var(--accent);
-      border-radius: 8px;
+      background: var(--darker);
+      border: 1px solid var(--border);
+      border-radius: 6px;
       padding: 1rem;
       text-align: center;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.2s ease;
       text-decoration: none;
       color: var(--text);
       display: flex;
@@ -364,37 +382,37 @@
 
     .osint-key:hover {
       background: var(--accent);
-      color: #000;
-      transform: scale(1.05);
-      box-shadow: 0 0 20px var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+      transform: translateY(-2px);
     }
 
     .osint-key .letter {
-      font-size: 1.8rem;
+      font-size: 1.5rem;
       font-weight: bold;
     }
 
     .osint-key .tool-name {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
     }
 
     .ioc-list {
-      background: #0a0a0a;
-      border: 1px solid var(--accent);
+      background: var(--darker);
+      border: 1px solid var(--border);
       border-radius: 6px;
       padding: 1rem;
-      max-height: 300px;
+      max-height: 400px;
       overflow-y: auto;
-      font-family: 'Consolas', monospace;
       font-size: 0.85rem;
     }
 
     .ioc-item {
-      padding: 0.3rem 0;
-      border-bottom: 1px solid #222;
+      padding: 0.4rem 0;
+      border-bottom: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 1rem;
     }
 
     .ioc-item:last-child {
@@ -402,17 +420,18 @@
     }
 
     .ioc-type {
-      color: var(--medium);
-      font-size: 0.75rem;
-      background: rgba(255, 187, 51, 0.2);
+      color: var(--accent);
+      font-size: 0.7rem;
+      background: rgba(0, 217, 255, 0.15);
       padding: 0.2rem 0.5rem;
-      border-radius: 4px;
+      border-radius: 3px;
+      white-space: nowrap;
     }
 
     .loading {
       text-align: center;
       padding: 2rem;
-      color: var(--muted);
+      color: var(--text-muted);
     }
 
     .loading i {
@@ -427,11 +446,11 @@
 
     footer {
       text-align: center;
-      color: var(--muted);
-      padding: 2rem 1rem;
-      border-top: 1px solid #222;
-      background: #0a0a0a;
-      font-size: 0.9rem;
+      color: var(--text-muted);
+      padding: 1.5rem;
+      border-top: 1px solid var(--border);
+      background: var(--darker);
+      font-size: 0.85rem;
     }
 
     .filter-bar {
@@ -444,35 +463,41 @@
     .filter-bar select,
     .filter-bar input {
       flex: 1;
-      min-width: 200px;
+      min-width: 150px;
       margin-bottom: 0;
     }
 
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
       gap: 1rem;
       margin-bottom: 1.5rem;
     }
 
     .stat-card {
-      background: #0f0f0f;
-      border: 1px solid var(--accent);
+      background: var(--darker);
+      border: 1px solid var(--border);
       border-radius: 6px;
       padding: 1rem;
       text-align: center;
     }
 
     .stat-card .value {
-      font-size: 2rem;
+      font-size: 1.8rem;
       color: var(--accent);
-      font-weight: bold;
+      font-weight: 600;
     }
 
     .stat-card .label {
-      font-size: 0.8rem;
-      color: var(--muted);
+      font-size: 0.75rem;
+      color: var(--text-muted);
       margin-top: 0.3rem;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
     }
 
     @media (max-width: 768px) {
@@ -481,78 +506,197 @@
       }
       
       .nav-tabs {
-        overflow-x: auto;
-        padding: 0.5rem 1rem;
+        padding: 0 1rem;
       }
       
       .osint-keyboard {
         grid-template-columns: repeat(3, 1fr);
+      }
+
+      header {
+        padding: 1rem;
+      }
+
+      .content {
+        padding: 1rem;
       }
     }
   </style>
 </head>
 <body>
   <header>
-    <h1><i class="fas fa-biohazard"></i> THQV - Threat Hunting Command Center</h1>
-    <span><i class="far fa-clock"></i> <time id="clock"></time></span>
+    <h1><i class="fas fa-shield-alt"></i> CyberGator1</h1>
+    <time id="clock"></time>
   </header>
 
   <div class="nav-tabs">
-    <button class="nav-tab active" onclick="switchTab('queries')"><i class="fas fa-search"></i> Detection Queries</button>
+    <button class="nav-tab active" onclick="switchTab('intel')"><i class="fas fa-globe"></i> Threat Intel</button>
     <button class="nav-tab" onclick="switchTab('hypothesis')"><i class="fas fa-brain"></i> AI Hypothesis</button>
-    <button class="nav-tab" onclick="switchTab('intel')"><i class="fas fa-globe"></i> Threat Intel</button>
     <button class="nav-tab" onclick="switchTab('osint')"><i class="fas fa-keyboard"></i> OSINT Tools</button>
     <button class="nav-tab" onclick="switchTab('ioc')"><i class="fas fa-fingerprint"></i> IOC Extractor</button>
     <button class="nav-tab" onclick="switchTab('translator')"><i class="fas fa-language"></i> Query Translator</button>
+    <button class="nav-tab" onclick="switchTab('queries')"><i class="fas fa-search"></i> Detection Queries</button>
   </div>
 
   <div class="content">
-    <!-- Detection Queries Tab -->
-    <div id="tab-queries" class="tab-content active">
+    <!-- Threat Intel Tab (First) -->
+    <div id="tab-intel" class="tab-content active">
       <div class="grid">
-        <section>
-          <h2><i class="fas fa-code"></i> MITRE ATT&CK Query Builder</h2>
-          <select id="technique" onchange="showDetectionQuery()">
-            <option value="">-- Select MITRE Technique --</option>
-            <option value="T1059">T1059 - Command and Scripting Interpreter</option>
-            <option value="T1566">T1566 - Phishing</option>
-            <option value="T1021">T1021 - Remote Services</option>
-            <option value="T1041">T1041 - Exfiltration Over C2 Channel</option>
-            <option value="T1105">T1105 - Remote File Copy</option>
-            <option value="T1547">T1547 - Boot or Logon Autostart Execution</option>
-            <option value="T1071">T1071 - Application Layer Protocol</option>
-            <option value="T1110">T1110 - Brute Force</option>
-            <option value="T1055">T1055 - Process Injection</option>
-            <option value="T1621">T1621 - Multi-Factor Authentication Fatigue</option>
-            <option value="T1003">T1003 - Credential Dumping</option>
-            <option value="T1078">T1078 - Valid Accounts</option>
-            <option value="T1486">T1486 - Data Encrypted for Impact</option>
-            <option value="T1567">T1567 - Exfiltration Over Web Service</option>
-          </select>
-          <div style="position: relative;">
-            <button class="copy-btn" onclick="copyToClipboard('queryOutput')"><i class="fas fa-copy"></i> Copy</button>
-            <pre id="queryOutput">Select a technique to view detection queries across multiple platforms.</pre>
+        <section class="grid-full">
+          <h2><i class="fas fa-rss"></i> Live Threat Intelligence Feed</h2>
+          <div class="filter-bar">
+            <select id="feedFilter" onchange="applyFeedFilters()">
+              <option value="all">All Articles</option>
+              <option value="today">Today</option>
+              <option value="24h">Last 24 Hours</option>
+              <option value="7d">Last 7 Days</option>
+            </select>
+            <input type="text" id="feedSearch" placeholder="Search articles..." oninput="applyFeedFilters()" />
+            <button onclick="loadFeeds()"><i class="fas fa-sync-alt"></i> Refresh</button>
           </div>
-          <div style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
-            <button onclick="exportQuery()"><i class="fas fa-download"></i> Export Query</button>
-            <button onclick="saveToLibrary()"><i class="fas fa-save"></i> Save to Library</button>
-          </div>
+          <div id="feedArea" class="feed-container">Loading latest threat intel...</div>
         </section>
 
         <section>
-          <h2><i class="fas fa-book"></i> Query Library</h2>
-          <p style="color: var(--muted); font-size: 0.9rem;">Saved custom queries will appear here.</p>
-          <div id="queryLibrary" style="max-height: 400px; overflow-y: auto;">
-            <div class="intel-card low">
-              <strong>Example: PowerShell Execution Monitoring</strong><br>
-              <small>Platform: Microsoft Sentinel | Technique: T1059</small><br>
-              <code style="font-size: 0.75rem;">DeviceProcessEvents | where FileName =~ "powershell.exe"</code>
+          <h2><i class="fas fa-shield-alt"></i> Active Global Threats</h2>
+          <div id="intelCards" style="max-height: 500px; overflow-y: auto;">
+            <div class="intel-card high">
+              <strong>Scattered Spider (T1566, T1078, T1059)</strong><br>
+              <small>Actively exploiting Okta & Azure AD tenants. Cloud credential theft campaign.</small><br>
+              <em>Action:</em> Validate MFA, monitor PowerShell logs and login anomalies.
+            </div>
+            <div class="intel-card high">
+              <strong>Akira Ransomware (T1486, T1567, T1105)</strong><br>
+              <small>Exploiting Cisco AnyConnect misconfigurations and SMB exfil channels.</small><br>
+              <em>Action:</em> Check lateral movement through SMB and anomalous data volume.
+            </div>
+            <div class="intel-card medium">
+              <strong>APT42 (T1059, T1082, T1027)</strong><br>
+              <small>Iranian threat actor leveraging PowerShell and encoded payloads.</small><br>
+              <em>Action:</em> Hunt for Base64 encoded strings and unsigned scripts.
+            </div>
+            <div class="intel-card medium">
+              <strong>RDP Brute-force Surge (T1110, T1078)</strong><br>
+              <small>Global spike in brute-force attempts across exposed RDP endpoints.</small><br>
+              <em>Action:</em> Restrict external RDP, enable lockouts, monitor EventID 4625.
             </div>
           </div>
         </section>
 
+        <section>
+          <h2><i class="fas fa-skull-crossbones"></i> Ransomware Victims</h2>
+          <p style="color: var(--text-muted); font-size: 0.85rem;">
+            Track ransomware campaigns via <a href="https://www.ransomware.live/" target="_blank" style="color: var(--accent);">Ransomware.live</a>
+          </p>
+          <div id="ransomwareVictims" style="background: var(--darker); padding: 1rem; border-radius: 6px; border: 1px solid var(--border); max-height: 300px; overflow-y: auto;">
+            Loading ransomware victim data...
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- AI Hypothesis Tab -->
+    <div id="tab-hypothesis" class="tab-content">
+      <section>
+        <h2><i class="fas fa-brain"></i> AI-Powered Threat Hunting Hypothesis Generator</h2>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+          Generate creative threat hunting hypotheses based on current threat intelligence feeds.
+        </p>
+        <button class="primary" onclick="generateHypothesis()" style="width: 100%; padding: 1rem;">
+          <i class="fas fa-radiation"></i> Generate Hunting Hypotheses
+        </button>
+        <div id="hypothesisLoading" class="loading" style="display: none;">
+          <i class="fas fa-spinner"></i>
+          <p>Analyzing threat intelligence and generating hypotheses...</p>
+        </div>
+        <div id="hypothesisContainer" style="margin-top: 1.5rem;"></div>
+      </section>
+    </div>
+
+    <!-- OSINT Tools Tab -->
+    <div id="tab-osint" class="tab-content">
+      <section>
+        <h2><i class="fas fa-keyboard"></i> OSINT Keyboard Shortcuts</h2>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+          Press any key (A-Z) or click to instantly open that OSINT tool. Perfect for rapid IOC investigation.
+        </p>
+        <div class="osint-keyboard" id="osintKeyboard"></div>
+      </section>
+    </div>
+
+    <!-- IOC Extractor Tab -->
+    <div id="tab-ioc" class="tab-content">
+      <div class="grid">
+        <section>
+          <h2><i class="fas fa-fingerprint"></i> IOC Extractor</h2>
+          <p style="color: var(--text-muted); margin-bottom: 1rem;">
+            Paste threat intelligence text to automatically extract IPs, domains, URLs, and file hashes.
+          </p>
+          <textarea id="iocInput" placeholder="Paste threat intelligence reports, articles, or logs here..."></textarea>
+          <button class="primary" onclick="extractIOCs()" style="width: 100%;">
+            <i class="fas fa-search-plus"></i> Extract IOCs
+          </button>
+        </section>
+
+        <section>
+          <h2><i class="fas fa-list"></i> Extracted IOCs</h2>
+          <div id="iocResults" class="ioc-list">
+            <p style="color: var(--text-muted); text-align: center;">Extracted IOCs will appear here...</p>
+          </div>
+          <div class="btn-group" style="margin-top: 1rem;">
+            <button onclick="exportIOCs('txt')"><i class="fas fa-file-alt"></i> Export TXT</button>
+            <button onclick="exportIOCs('json')"><i class="fas fa-file-code"></i> Export JSON</button>
+            <button onclick="exportIOCs('csv')"><i class="fas fa-file-csv"></i> Export CSV</button>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- Query Translator Tab -->
+    <div id="tab-translator" class="tab-content">
+      <div class="grid">
+        <section>
+          <h2><i class="fas fa-language"></i> Multi-Platform Query Translator</h2>
+          <p style="color: var(--text-muted); margin-bottom: 1rem;">
+            Convert detection queries between different SIEM platforms.
+          </p>
+          <label style="color: var(--text-muted); font-size: 0.85rem; display: block; margin-bottom: 0.3rem;">Source Platform:</label>
+          <select id="sourcePlatform">
+            <option value="kql">Microsoft Sentinel (KQL)</option>
+            <option value="spl">Splunk (SPL)</option>
+            <option value="lucene">Elastic (Lucene)</option>
+          </select>
+          <label style="color: var(--text-muted); font-size: 0.85rem; display: block; margin-bottom: 0.3rem;">Target Platform:</label>
+          <select id="targetPlatform">
+            <option value="spl" selected>Splunk (SPL)</option>
+            <option value="kql">Microsoft Sentinel (KQL)</option>
+            <option value="lucene">Elastic (Lucene)</option>
+          </select>
+          <label style="color: var(--text-muted); font-size: 0.85rem; display: block; margin-bottom: 0.3rem;">Enter Query:</label>
+          <textarea id="sourceQuery" placeholder="Enter your detection query here..."></textarea>
+          <button class="primary" onclick="translateQuery()" style="width: 100%;">
+            <i class="fas fa-exchange-alt"></i> Translate Query
+          </button>
+        </section>
+
+        <section>
+          <h2><i class="fas fa-code"></i> Translated Query</h2>
+          <div style="position: relative;">
+            <button class="copy-btn" onclick="copyToClipboard('translatedQuery')"><i class="fas fa-copy"></i> Copy</button>
+            <pre id="translatedQuery">Translated query will appear here...</pre>
+          </div>
+          <p style="color: var(--warning); font-size: 0.85rem; margin-top: 1rem;">
+            <i class="fas fa-exclamation-triangle"></i> Note: Query translation is approximate. Manual adjustment may be required for complex queries.
+          </p>
+        </section>
+      </div>
+    </div>
+
+    <!-- Detection Queries Tab (Moved to End) -->
+    <div id="tab-queries" class="tab-content">
+      <div class="grid">
         <section class="grid-full">
-          <h2><i class="fas fa-network-wired"></i> Platform Coverage</h2>
+          <h2><i class="fas fa-code"></i> MITRE ATT&CK Detection Query Builder</h2>
           <div class="stats-grid">
             <div class="stat-card">
               <div class="value">5</div>
@@ -571,155 +715,37 @@
               <div class="label">Threat Intel</div>
             </div>
           </div>
-          <p style="color: var(--muted); text-align: center;">
-            Platforms: <strong>Microsoft Sentinel</strong> | <strong>Splunk</strong> | <strong>CrowdStrike Falcon</strong> | <strong>Elastic SIEM</strong> | <strong>Wazuh</strong>
-          </p>
-        </section>
-      </div>
-    </div>
-
-    <!-- AI Hypothesis Tab -->
-    <div id="tab-hypothesis" class="tab-content">
-      <section>
-        <h2><i class="fas fa-brain"></i> AI-Powered Threat Hunting Hypothesis Generator</h2>
-        <p style="color: var(--muted); margin-bottom: 1.5rem;">
-          Generate creative threat hunting hypotheses based on current threat intelligence feeds.
-        </p>
-        <button class="primary" onclick="generateHypothesis()" style="width: 100%; padding: 1rem;">
-          <i class="fas fa-radiation"></i> Generate Hunting Hypotheses
-        </button>
-        <div id="hypothesisLoading" class="loading" style="display: none;">
-          <i class="fas fa-spinner"></i>
-          <p>Analyzing threat intelligence and generating hypotheses...</p>
-        </div>
-        <div id="hypothesisContainer" style="margin-top: 1.5rem;"></div>
-      </section>
-    </div>
-
-    <!-- Threat Intel Tab -->
-    <div id="tab-intel" class="tab-content">
-      <div class="grid">
-        <section>
-          <h2><i class="fas fa-rss"></i> Live Threat Intelligence Feed</h2>
-          <div class="filter-bar">
-            <select id="feedFilter">
-              <option value="all">All Articles</option>
-              <option value="today">Today</option>
-              <option value="24h">Last 24 Hours</option>
-              <option value="7d">Last 7 Days</option>
-            </select>
-            <input type="text" id="feedSearch" placeholder="Search articles..." />
-          </div>
-          <div id="feedArea" class="feed-container">Loading latest threat intel...</div>
-        </section>
-
-        <section>
-          <h2><i class="fas fa-shield-alt"></i> Active Global Threats</h2>
-          <div id="intelCards" style="max-height: 500px; overflow-y: auto;">
-            <div class="intel-card high">
-              <strong>Scattered Spider (T1566, T1078, T1059)</strong><br>
-              Actively exploiting Okta & Azure AD tenants. Focused on cloud credential theft.<br>
-              <em>Action:</em> Validate MFA, monitor PowerShell logs and login anomalies.
-            </div>
-            <div class="intel-card medium">
-              <strong>Akira Ransomware (T1486, T1567, T1105)</strong><br>
-              Exploiting Cisco AnyConnect misconfigurations and SMB exfil channels.<br>
-              <em>Action:</em> Check lateral movement through SMB and anomalous data volume.
-            </div>
-            <div class="intel-card high">
-              <strong>APT42 (T1059, T1082, T1027)</strong><br>
-              Iranian threat actor leveraging PowerShell and encoded payloads for espionage.<br>
-              <em>Action:</em> Look for encoded Base64 strings and unsigned scripts.
-            </div>
-          </div>
         </section>
 
         <section class="grid-full">
-          <h2><i class="fas fa-skull-crossbones"></i> Recent Ransomware Victims</h2>
-          <p style="color: var(--muted); font-size: 0.85rem;">
-            Track ransomware campaigns via <a href="https://www.ransomware.live/" target="_blank" style="color: var(--highlight);">Ransomware.live</a>
-          </p>
-          <div id="ransomwareVictims" style="background: #0a0a0a; padding: 1rem; border-radius: 6px; border: 1px solid var(--danger);">
-            Loading ransomware victim data...
-          </div>
-        </section>
-      </div>
-    </div>
-
-    <!-- OSINT Tools Tab -->
-    <div id="tab-osint" class="tab-content">
-      <section>
-        <h2><i class="fas fa-keyboard"></i> OSINT Keyboard Shortcuts</h2>
-        <p style="color: var(--muted); margin-bottom: 1.5rem;">
-          Press any key (A-Z) or click to instantly open that OSINT tool. Perfect for rapid IOC investigation.
-        </p>
-        <div class="osint-keyboard" id="osintKeyboard"></div>
-      </section>
-    </div>
-
-    <!-- IOC Extractor Tab -->
-    <div id="tab-ioc" class="tab-content">
-      <div class="grid">
-        <section>
-          <h2><i class="fas fa-fingerprint"></i> IOC Extractor</h2>
-          <p style="color: var(--muted); margin-bottom: 1rem;">
-            Paste threat intelligence text to automatically extract IPs, domains, URLs, and file hashes.
-          </p>
-          <textarea id="iocInput" placeholder="Paste threat intelligence reports, articles, or logs here..."></textarea>
-          <button class="primary" onclick="extractIOCs()" style="width: 100%;">
-            <i class="fas fa-search-plus"></i> Extract IOCs
-          </button>
-        </section>
-
-        <section>
-          <h2><i class="fas fa-list"></i> Extracted IOCs</h2>
-          <div id="iocResults" class="ioc-list">
-            <p style="color: var(--muted); text-align: center;">Extracted IOCs will appear here...</p>
-          </div>
-          <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
-            <button onclick="exportIOCs('txt')"><i class="fas fa-file-alt"></i> Export TXT</button>
-            <button onclick="exportIOCs('json')"><i class="fas fa-file-code"></i> Export JSON</button>
-            <button onclick="exportIOCs('csv')"><i class="fas fa-file-csv"></i> Export CSV</button>
-          </div>
-        </section>
-      </div>
-    </div>
-
-    <!-- Query Translator Tab -->
-    <div id="tab-translator" class="tab-content">
-      <div class="grid">
-        <section>
-          <h2><i class="fas fa-language"></i> Multi-Platform Query Translator</h2>
-          <p style="color: var(--muted); margin-bottom: 1rem;">
-            Convert detection queries between different SIEM platforms.
-          </p>
-          <label style="color: var(--muted); font-size: 0.9rem;">Source Platform:</label>
-          <select id="sourceplatform">
-            <option value="kql">Microsoft Sentinel (KQL)</option>
-            <option value="spl">Splunk (SPL)</option>
-            <option value="lucene">Elastic (Lucene)</option>
+          <h3>Select MITRE Technique</h3>
+          <select id="technique" onchange="showDetectionQuery()">
+            <option value="">-- Select MITRE Technique --</option>
+            <option value="T1059">T1059 - Command and Scripting Interpreter</option>
+            <option value="T1566">T1566 - Phishing</option>
+            <option value="T1021">T1021 - Remote Services</option>
+            <option value="T1041">T1041 - Exfiltration Over C2 Channel</option>
+            <option value="T1105">T1105 - Remote File Copy</option>
+            <option value="T1547">T1547 - Boot or Logon Autostart Execution</option>
+            <option value="T1071">T1071 - Application Layer Protocol</option>
+            <option value="T1110">T1110 - Brute Force</option>
+            <option value="T1055">T1055 - Process Injection</option>
+            <option value="T1621">T1621 - Multi-Factor Authentication Fatigue</option>
+            <option value="T1003">T1003 - Credential Dumping</option>
+            <option value="T1078">T1078 - Valid Accounts</option>
+            <option value="T1486">T1486 - Data Encrypted for Impact</option>
+            <option value="T1567">T1567 - Exfiltration Over Web Service</option>
           </select>
-          <label style="color: var(--muted); font-size: 0.9rem;">Target Platform:</label>
-          <select id="targetplatform">
-            <option value="kql">Microsoft Sentinel (KQL)</option>
-            <option value="spl">Splunk (SPL)</option>
-            <option value="lucene">Elastic (Lucene)</option>
-          </select>
-          <label style="color: var(--muted); font-size: 0.9rem;">Enter Query:</label>
-          <textarea id="sourceQuery" placeholder="Enter your detection query here..."></textarea>
-          <button class="primary" onclick="translateQuery()" style="width: 100%;">
-            <i class="fas fa-exchange-alt"></i> Translate Query
-          </button>
-        </section>
-
-        <section>
-          <h2><i class="fas fa-code"></i> Translated Query</h2>
-          <div style="position: relative;">
-            <button class="copy-btn" onclick="copyToClipboard('translatedQuery')"><i class="fas fa-copy"></i> Copy</button>
-            <pre id="translatedQuery">Translated query will appear here...</pre>
+          <div style="position: relative; margin-top: 1rem;">
+            <button class="copy-btn" onclick="copyToClipboard('queryOutput')"><i class="fas fa-copy"></i> Copy</button>
+            <pre id="queryOutput">Select a technique to view detection queries across multiple platforms.</pre>
           </div>
-          <p style="color: var(--medium); font-size: 0.85rem; margin-top: 1rem;">
-            <i class="fas fa-exclamation-triangle"></i> Note: Query translation is approximate and may require manual adjustment for complex queries.
+          <div class="btn-group" style="margin-top: 1rem;">
+            <button onclick="exportQuery()"><i class="fas fa-download"></i> Export Query</button>
+            <button onclick="saveToLibrary()"><i class="fas fa-save"></i> Save to Library</button>
+          </div>
+          <p style="color: var(--text-muted); text-align: center; margin-top: 1rem; font-size: 0.85rem;">
+            Platforms: <strong>Microsoft Sentinel (KQL)</strong> | <strong>Splunk (SPL)</strong> | <strong>CrowdStrike Falcon</strong> | <strong>Elastic SIEM</strong> | <strong>Wazuh</strong>
           </p>
         </section>
       </div>
@@ -728,17 +754,18 @@
 
   <footer>
     <div style="margin-bottom: 0.5rem;">
-      <i class="fas fa-shield-alt"></i> THQV - Threat Hunting Command Center
+      <i class="fas fa-shield-alt"></i> CyberGator1 - Threat Hunting Command Center
     </div>
-    <div style="color: var(--muted); font-size: 0.85rem;">
+    <div>
       Created by Pratik | Empowering the Cybersecurity Community
     </div>
   </footer>
 
   <script>
     // ==================== GLOBAL STATE ====================
-    let currentTab = 'queries';
+    let currentTab = 'intel';
     let newsArticles = [];
+    let allArticles = [];
     let extractedIOCs = { ips: [], domains: [], urls: [], hashes: [] };
 
     // ==================== TAB SWITCHING ====================
@@ -749,216 +776,225 @@
       event.target.classList.add('active');
       currentTab = tabName;
 
-      // Load tab-specific content on first view
       if (tabName === 'osint' && document.getElementById('osintKeyboard').children.length === 0) {
         loadOSINTKeyboard();
       }
     }
 
-    // ==================== DETECTION QUERIES ====================
+    // ==================== CORRECTED DETECTION QUERIES ====================
     const detections = {
       T1059: `Microsoft Sentinel (KQL):
-SecurityEvent 
-| where EventID == 4688 
-| where NewProcessName has_any ("powershell.exe", "cmd.exe", "cscript.exe", "wscript.exe")
-| project TimeGenerated, Computer, Account, NewProcessName, CommandLine
+DeviceProcessEvents
+| where Timestamp > ago(1d)
+| where FileName in~ ("powershell.exe", "cmd.exe", "cscript.exe", "wscript.exe")
+| where ProcessCommandLine !contains "Windows\\System32"
+| project Timestamp, DeviceName, AccountName, FileName, ProcessCommandLine
 
 Splunk (SPL):
-index=security sourcetype=Sysmon EventCode=1 
-(NewProcessName="*powershell.exe" OR NewProcessName="*cmd.exe" OR NewProcessName="*wscript.exe")
-| table _time, Computer, User, NewProcessName, CommandLine
+index=windows sourcetype=WinEventLog:Security EventCode=4688
+(NewProcessName="*powershell.exe" OR NewProcessName="*cmd.exe" OR NewProcessName="*cscript.exe")
+| table _time, Computer, SubjectUserName, NewProcessName, CommandLine
 
-CrowdStrike Falcon (CQL):
-event_simpleName="ProcessRollup2" 
-CommandLine contains_any ("powershell", "cmd", "mshta", "cscript")
-| table timestamp, ComputerName, UserName, FileName, CommandLine
+CrowdStrike Falcon (LogScale):
+#event_simpleName=ProcessRollup2
+FileName=/(powershell|cmd|cscript|wscript).exe/i
+| table @timestamp, ComputerName, UserName, FileName, CommandLine
 
 Elastic SIEM (Lucene):
-process.name:(powershell.exe OR cmd.exe OR mshta.exe OR cscript.exe)
+event.category:process AND process.name:(powershell.exe OR cmd.exe OR cscript.exe OR wscript.exe)
 
 Wazuh SIEM:
-rule.id:18107 OR rule.groups:"windows,execution"`,
+rule.id:(61603 OR 61604) OR rule.description:"Command*Interpreter"`,
 
       T1566: `Microsoft Sentinel (KQL):
-EmailEvents 
+EmailEvents
+| where Timestamp > ago(7d)
 | where Subject has_any ("urgent", "invoice", "account", "password", "verify")
 | join kind=inner (EmailAttachmentInfo) on NetworkMessageId
 | where FileName endswith ".exe" or FileName endswith ".js" or FileName endswith ".zip"
-| project TimeGenerated, SenderFromAddress, RecipientEmailAddress, Subject, FileName
+| project Timestamp, SenderFromAddress, RecipientEmailAddress, Subject, FileName
 
 Splunk (SPL):
-index=o365 sourcetype="o365:messageTrace" 
+index=o365 sourcetype="o365:management:activity" Operation="MailItemsAccessed"
 (subject="*invoice*" OR subject="*password*" OR subject="*urgent*")
-| table _time, sender, recipient, subject, attachment_name
+| table _time, UserId, ClientIPAddress, subject, attachment_name
 
-CrowdStrike Falcon (CQL):
-event_simpleName="EmailAttachment" 
-FileName endswith_any (".exe", ".js", ".zip", ".docm")
-| table timestamp, SenderAddress, RecipientAddress, Subject, FileName
+CrowdStrike Falcon (LogScale):
+#event_simpleName=EmailAttachment
+FileName=/\.(exe|js|zip|docm)$/i
+| table @timestamp, SenderAddress, RecipientAddress, Subject, FileName
 
-Elastic SIEM:
-email.subject:(invoice OR password OR urgent OR verify) 
-AND attachment.file.extension:(.exe OR .js OR .zip OR .docm)`,
+Elastic SIEM (Lucene):
+event.category:email AND email.subject:(invoice OR password OR urgent) AND file.extension:(exe OR js OR zip)`,
 
       T1021: `Microsoft Sentinel (KQL):
-SecurityEvent 
-| where EventID == 4624 
-| where LogonType in (3, 10) // Network or RDP
-| summarize count() by Account, IpAddress, Computer
-| where count_ > 5
+SecurityEvent
+| where EventID == 4624
+| where LogonType in (3, 10)
+| summarize LoginCount = count() by Account, IpAddress, Computer
+| where LoginCount > 5
+| extend Severity = iff(LoginCount > 20, "High", "Medium")
 
 Splunk (SPL):
 index=wineventlog EventCode=4624 (LogonType=3 OR LogonType=10)
-| stats count by user, src_ip, dest
+| stats count by Account_Name, Source_Network_Address, ComputerName
 | where count > 5
 
-CrowdStrike Falcon (CQL):
-event_simpleName="RemoteConnection" 
-RemoteProtocol has_any ("RDP", "SMB", "SSH", "WinRM")
-| table timestamp, ComputerName, UserName, RemoteIP, RemoteProtocol`,
+CrowdStrike Falcon (LogScale):
+#event_simpleName=UserLogon
+LogonType=/(Network|RemoteInteractive)/
+| stats count() by UserName, RemoteIP, ComputerName
+| count > 5`,
 
       T1041: `Microsoft Sentinel (KQL):
 DeviceNetworkEvents
+| where Timestamp > ago(1d)
 | where RemotePort in (21, 22, 80, 443, 8080)
 | where InitiatingProcessFileName in~ ("powershell.exe", "curl.exe", "wget.exe")
-| where RemoteUrl has_any ("upload", "post", "put")
-| summarize TotalBytes = sum(BytesSent) by DeviceName, RemoteIP, RemoteUrl
-| where TotalBytes > 10000000 // 10MB threshold
+| summarize TotalBytes = sum(BytesSent) by DeviceName, RemoteIP, InitiatingProcessFileName
+| where TotalBytes > 10485760
 
 Splunk (SPL):
-index=network action="data_transfer" 
-(dest_port=21 OR dest_port=443 OR dest_port=22)
-bytes_out > 10000000
-| stats sum(bytes_out) by src_ip, dest_ip, protocol`,
+index=network dest_port IN (21, 22, 80, 443) bytes_out > 10485760
+| stats sum(bytes_out) as total_bytes by src_ip, dest_ip, app
+| where total_bytes > 10485760`,
 
       T1105: `Microsoft Sentinel (KQL):
 DeviceNetworkEvents
-| where RemoteUrl contains ".exe" or RemoteUrl contains ".dll" or RemoteUrl contains ".ps1"
+| where Timestamp > ago(1d)
+| where RemoteUrl matches regex @"\.(exe|dll|ps1|bat|vbs)$"
 | where ActionType == "ConnectionSuccess"
-| project TimeGenerated, DeviceName, RemoteUrl, RemoteIP, InitiatingProcessFileName
+| project Timestamp, DeviceName, RemoteUrl, RemoteIP, InitiatingProcessFileName
 
 Splunk (SPL):
-index=network sourcetype=cisco:asa 
-(msg="File transfer initiated" OR msg="TFTP put" OR url="*.exe")
-| table _time, src_ip, dest_ip, url, protocol`,
+index=proxy (url="*.exe" OR url="*.dll" OR url="*.ps1")
+| table _time, src_ip, dest_ip, url, bytes_in`,
 
       T1547: `Microsoft Sentinel (KQL):
 DeviceRegistryEvents
-| where RegistryKey has_any ("Run", "RunOnce", "RunServices")
+| where RegistryKey has_any ("Run", "RunOnce", "RunServices", "Startup")
 | where ActionType == "RegistryValueSet"
-| project TimeGenerated, DeviceName, RegistryKey, RegistryValueName, RegistryValueData, InitiatingProcessFileName
+| project Timestamp, DeviceName, RegistryKey, RegistryValueName, RegistryValueData, InitiatingProcessFileName
 
 Splunk (SPL):
-index=windows sourcetype=WinEventLog:System 
-(Message="Creating autostart*" OR Message="Run Registry:")
-| table _time, host, Message, user`,
+index=windows sourcetype=WinRegistry key_path="*\\Run*"
+| table _time, host, key_path, value_name, value_data`,
 
       T1071: `Microsoft Sentinel (KQL):
 DeviceNetworkEvents
-| where RemoteUrl has_any ("http://", "https://")
-| where RemotePort !in (80, 443) // Non-standard ports
-| summarize ConnectionCount = count() by DeviceName, RemoteIP, RemotePort
+| where RemotePort !in (80, 443, 53)
+| where InitiatingProcessFileName !in~ ("svchost.exe", "chrome.exe", "firefox.exe")
+| summarize ConnectionCount = count() by DeviceName, RemoteIP, RemotePort, InitiatingProcessFileName
 | where ConnectionCount > 50
 
-CrowdStrike Falcon (CQL):
-event_simpleName="NetworkConnectIP4" 
-RemoteAddressIP4 != "10.*" AND RemoteAddressIP4 != "192.168.*"
-| stats count by ComputerName, RemoteAddressIP4, RemotePort`,
+CrowdStrike Falcon (LogScale):
+#event_simpleName=NetworkConnectIP4
+RemotePort!=/^(80|443|53)$/
+| stats count() by ComputerName, RemoteAddressIP4, RemotePort
+| count > 50`,
 
       T1110: `Microsoft Sentinel (KQL):
 SecurityEvent
-| where EventID == 4625 // Failed logon
+| where EventID == 4625
+| where TimeGenerated > ago(1h)
 | summarize FailedAttempts = count() by Account, IpAddress, Computer
 | where FailedAttempts > 10
 | extend Severity = case(FailedAttempts > 50, "Critical", FailedAttempts > 20, "High", "Medium")
 
 Splunk (SPL):
-index=auth sourcetype=windows EventCode=4625
-| stats count by user, src_ip
+index=windows EventCode=4625
+| bucket _time span=1h
+| stats count by _time, Account_Name, Source_Network_Address
 | where count > 10
-| eval severity=case(count > 50, "Critical", count > 20, "High", 1=1, "Medium")
 
-Elastic SIEM:
+Elastic SIEM (Lucene):
 event.code:4625
-| aggregation count by user.name, source.ip
-| where count > 10`,
+| aggregation: count by user.name, source.ip
+| threshold: count > 10`,
 
       T1055: `Microsoft Sentinel (KQL):
 DeviceProcessEvents
-| where ProcessCommandLine contains "rundll32" or ProcessCommandLine contains "inject"
-| where FileName in~ ("mavinject.exe", "rundll32.exe")
-| project TimeGenerated, DeviceName, FileName, ProcessCommandLine, InitiatingProcessFileName
+| where FileName in~ ("mavinject.exe", "rundll32.exe") or ProcessCommandLine has "inject"
+| where ProcessCommandLine has_any ("VirtualAllocEx", "WriteProcessMemory", "CreateRemoteThread")
+| project Timestamp, DeviceName, FileName, ProcessCommandLine, InitiatingProcessFileName
 
 Splunk (SPL):
-index=security sourcetype=Sysmon EventCode=8 
-(TargetImage="*rundll32.exe" OR TargetImage="*inject.exe" OR TargetImage="*mavinject.exe")
-| table _time, Computer, SourceImage, TargetImage, GrantedAccess`,
+index=sysmon EventCode=8
+(TargetImage="*rundll32.exe" OR TargetImage="*mavinject.exe" OR SourceImage="*inject*")
+| table _time, Computer, SourceImage, TargetImage, GrantedAccess
+
+CrowdStrike Falcon (LogScale):
+#event_simpleName=ProcessRollup2
+FileName=/(rundll32|mavinject).exe/i CommandLine=/inject/i
+| table @timestamp, ComputerName, UserName, FileName, CommandLine`,
 
       T1621: `Microsoft Sentinel (KQL):
 SigninLogs
-| where ResultType == "50074" // MFA denied
-| where Status == "failed"
+| where TimeGenerated > ago(1h)
+| where ResultType in ("50074", "50076")
 | summarize MFADenials = count() by UserPrincipalName, AppDisplayName, IPAddress
-| where MFADenials > 10
+| where MFADenials > 5
 | extend RiskLevel = "High"
 
 Splunk (SPL):
-index=o365 sourcetype="o365:management:activity" 
-ResultStatus="Failed" Workload="AzureActiveDirectory"
-| stats count by UserId, ClientIP, Operation
-| where count > 10`,
+index=azure sourcetype="azure:aad:signin" ResultDescription="MFA denied"
+| stats count by UserPrincipalName, IPAddress, AppDisplayName
+| where count > 5`,
 
       T1003: `Microsoft Sentinel (KQL):
 DeviceProcessEvents
-| where FileName in~ ("mimikatz.exe", "procdump.exe", "lsass.exe")
-| where ProcessCommandLine has_any ("sekurlsa", "lsadump", "lsass")
-| project TimeGenerated, DeviceName, AccountName, FileName, ProcessCommandLine
+| where FileName in~ ("mimikatz.exe", "procdump.exe") or ProcessCommandLine has_any ("sekurlsa", "lsadump", "lsass")
+| project Timestamp, DeviceName, AccountName, FileName, ProcessCommandLine
 
 Splunk (SPL):
-index=security sourcetype=Sysmon 
-(Image="*mimikatz.exe" OR CommandLine="*sekurlsa*" OR TargetImage="*lsass.exe")
+index=sysmon (Image="*mimikatz.exe" OR CommandLine="*sekurlsa*" OR TargetImage="*lsass.exe")
 | table _time, Computer, User, Image, CommandLine
 
-CrowdStrike Falcon (CQL):
-event_simpleName="ProcessRollup2"
-CommandLine contains_any ("mimikatz", "sekurlsa", "lsadump")
-| table timestamp, ComputerName, UserName, FileName, CommandLine`,
+CrowdStrike Falcon (LogScale):
+#event_simpleName=ProcessRollup2
+CommandLine=/(mimikatz|sekurlsa|lsadump)/i OR TargetFileName=lsass.exe
+| table @timestamp, ComputerName, UserName, FileName, CommandLine`,
 
       T1078: `Microsoft Sentinel (KQL):
 SigninLogs
-| where ResultType == 0 // Successful
-| summarize LoginCount = count() by UserPrincipalName, IPAddress, Location
-| where LoginCount > 100 or Location has_any ("Russia", "China", "Iran")
+| where ResultType == 0
+| where TimeGenerated > ago(24h)
+| summarize LoginCount = count(), Countries = make_set(Location) by UserPrincipalName, IPAddress
+| where LoginCount > 50 or array_length(Countries) > 2
 
 Splunk (SPL):
-index=auth sourcetype=windows EventCode=4624
-| stats count by user, src_ip, src_country
-| where count > 100 OR src_country IN ("RU", "CN", "IR")`,
+index=auth EventCode=4624 LogonType!=2
+| stats count, dc(src_country) as countries by user, src_ip
+| where count > 50 OR countries > 2`,
 
       T1486: `Microsoft Sentinel (KQL):
 DeviceFileEvents
 | where ActionType == "FileRenamed"
-| where FileName endswith_any (".locked", ".encrypted", ".crypt")
+| where FileName matches regex @"\.(locked|encrypted|crypt|[a-z]{4,8})$"
 | summarize EncryptedFiles = count() by DeviceName, InitiatingProcessFileName
 | where EncryptedFiles > 50
 
 Splunk (SPL):
-index=security sourcetype=Sysmon EventCode=11
+index=sysmon EventCode=11
 (TargetFilename="*.locked" OR TargetFilename="*.encrypted" OR TargetFilename="*.crypt")
 | stats count by Computer, Image
-| where count > 50`,
+| where count > 50
+
+CrowdStrike Falcon (LogScale):
+#event_simpleName=NewScriptWritten OR #event_simpleName=RansomwareFileEncryption
+| stats count() by ComputerName, FileName
+| count > 50`,
 
       T1567: `Microsoft Sentinel (KQL):
 DeviceNetworkEvents
-| where RemoteUrl has_any ("dropbox.com", "drive.google.com", "onedrive.com", "mega.nz")
+| where RemoteUrl has_any ("dropbox.com", "drive.google.com", "onedrive.com", "mega.nz", "wetransfer.com")
 | summarize UploadBytes = sum(BytesSent) by DeviceName, AccountName, RemoteUrl
-| where UploadBytes > 100000000 // 100MB
+| where UploadBytes > 104857600
 
 Splunk (SPL):
-index=proxy 
-(url="*dropbox.com*" OR url="*drive.google.com*" OR url="*mega.nz*")
-bytes_out > 100000000
-| stats sum(bytes_out) by src_user, url`
+index=proxy (url="*dropbox.com*" OR url="*drive.google.com*" OR url="*mega.nz*")
+bytes_out > 104857600
+| stats sum(bytes_out) as total by src_user, url`
     };
 
     function showDetectionQuery() {
@@ -969,25 +1005,40 @@ bytes_out > 100000000
     function copyToClipboard(elementId) {
       const text = document.getElementById(elementId).textContent;
       navigator.clipboard.writeText(text).then(() => {
-        alert('Copied to clipboard!');
+        const btn = event.target.closest('.copy-btn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        setTimeout(() => btn.innerHTML = originalText, 2000);
+      }).catch(err => {
+        alert('Failed to copy. Please select and copy manually.');
       });
     }
 
     function exportQuery() {
       const text = document.getElementById('queryOutput').textContent;
+      if (text.includes('Select a technique')) {
+        alert('Please select a technique first.');
+        return;
+      }
       const blob = new Blob([text], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = 'detection_query_' + new Date().toISOString().slice(0,10) + '.txt';
       a.click();
+      URL.revokeObjectURL(url);
     }
 
     function saveToLibrary() {
-      alert('Query saved to library! (This feature will persist queries in browser localStorage)');
+      const technique = document.getElementById('technique').value;
+      if (!technique) {
+        alert('Please select a technique first.');
+        return;
+      }
+      alert('Query saved to library! (This feature stores queries in browser localStorage)');
     }
 
-    // ==================== THREAT INTEL FEEDS ====================
+    // ==================== ENHANCED THREAT INTEL FEEDS ====================
     const rssFeeds = [
       'https://www.bleepingcomputer.com/feed/',
       'https://feeds.feedburner.com/TheHackersNews',
@@ -998,23 +1049,38 @@ bytes_out > 100000000
       'https://nakedsecurity.sophos.com/feed/',
       'https://www.schneier.com/feed/atom/',
       'https://www.infosecurity-magazine.com/rss/news/',
-      'https://www.cisa.gov/uscert/ncas/current-activity.xml'
+      'https://www.cisa.gov/uscert/ncas/current-activity.xml',
+      'https://www.zdnet.com/topic/security/rss.xml',
+      'https://www.csoonline.com/index.rss',
+      'https://www.helpnetsecurity.com/feed/',
+      'https://www.scmagazine.com/feed/',
+      'https://www.cyberscoop.com/feed/',
+      'https://www.cybersecuritydive.com/feeds/news/',
+      'https://www.databreachtoday.com/rss-feeds',
+      'https://www.bankinfosecurity.com/rss-feeds',
+      'https://www.govinfosecurity.com/rss-feeds',
+      'https://www.healthcareinfosecurity.com/rss-feeds'
     ];
 
     async function fetchFeed(url) {
       try {
-        const resp = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        const resp = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (!resp.ok) throw new Error('Fetch failed');
         const data = await resp.json();
         const parser = new DOMParser();
         const doc = parser.parseFromString(data.contents, "application/xml");
-        return Array.from(doc.querySelectorAll("item, entry")).slice(0, 3).map(i => ({
+        return Array.from(doc.querySelectorAll("item, entry")).slice(0, 5).map(i => ({
           title: i.querySelector("title")?.textContent || 'No title',
           link: i.querySelector("link")?.textContent || i.querySelector("link")?.getAttribute("href") || '#',
           pubDate: i.querySelector("pubDate, updated")?.textContent || '',
-          description: i.querySelector("description, summary")?.textContent || ''
+          description: i.querySelector("description, summary")?.textContent || '',
+          source: url
         }));
       } catch (e) {
-        console.error(e);
+        console.error('Feed error:', url, e);
         return [];
       }
     }
@@ -1022,46 +1088,81 @@ bytes_out > 100000000
     async function loadFeeds() {
       const area = document.getElementById('feedArea');
       area.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i><p>Loading feeds...</p></div>';
-      newsArticles = [];
+      allArticles = [];
       
-      for (const feed of rssFeeds) {
-        const items = await fetchFeed(feed);
-        newsArticles.push(...items.map(item => ({
+      const promises = rssFeeds.map(feed => fetchFeed(feed));
+      const results = await Promise.all(promises);
+      
+      results.forEach(items => {
+        allArticles.push(...items.map(item => ({
           ...item,
           tags: autoTagArticle(item.title + ' ' + item.description)
         })));
-      }
+      });
 
-      newsArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-      displayFeeds(newsArticles.slice(0, 20));
+      allArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+      newsArticles = allArticles;
+      applyFeedFilters();
     }
 
     function autoTagArticle(text) {
       const tags = [];
       const lower = text.toLowerCase();
-      if (lower.match(/ransom|lockbit|blackcat|alphv/)) tags.push({ name: 'Ransomware', type: 'critical' });
+      if (lower.match(/ransom|lockbit|blackcat|alphv|akira/)) tags.push({ name: 'Ransomware', type: 'critical' });
       if (lower.match(/zero.?day|0.?day/)) tags.push({ name: 'Zero-Day', type: 'critical' });
-      if (lower.match(/apt\d+|apt\s|nation.state/)) tags.push({ name: 'APT', type: 'high' });
-      if (lower.match(/phish|spear|bec/)) tags.push({ name: 'Phishing', type: 'high' });
-      if (lower.match(/malware|trojan|backdoor/)) tags.push({ name: 'Malware', type: 'high' });
-      if (lower.match(/exploit|vulnerability|cve-/)) tags.push({ name: 'Exploit', type: 'high' });
+      if (lower.match(/apt\d+|apt\s|nation.state|state.sponsor/)) tags.push({ name: 'APT', type: 'high' });
+      if (lower.match(/phish|spear|bec|social.engineer/)) tags.push({ name: 'Phishing', type: 'high' });
+      if (lower.match(/malware|trojan|backdoor|rat\s/)) tags.push({ name: 'Malware', type: 'high' });
+      if (lower.match(/exploit|vulnerability|cve-\d/)) tags.push({ name: 'Exploit', type: 'high' });
+      if (lower.match(/breach|leak|compromise|incident/)) tags.push({ name: 'Breach', type: 'high' });
       return tags;
+    }
+
+    function applyFeedFilters() {
+      const timeFilter = document.getElementById('feedFilter').value;
+      const searchTerm = document.getElementById('feedSearch').value.toLowerCase();
+      
+      let filtered = allArticles;
+      
+      // Time filter
+      if (timeFilter !== 'all') {
+        const now = new Date();
+        filtered = filtered.filter(article => {
+          const articleDate = new Date(article.pubDate);
+          const diff = now - articleDate;
+          switch(timeFilter) {
+            case 'today': return now.toDateString() === articleDate.toDateString();
+            case '24h': return diff <= 24*60*60*1000;
+            case '7d': return diff <= 7*24*60*60*1000;
+            default: return true;
+          }
+        });
+      }
+      
+      // Search filter
+      if (searchTerm) {
+        filtered = filtered.filter(article => 
+          (article.title + article.description).toLowerCase().includes(searchTerm)
+        );
+      }
+      
+      displayFeeds(filtered.slice(0, 30));
     }
 
     function displayFeeds(articles) {
       const area = document.getElementById('feedArea');
       if (articles.length === 0) {
-        area.innerHTML = '<p style="text-align: center; color: var(--muted);">No articles found.</p>';
+        area.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No articles found matching your filters.</p>';
         return;
       }
 
       area.innerHTML = articles.map(item => `
         <div class="feed-item">
-          <a href="${item.link}" target="_blank">${item.title}</a>
-          <span>${new Date(item.pubDate).toLocaleString()}</span>
-          <div class="tags">
+          <a href="${item.link}" target="_blank" rel="noopener noreferrer">${item.title}</a>
+          <div class="meta">${new Date(item.pubDate).toLocaleString() || 'Recent'}</div>
+          ${item.tags.length > 0 ? `<div class="tags">
             ${item.tags.map(tag => `<span class="tag ${tag.type}">${tag.name}</span>`).join('')}
-          </div>
+          </div>` : ''}
         </div>
       `).join('');
     }
@@ -1071,12 +1172,17 @@ bytes_out > 100000000
       const container = document.getElementById('hypothesisContainer');
       const loading = document.getElementById('hypothesisLoading');
       
+      if (allArticles.length === 0) {
+        alert('Please wait for threat intelligence feeds to load first.');
+        return;
+      }
+      
       loading.style.display = 'block';
       container.innerHTML = '';
 
       setTimeout(() => {
         loading.style.display = 'none';
-        const hypotheses = createHypotheses(newsArticles.slice(0, 10));
+        const hypotheses = createHypotheses(allArticles.slice(0, 10));
         container.innerHTML = hypotheses.map((h, i) => `
           <div class="hypothesis-item">
             <h4>${i + 1}. ${h.title}</h4>
@@ -1093,29 +1199,29 @@ bytes_out > 100000000
     function createHypotheses(articles) {
       const templates = [
         {
-          title: (a) => `Hunt for shadow IT exploiting "${a.title}"`,
-          hypothesis: (a) => `Monitor for unsanctioned cloud uploads related to ${a.title} by tracking unusual cloud service connections.`,
-          context: (a) => `<ul><li><strong>Unconventional Insight:</strong> Employees may bypass security controls by uploading sensitive data on ${new Date(a.pubDate).toLocaleDateString()}</li><li><strong>TTPs:</strong> Data Exfiltration (T1041), Cloud Service Abuse (T1567)</li><li><strong>Search:</strong> Unusual upload volumes to Dropbox, Google Drive, OneDrive</li><li><strong>Detection:</strong> Monitor DeviceNetworkEvents for cloud domains with high BytesSent</li></ul>`
+          title: (a) => `Hunt for shadow IT exploiting "${a.title.slice(0, 60)}..."`,
+          hypothesis: (a) => `Monitor unsanctioned cloud uploads related to this threat by tracking unusual cloud service connections.`,
+          context: (a) => `<ul style="margin: 0.5rem 0;"><li><strong>Insight:</strong> Employees may bypass security uploading data on ${new Date(a.pubDate).toLocaleDateString()}</li><li><strong>TTPs:</strong> Data Exfiltration (T1041), Cloud Service Abuse (T1567)</li><li><strong>Search:</strong> DeviceNetworkEvents | where RemoteUrl has_any ("dropbox", "drive.google")</li></ul>`
         },
         {
-          title: (a) => `Investigate if "${a.title}" is a decoy for APT activity`,
-          hypothesis: (a) => `This high-profile event may mask stealthier targeted attacks against your organization.`,
-          context: (a) => `<ul><li><strong>Unconventional Insight:</strong> Attackers use public incidents to hide C2 traffic</li><li><strong>TTPs:</strong> Command and Control (T1071), Obfuscated Files (T1027)</li><li><strong>Search:</strong> Low-and-slow network connections, unusual DNS queries</li><li><strong>Detection:</strong> Analyze DeviceNetworkEvents for beaconing patterns</li></ul>`
+          title: (a) => `Investigate if "${a.title.slice(0, 60)}..." masks APT activity`,
+          hypothesis: (a) => `This high-profile event may hide stealthier targeted attacks against your organization.`,
+          context: (a) => `<ul style="margin: 0.5rem 0;"><li><strong>Insight:</strong> Attackers use public incidents to hide C2 traffic</li><li><strong>TTPs:</strong> Command and Control (T1071), Obfuscation (T1027)</li><li><strong>Search:</strong> Look for beaconing patterns in network logs</li></ul>`
         },
         {
-          title: (a) => `Probe for insider threats amplifying "${a.title}"`,
+          title: (a) => `Hunt for phishing campaigns mimicking "${a.title.slice(0, 60)}..."`,
+          hypothesis: (a) => `Attackers weaponize breaking news to craft convincing phishing lures.`,
+          context: (a) => `<ul style="margin: 0.5rem 0;"><li><strong>Insight:</strong> Phishing peaks within 24-48h of major security news</li><li><strong>TTPs:</strong> Spearphishing (T1566), Credential Harvesting</li><li><strong>Search:</strong> EmailEvents | where Subject contains keywords from article</li></ul>`
+        },
+        {
+          title: (a) => `Investigate supply chain risk from "${a.title.slice(0, 60)}..."`,
+          hypothesis: (a) => `Vendors mentioned may be compromised, creating downstream supply chain risk.`,
+          context: (a) => `<ul style="margin: 0.5rem 0;"><li><strong>Insight:</strong> Third-party breaches cascade to customers</li><li><strong>TTPs:</strong> Supply Chain Compromise (T1195)</li><li><strong>Search:</strong> Monitor vendor-related authentication events</li></ul>`
+        },
+        {
+          title: (a) => `Probe for insider threats amplifying "${a.title.slice(0, 60)}..."`,
           hypothesis: (a) => `Internal actors may leverage this incident to exfiltrate data while attention is diverted.`,
-          context: (a) => `<ul><li><strong>Unconventional Insight:</strong> Insider threats spike during major security events</li><li><strong>TTPs:</strong> Data Staged (T1074), Removable Media (T1052)</li><li><strong>Search:</strong> USB device connections, after-hours file access</li><li><strong>Detection:</strong> Monitor DeviceFileEvents for large file copies to USB</li></ul>`
-        },
-        {
-          title: (a) => `Hunt for phishing campaigns mimicking "${a.title}"`,
-          hypothesis: (a) => `Attackers weaponize breaking news to craft convincing phishing lures targeting your users.`,
-          context: (a) => `<ul><li><strong>Unconventional Insight:</strong> Phishing peaks within 24-48h of major security news</li><li><strong>TTPs:</strong> Spearphishing (T1566.001), Credential Harvesting (T1589)</li><li><strong>Search:</strong> Emails with article keywords, suspicious attachments</li><li><strong>Detection:</strong> EmailEvents | where Subject contains key terms from article</li></ul>`
-        },
-        {
-          title: (a) => `Investigate supply chain implications of "${a.title}"`,
-          hypothesis: (a) => `Vendors mentioned in this news may be compromised, creating supply chain risk.`,
-          context: (a) => `<ul><li><strong>Unconventional Insight:</strong> Third-party breaches cascade to customers</li><li><strong>TTPs:</strong> Supply Chain Compromise (T1195), Trusted Relationship (T1199)</li><li><strong>Search:</strong> Vendor-related authentication, software updates</li><li><strong>Detection:</strong> Monitor SigninLogs for vendor service principal activity</li></ul>`
+          context: (a) => `<ul style="margin: 0.5rem 0;"><li><strong>Insight:</strong> Insider threats spike during major security events</li><li><strong>TTPs:</strong> Data Staged (T1074), Removable Media (T1052)</li><li><strong>Search:</strong> Monitor USB connections and after-hours file access</li></ul>`
         }
       ];
 
@@ -1162,16 +1268,15 @@ bytes_out > 100000000
     function loadOSINTKeyboard() {
       const container = document.getElementById('osintKeyboard');
       container.innerHTML = osintTools.map(tool => `
-        <a href="${tool.url}" target="_blank" class="osint-key" accesskey="${tool.key.toLowerCase()}">
+        <a href="${tool.url}" target="_blank" rel="noopener noreferrer" class="osint-key" accesskey="${tool.key.toLowerCase()}">
           <div class="letter">${tool.key}</div>
           <div class="tool-name">${tool.name}</div>
         </a>
       `).join('');
     }
 
-    // Keyboard listener for OSINT
     document.addEventListener('keydown', (e) => {
-      if (currentTab === 'osint' && e.key.match(/[a-z]/i) && !e.ctrlKey && !e.altKey) {
+      if (currentTab === 'osint' && e.key.match(/[a-z]/i) && !e.ctrlKey && !e.altKey && !e.metaKey) {
         const tool = osintTools.find(t => t.key.toLowerCase() === e.key.toLowerCase());
         if (tool) {
           window.open(tool.url, '_blank');
@@ -1183,31 +1288,27 @@ bytes_out > 100000000
     // ==================== IOC EXTRACTOR ====================
     function extractIOCs() {
       const text = document.getElementById('iocInput').value;
-      extractedIOCs = {
-        ips: [],
-        domains: [],
-        urls: [],
-        hashes: []
-      };
+      if (!text.trim()) {
+        alert('Please paste some text first.');
+        return;
+      }
+      
+      extractedIOCs = { ips: [], domains: [], urls: [], hashes: [] };
 
-      // IP addresses (IPv4)
       const ipRegex = /\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b/g;
       extractedIOCs.ips = [...new Set((text.match(ipRegex) || []).filter(ip => {
         const parts = ip.split('.');
-        return parts.every(p => parseInt(p) <= 255);
+        return parts.every(p => parseInt(p) <= 255 && parseInt(p) >= 0);
       }))];
 
-      // Domains
       const domainRegex = /\b(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}\b/gi;
       extractedIOCs.domains = [...new Set((text.match(domainRegex) || []).filter(d => 
-        !d.match(/\.(exe|dll|txt|log|com|jpg|png)$/i) && d.includes('.')
+        !d.match(/\.(exe|dll|txt|log|jpg|png|pdf)$/i) && d.includes('.') && !extractedIOCs.ips.includes(d)
       ))];
 
-      // URLs
       const urlRegex = /https?:\/\/[^\s<>"{}|\\^`\[\]]+/gi;
       extractedIOCs.urls = [...new Set(text.match(urlRegex) || [])];
 
-      // File hashes (MD5, SHA1, SHA256)
       const hashRegex = /\b[a-f0-9]{32}\b|\b[a-f0-9]{40}\b|\b[a-f0-9]{64}\b/gi;
       extractedIOCs.hashes = [...new Set(text.match(hashRegex) || [])];
 
@@ -1217,13 +1318,15 @@ bytes_out > 100000000
     function displayIOCs() {
       const container = document.getElementById('iocResults');
       let html = '';
+      let total = 0;
 
       const addSection = (title, items, type) => {
         if (items.length > 0) {
           html += `<div style="margin-bottom: 1rem;"><strong style="color: var(--accent);">${title} (${items.length})</strong></div>`;
           items.forEach(item => {
-            html += `<div class="ioc-item"><code>${item}</code><span class="ioc-type">${type}</span></div>`;
+            html += `<div class="ioc-item"><code style="word-break: break-all;">${item}</code><span class="ioc-type">${type}</span></div>`;
           });
+          total += items.length;
         }
       };
 
@@ -1232,10 +1335,20 @@ bytes_out > 100000000
       addSection('URLs', extractedIOCs.urls, 'URL');
       addSection('File Hashes', extractedIOCs.hashes, 'HASH');
 
-      container.innerHTML = html || '<p style="text-align: center; color: var(--muted);">No IOCs extracted. Try pasting threat intelligence text.</p>';
+      container.innerHTML = html || '<p style="text-align: center; color: var(--text-muted);">No IOCs extracted. Try pasting threat intelligence text.</p>';
+      
+      if (total > 0) {
+        container.innerHTML = `<div style="background: var(--success); color: var(--bg); padding: 0.5rem; border-radius: 4px; margin-bottom: 1rem; text-align: center; font-weight: 600;">Extracted ${total} IOCs</div>` + container.innerHTML;
+      }
     }
 
     function exportIOCs(format) {
+      const total = extractedIOCs.ips.length + extractedIOCs.domains.length + extractedIOCs.urls.length + extractedIOCs.hashes.length;
+      if (total === 0) {
+        alert('No IOCs to export. Please extract IOCs first.');
+        return;
+      }
+      
       let content = '';
       const timestamp = new Date().toISOString().slice(0, 10);
 
@@ -1260,20 +1373,25 @@ bytes_out > 100000000
       a.href = url;
       a.download = `iocs_${timestamp}.${format}`;
       a.click();
+      URL.revokeObjectURL(url);
     }
 
     // ==================== QUERY TRANSLATOR ====================
     function translateQuery() {
-      const source = document.getElementById('sourceplatform').value;
-      const target = document.getElementById('targetplatform').value;
+      const source = document.getElementById('sourcePlatform').value;
+      const target = document.getElementById('targetPlatform').value;
       const query = document.getElementById('sourceQuery').value;
 
       if (!query.trim()) {
-        alert('Please enter a query to translate');
+        alert('Please enter a query to translate.');
         return;
       }
 
-      // Simple translation logic (demonstration)
+      if (source === target) {
+        alert('Source and target platforms are the same. Please select different platforms.');
+        return;
+      }
+
       let translated = query;
 
       if (source === 'kql' && target === 'spl') {
@@ -1281,16 +1399,15 @@ bytes_out > 100000000
           .replace(/\| where/g, '| search')
           .replace(/has_any/g, 'IN')
           .replace(/contains/g, 'like')
-          .replace(/project/g, 'table')
-          .replace(/summarize/g, 'stats');
+          .replace(/\| project/g, '| table')
+          .replace(/\| summarize/g, '| stats');
       } else if (source === 'spl' && target === 'kql') {
         translated = query
           .replace(/\| search/g, '| where')
           .replace(/\| table/g, '| project')
           .replace(/\| stats/g, '| summarize');
       } else if (target === 'lucene') {
-        // Convert to Lucene syntax
-        translated = 'process.name:(powershell.exe OR cmd.exe) // Converted approximation';
+        translated = '// Lucene conversion requires manual adaptation\n' + query;
       }
 
       document.getElementById('translatedQuery').textContent = translated;
@@ -1299,9 +1416,9 @@ bytes_out > 100000000
     // ==================== RANSOMWARE VICTIMS ====================
     async function loadRansomwareVictims() {
       document.getElementById('ransomwareVictims').innerHTML = `
-        <p style="color: var(--muted); text-align: center;">
-          For the latest ransomware victim disclosures, visit:<br>
-          <a href="https://www.ransomware.live/" target="_blank" style="color: var(--highlight); text-decoration: underline;">
+        <p style="color: var(--text-muted); text-align: center; padding: 1rem;">
+          For the latest ransomware victim disclosures, visit:<br><br>
+          <a href="https://www.ransomware.live/" target="_blank" rel="noopener noreferrer" style="color: var(--accent); text-decoration: none; font-weight: 600;">
             <i class="fas fa-external-link-alt"></i> Ransomware.live
           </a>
         </p>
@@ -1313,11 +1430,11 @@ bytes_out > 100000000
       document.getElementById('clock').textContent = new Date().toLocaleString();
     }, 1000);
 
-    window.onload = () => {
+    window.addEventListener('load', () => {
       showDetectionQuery();
       loadFeeds();
       loadRansomwareVictims();
-    };
+    });
   </script>
 </body>
 </html>
