@@ -7,101 +7,132 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <style>
     :root {
-      --bg: #0a0e17;
-      --panel: #131820;
-      --darker: #0d1117;
-      --accent: #00d9ff;
-      --accent-dim: #0088aa;
-      --text: #e6edf3;
-      --text-muted: #8b949e;
-      --border: #21262d;
-      --success: #3fb950;
-      --warning: #d29922;
-      --danger: #f85149;
-      --info: #58a6ff;
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8f9fa;
+      --bg-tertiary: #f1f3f5;
+      --surface: #ffffff;
+      --surface-elevated: #ffffff;
+      --text-primary: #202124;
+      --text-secondary: #5f6368;
+      --text-tertiary: #80868b;
+      --border: #e8eaed;
+      --border-strong: #dadce0;
+      --accent: #1a73e8;
+      --accent-hover: #1557b0;
+      --accent-light: #e8f0fe;
+      --success: #137333;
+      --success-light: #e6f4ea;
+      --warning: #f9ab00;
+      --warning-light: #fef7e0;
+      --danger: #d93025;
+      --danger-light: #fce8e6;
+      --info: #1967d2;
+      --shadow-sm: 0 1px 2px 0 rgba(60, 64, 67, 0.1);
+      --shadow: 0 1px 3px 0 rgba(60, 64, 67, 0.15);
+      --shadow-lg: 0 4px 8px 0 rgba(60, 64, 67, 0.15), 0 1px 3px 0 rgba(60, 64, 67, 0.1);
+      --radius: 8px;
+      --radius-lg: 12px;
     }
 
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
     body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
       line-height: 1.6;
+      font-size: 15px;
     }
 
     header {
-      background: var(--darker);
+      background: var(--surface);
       border-bottom: 1px solid var(--border);
       padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
       position: sticky;
       top: 0;
       z-index: 1000;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+      box-shadow: var(--shadow-sm);
+    }
+
+    header .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     header h1 {
-      color: var(--accent);
-      margin: 0;
+      color: var(--text-primary);
       font-size: 1.5rem;
-      font-weight: 600;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    header h1 i {
+      color: var(--accent);
     }
 
     header time {
-      color: var(--text-muted);
-      font-size: 0.9rem;
+      color: var(--text-tertiary);
+      font-size: 0.875rem;
     }
 
     .nav-tabs {
-      display: flex;
-      gap: 0;
-      background: var(--panel);
-      padding: 0 2rem;
+      background: var(--surface);
       border-bottom: 1px solid var(--border);
       position: sticky;
-      top: 61px;
+      top: 65px;
       z-index: 999;
       overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .nav-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .nav-tabs .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      gap: 0;
+      padding: 0 2rem;
     }
 
     .nav-tab {
       background: transparent;
-      color: var(--text-muted);
+      color: var(--text-secondary);
       border: none;
       border-bottom: 2px solid transparent;
-      padding: 0.75rem 1.25rem;
+      padding: 0.875rem 1rem;
       cursor: pointer;
-      transition: all 0.2s ease;
-      font-size: 0.9rem;
+      transition: all 0.15s ease;
+      font-size: 0.875rem;
+      font-weight: 500;
       white-space: nowrap;
     }
 
     .nav-tab:hover {
       color: var(--accent);
-      background: rgba(0, 217, 255, 0.05);
+      background: var(--accent-light);
     }
 
     .nav-tab.active {
       color: var(--accent);
       border-bottom-color: var(--accent);
-      background: rgba(0, 217, 255, 0.08);
     }
 
     .content {
-      flex-grow: 1;
-      padding: 2rem;
-      max-width: 1600px;
+      max-width: 1400px;
       margin: 0 auto;
-      width: 100%;
+      padding: 2rem;
     }
 
     .tab-content {
@@ -114,13 +145,13 @@
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
       gap: 1.5rem;
     }
 
@@ -129,20 +160,18 @@
     }
 
     section {
-      background: var(--panel);
-      border-radius: 6px;
+      background: var(--surface);
+      border-radius: var(--radius-lg);
       padding: 1.5rem;
       border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
     }
 
     h2 {
-      color: var(--text);
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 0.5rem;
-      margin-top: 0;
-      margin-bottom: 1.5rem;
-      font-size: 1.1rem;
-      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 1.125rem;
+      font-weight: 500;
+      margin-bottom: 1.25rem;
       display: flex;
       align-items: center;
       gap: 0.5rem;
@@ -150,102 +179,90 @@
 
     h2 i {
       color: var(--accent);
+      font-size: 1rem;
     }
 
     h3 {
-      color: var(--text);
+      color: var(--text-primary);
       font-size: 1rem;
-      margin-top: 0;
-      margin-bottom: 1rem;
       font-weight: 500;
+      margin-bottom: 1rem;
     }
 
     select, button, input, textarea {
-      background: var(--darker);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 0.6rem 1rem;
-      font-size: 0.9rem;
       font-family: inherit;
-      transition: all 0.2s ease;
+      font-size: 0.875rem;
+      border-radius: var(--radius);
+      transition: all 0.15s ease;
     }
 
-    select {
+    select, input, textarea {
+      background: var(--surface);
+      color: var(--text-primary);
+      border: 1px solid var(--border-strong);
+      padding: 0.625rem 0.875rem;
       width: 100%;
-      margin-bottom: 1rem;
-      cursor: pointer;
     }
 
-    select:hover, select:focus {
-      border-color: var(--accent-dim);
+    select:hover, input:hover, textarea:hover {
+      border-color: var(--text-tertiary);
+    }
+
+    select:focus, input:focus, textarea:focus {
       outline: none;
-    }
-
-    button {
-      cursor: pointer;
-      margin: 0.25rem;
-    }
-
-    button:hover {
       border-color: var(--accent);
-      background: rgba(0, 217, 255, 0.1);
-    }
-
-    button.primary {
-      background: var(--accent);
-      color: var(--bg);
-      font-weight: 600;
-      border: none;
-    }
-
-    button.primary:hover {
-      background: var(--accent-dim);
-    }
-
-    input, textarea {
-      width: 100%;
-      margin-bottom: 1rem;
-    }
-
-    input:focus, textarea:focus {
-      outline: none;
-      border-color: var(--accent-dim);
+      box-shadow: 0 0 0 3px var(--accent-light);
     }
 
     textarea {
       min-height: 120px;
       resize: vertical;
-      font-family: 'Consolas', monospace;
+      font-family: 'Monaco', 'Courier New', monospace;
+      line-height: 1.5;
+    }
+
+    button {
+      background: var(--surface);
+      color: var(--text-primary);
+      border: 1px solid var(--border-strong);
+      padding: 0.625rem 1rem;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    button:hover {
+      background: var(--bg-tertiary);
+      border-color: var(--text-tertiary);
+    }
+
+    button.primary {
+      background: var(--accent);
+      color: #ffffff;
+      border: none;
+    }
+
+    button.primary:hover {
+      background: var(--accent-hover);
     }
 
     pre {
-      background: var(--darker);
+      background: var(--bg-tertiary);
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: var(--radius);
       padding: 1rem;
       overflow-x: auto;
-      font-size: 0.85rem;
+      font-size: 0.8125rem;
       line-height: 1.5;
       position: relative;
-      margin: 0;
+      font-family: 'Monaco', 'Courier New', monospace;
     }
 
     .copy-btn {
       position: absolute;
       top: 0.5rem;
       right: 0.5rem;
-      padding: 0.4rem 0.8rem;
+      padding: 0.375rem 0.75rem;
       font-size: 0.75rem;
-      background: var(--accent);
-      color: var(--bg);
-      border: none;
-      cursor: pointer;
-      border-radius: 4px;
-    }
-
-    .copy-btn:hover {
-      background: var(--accent-dim);
     }
 
     .feed-container {
@@ -253,20 +270,20 @@
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 0.75rem;
+      gap: 0.875rem;
     }
 
     .feed-item {
-      background: var(--darker);
+      background: var(--bg-secondary);
       padding: 1rem;
       border-left: 3px solid var(--accent);
-      border-radius: 4px;
-      transition: all 0.2s ease;
+      border-radius: var(--radius);
+      transition: all 0.15s ease;
     }
 
     .feed-item:hover {
-      background: rgba(0, 217, 255, 0.05);
-      border-left-width: 4px;
+      background: var(--accent-light);
+      box-shadow: var(--shadow-sm);
     }
 
     .feed-item a {
@@ -274,140 +291,192 @@
       text-decoration: none;
       display: block;
       font-weight: 500;
-      margin-bottom: 0.3rem;
+      margin-bottom: 0.5rem;
+      line-height: 1.4;
     }
 
     .feed-item a:hover {
       text-decoration: underline;
     }
 
+    .feed-item .description {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      line-height: 1.5;
+      margin-bottom: 0.5rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
     .feed-item .meta {
-      color: var(--text-muted);
-      font-size: 0.8rem;
-      margin-top: 0.3rem;
+      color: var(--text-tertiary);
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
     }
 
     .feed-item .tags {
-      margin-top: 0.5rem;
       display: flex;
       flex-wrap: wrap;
-      gap: 0.4rem;
+      gap: 0.5rem;
     }
 
     .tag {
-      background: rgba(88, 166, 255, 0.15);
-      color: var(--info);
-      padding: 0.15rem 0.5rem;
-      border-radius: 3px;
-      font-size: 0.7rem;
-      border: 1px solid var(--info);
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      padding: 0.25rem 0.625rem;
+      border-radius: 4px;
+      font-size: 0.6875rem;
+      font-weight: 500;
+      border: 1px solid var(--border);
     }
 
     .tag.critical { 
-      background: rgba(248, 81, 73, 0.15); 
+      background: var(--danger-light); 
       color: var(--danger); 
       border-color: var(--danger); 
     }
     
     .tag.high { 
-      background: rgba(210, 153, 34, 0.15); 
-      color: var(--warning); 
+      background: var(--warning-light); 
+      color: #b35800; 
       border-color: var(--warning); 
     }
 
-    .intel-card {
-      background: var(--darker);
+    .tag.success {
+      background: var(--success-light);
+      color: var(--success);
+      border-color: var(--success);
+    }
+
+    .threat-card {
+      background: var(--surface);
       border: 1px solid var(--border);
-      border-left: 3px solid var(--info);
-      padding: 1rem;
+      border-left: 4px solid var(--danger);
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      border-radius: var(--radius);
+      transition: all 0.15s ease;
+    }
+
+    .threat-card:hover {
+      box-shadow: var(--shadow);
+    }
+
+    .threat-card.critical { border-left-color: var(--danger); }
+    .threat-card.high { border-left-color: var(--warning); }
+    .threat-card.medium { border-left-color: var(--info); }
+
+    .threat-card h4 {
+      color: var(--text-primary);
+      font-size: 0.9375rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    .threat-card .description {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      line-height: 1.5;
       margin-bottom: 0.75rem;
-      border-radius: 4px;
-      transition: all 0.2s ease;
     }
 
-    .intel-card:hover {
-      background: rgba(88, 166, 255, 0.05);
+    .threat-card .action {
+      color: var(--text-secondary);
+      font-size: 0.8125rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
     }
 
-    .intel-card.high { border-left-color: var(--danger); }
-    .intel-card.medium { border-left-color: var(--warning); }
-    .intel-card.low { border-left-color: var(--info); }
+    .threat-card .action strong {
+      color: var(--accent);
+    }
 
     .hypothesis-item {
-      background: var(--darker);
+      background: var(--bg-secondary);
       border: 1px solid var(--border);
       border-left: 3px solid var(--accent);
-      padding: 1rem;
+      padding: 1.25rem;
       margin-bottom: 1rem;
-      border-radius: 4px;
+      border-radius: var(--radius);
     }
 
     .hypothesis-item h4 {
-      color: var(--accent);
-      margin-top: 0;
+      color: var(--text-primary);
+      font-size: 0.9375rem;
+      font-weight: 500;
+      margin-bottom: 0.75rem;
+    }
+
+    .hypothesis-item p {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      line-height: 1.5;
       margin-bottom: 0.5rem;
-      font-size: 0.95rem;
     }
 
     .hypothesis-item .context {
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      margin-top: 0.5rem;
-      padding-top: 0.5rem;
+      color: var(--text-secondary);
+      font-size: 0.8125rem;
+      padding-top: 0.75rem;
       border-top: 1px solid var(--border);
     }
 
     .osint-keyboard {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
       gap: 0.75rem;
-      margin-top: 1rem;
     }
 
     .osint-key {
-      background: var(--darker);
-      border: 1px solid var(--border);
-      border-radius: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
       padding: 1rem;
       text-align: center;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.15s ease;
       text-decoration: none;
-      color: var(--text);
+      color: var(--text-primary);
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0.3rem;
+      gap: 0.375rem;
     }
 
     .osint-key:hover {
       background: var(--accent);
-      color: var(--bg);
+      color: #ffffff;
       border-color: var(--accent);
       transform: translateY(-2px);
+      box-shadow: var(--shadow);
     }
 
     .osint-key .letter {
       font-size: 1.5rem;
-      font-weight: bold;
+      font-weight: 600;
     }
 
     .osint-key .tool-name {
-      font-size: 0.75rem;
+      font-size: 0.6875rem;
+      font-weight: 500;
     }
 
     .ioc-list {
-      background: var(--darker);
+      background: var(--bg-secondary);
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: var(--radius);
       padding: 1rem;
       max-height: 400px;
       overflow-y: auto;
-      font-size: 0.85rem;
     }
 
     .ioc-item {
-      padding: 0.4rem 0;
+      padding: 0.625rem 0;
       border-bottom: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
@@ -421,22 +490,24 @@
 
     .ioc-type {
       color: var(--accent);
-      font-size: 0.7rem;
-      background: rgba(0, 217, 255, 0.15);
-      padding: 0.2rem 0.5rem;
-      border-radius: 3px;
+      font-size: 0.6875rem;
+      font-weight: 500;
+      background: var(--accent-light);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
       white-space: nowrap;
     }
 
     .loading {
       text-align: center;
-      padding: 2rem;
-      color: var(--text-muted);
+      padding: 3rem;
+      color: var(--text-tertiary);
     }
 
     .loading i {
       font-size: 2rem;
       animation: spin 1s linear infinite;
+      color: var(--accent);
     }
 
     @keyframes spin {
@@ -446,58 +517,79 @@
 
     footer {
       text-align: center;
-      color: var(--text-muted);
-      padding: 1.5rem;
+      color: var(--text-tertiary);
+      padding: 2rem;
+      background: var(--surface);
       border-top: 1px solid var(--border);
-      background: var(--darker);
-      font-size: 0.85rem;
+      font-size: 0.875rem;
     }
 
     .filter-bar {
       display: flex;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
       flex-wrap: wrap;
     }
 
     .filter-bar select,
     .filter-bar input {
       flex: 1;
-      min-width: 150px;
-      margin-bottom: 0;
+      min-width: 180px;
+    }
+
+    .filter-bar button {
+      flex-shrink: 0;
     }
 
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: 1rem;
       margin-bottom: 1.5rem;
     }
 
     .stat-card {
-      background: var(--darker);
+      background: var(--bg-secondary);
       border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 1rem;
+      border-radius: var(--radius);
+      padding: 1.25rem;
       text-align: center;
     }
 
     .stat-card .value {
-      font-size: 1.8rem;
+      font-size: 1.875rem;
       color: var(--accent);
       font-weight: 600;
+      line-height: 1;
     }
 
     .stat-card .label {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-top: 0.3rem;
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      margin-top: 0.5rem;
     }
 
     .btn-group {
       display: flex;
-      gap: 0.5rem;
+      gap: 0.75rem;
       flex-wrap: wrap;
+    }
+
+    .alert {
+      background: var(--accent-light);
+      border: 1px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 0.875rem 1rem;
+      margin-bottom: 1rem;
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .alert i {
+      color: var(--accent);
     }
 
     @media (max-width: 768px) {
@@ -505,7 +597,7 @@
         grid-template-columns: 1fr;
       }
       
-      .nav-tabs {
+      .nav-tabs .container {
         padding: 0 1rem;
       }
       
@@ -513,83 +605,94 @@
         grid-template-columns: repeat(3, 1fr);
       }
 
-      header {
-        padding: 1rem;
-      }
-
+      header .container,
       .content {
-        padding: 1rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
       }
     }
   </style>
 </head>
 <body>
   <header>
-    <h1><i class="fas fa-shield-alt"></i> CyberGator1</h1>
-    <time id="clock"></time>
+    <div class="container">
+      <h1><i class="fas fa-shield-alt"></i> CyberGator1</h1>
+      <time id="clock"></time>
+    </div>
   </header>
 
   <div class="nav-tabs">
-    <button class="nav-tab active" onclick="switchTab('intel')"><i class="fas fa-globe"></i> Threat Intel</button>
-    <button class="nav-tab" onclick="switchTab('hypothesis')"><i class="fas fa-brain"></i> AI Hypothesis</button>
-    <button class="nav-tab" onclick="switchTab('osint')"><i class="fas fa-keyboard"></i> OSINT Tools</button>
-    <button class="nav-tab" onclick="switchTab('ioc')"><i class="fas fa-fingerprint"></i> IOC Extractor</button>
-    <button class="nav-tab" onclick="switchTab('translator')"><i class="fas fa-language"></i> Query Translator</button>
-    <button class="nav-tab" onclick="switchTab('queries')"><i class="fas fa-search"></i> Detection Queries</button>
+    <div class="container">
+      <button class="nav-tab active" onclick="switchTab('intel')"><i class="fas fa-globe"></i> Threat Intel</button>
+      <button class="nav-tab" onclick="switchTab('hypothesis')"><i class="fas fa-brain"></i> AI Hypothesis</button>
+      <button class="nav-tab" onclick="switchTab('osint')"><i class="fas fa-keyboard"></i> OSINT Tools</button>
+      <button class="nav-tab" onclick="switchTab('ioc')"><i class="fas fa-fingerprint"></i> IOC Extractor</button>
+      <button class="nav-tab" onclick="switchTab('translator')"><i class="fas fa-language"></i> Query Translator</button>
+      <button class="nav-tab" onclick="switchTab('queries')"><i class="fas fa-search"></i> Detection Queries</button>
+    </div>
   </div>
 
   <div class="content">
-    <!-- Threat Intel Tab (First) -->
+    <!-- Threat Intel Tab -->
     <div id="tab-intel" class="tab-content active">
       <div class="grid">
         <section class="grid-full">
           <h2><i class="fas fa-rss"></i> Live Threat Intelligence Feed</h2>
           <div class="filter-bar">
             <select id="feedFilter" onchange="applyFeedFilters()">
-              <option value="all">All Articles</option>
+              <option value="all">All Time</option>
               <option value="today">Today</option>
-              <option value="24h">Last 24 Hours</option>
+              <option value="24h" selected>Last 24 Hours</option>
               <option value="7d">Last 7 Days</option>
             </select>
             <input type="text" id="feedSearch" placeholder="Search articles..." oninput="applyFeedFilters()" />
             <button onclick="loadFeeds()"><i class="fas fa-sync-alt"></i> Refresh</button>
           </div>
-          <div id="feedArea" class="feed-container">Loading latest threat intel...</div>
+          <div id="feedArea" class="feed-container">Loading latest threat intelligence...</div>
         </section>
 
         <section>
-          <h2><i class="fas fa-shield-alt"></i> Active Global Threats</h2>
-          <div id="intelCards" style="max-height: 500px; overflow-y: auto;">
-            <div class="intel-card high">
-              <strong>Scattered Spider (T1566, T1078, T1059)</strong><br>
-              <small>Actively exploiting Okta & Azure AD tenants. Cloud credential theft campaign.</small><br>
-              <em>Action:</em> Validate MFA, monitor PowerShell logs and login anomalies.
-            </div>
-            <div class="intel-card high">
-              <strong>Akira Ransomware (T1486, T1567, T1105)</strong><br>
-              <small>Exploiting Cisco AnyConnect misconfigurations and SMB exfil channels.</small><br>
-              <em>Action:</em> Check lateral movement through SMB and anomalous data volume.
-            </div>
-            <div class="intel-card medium">
-              <strong>APT42 (T1059, T1082, T1027)</strong><br>
-              <small>Iranian threat actor leveraging PowerShell and encoded payloads.</small><br>
-              <em>Action:</em> Hunt for Base64 encoded strings and unsigned scripts.
-            </div>
-            <div class="intel-card medium">
-              <strong>RDP Brute-force Surge (T1110, T1078)</strong><br>
-              <small>Global spike in brute-force attempts across exposed RDP endpoints.</small><br>
-              <em>Action:</em> Restrict external RDP, enable lockouts, monitor EventID 4625.
-            </div>
+          <h2><i class="fas fa-exclamation-triangle"></i> Active Global Threats</h2>
+          <div id="activeThreatCards" style="max-height: 550px; overflow-y: auto;">
+            <div class="loading"><i class="fas fa-spinner"></i></div>
           </div>
         </section>
 
         <section>
-          <h2><i class="fas fa-skull-crossbones"></i> Ransomware Victims</h2>
-          <p style="color: var(--text-muted); font-size: 0.85rem;">
-            Track ransomware campaigns via <a href="https://www.ransomware.live/" target="_blank" style="color: var(--accent);">Ransomware.live</a>
-          </p>
-          <div id="ransomwareVictims" style="background: var(--darker); padding: 1rem; border-radius: 6px; border: 1px solid var(--border); max-height: 300px; overflow-y: auto;">
-            Loading ransomware victim data...
+          <h2><i class="fas fa-chart-line"></i> Threat Landscape Metrics</h2>
+          <div id="threatMetrics">
+            <div class="threat-card medium">
+              <h4>Ransomware Activity (Nov 2025)</h4>
+              <div class="description">
+                <strong>727 reported attacks</strong> globally, marking a <strong>22% increase</strong> year-over-year. North America accounts for 55% of incidents.
+              </div>
+              <div class="action">
+                <strong>Top Groups:</strong> Qilin (15%), Clop (15%), Akira (12%)<br>
+                <strong>Source:</strong> Check Point Research, December 2025
+              </div>
+            </div>
+
+            <div class="threat-card high">
+              <h4>APT Activity Surge</h4>
+              <div class="description">
+                Advanced Persistent Threats increased <strong>18.9% from 2022-2025</strong>, reaching 504 incidents in 2025. Asia-Pacific leads in APT concentration.
+              </div>
+              <div class="action">
+                <strong>Emerging Trend:</strong> AI-generated phishing, deepfake vishing, IoT exploitation<br>
+                <strong>Source:</strong> BISI Global APT Review, September 2025
+              </div>
+            </div>
+
+            <div class="threat-card critical">
+              <h4>Zero-Day Exploits (December 2025)</h4>
+              <div class="description">
+                Microsoft addressed <strong>57 vulnerabilities</strong> including <strong>1 actively exploited zero-day</strong> and 2 publicly disclosed Important zero-days in December Patch Tuesday.
+              </div>
+              <div class="action">
+                <strong>Top Risk:</strong> Elevation of Privilege (49%), Remote Code Execution (34%)<br>
+                <strong>Source:</strong> CrowdStrike Patch Tuesday Analysis, Dec 8, 2025
+              </div>
+            </div>
           </div>
         </section>
       </div>
@@ -599,10 +702,11 @@
     <div id="tab-hypothesis" class="tab-content">
       <section>
         <h2><i class="fas fa-brain"></i> AI-Powered Threat Hunting Hypothesis Generator</h2>
-        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
-          Generate creative threat hunting hypotheses based on current threat intelligence feeds.
-        </p>
-        <button class="primary" onclick="generateHypothesis()" style="width: 100%; padding: 1rem;">
+        <div class="alert">
+          <i class="fas fa-info-circle"></i>
+          <span>Generate creative threat hunting hypotheses based on current threat intelligence feeds and emerging attack patterns.</span>
+        </div>
+        <button class="primary" onclick="generateHypothesis()" style="width: 100%; padding: 0.875rem; font-size: 0.9375rem;">
           <i class="fas fa-radiation"></i> Generate Hunting Hypotheses
         </button>
         <div id="hypothesisLoading" class="loading" style="display: none;">
@@ -617,9 +721,10 @@
     <div id="tab-osint" class="tab-content">
       <section>
         <h2><i class="fas fa-keyboard"></i> OSINT Keyboard Shortcuts</h2>
-        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
-          Press any key (A-Z) or click to instantly open that OSINT tool. Perfect for rapid IOC investigation.
-        </p>
+        <div class="alert">
+          <i class="fas fa-info-circle"></i>
+          <span>Press any key (A-Z) or click to instantly open that OSINT tool in a new tab. Perfect for rapid IOC investigation.</span>
+        </div>
         <div class="osint-keyboard" id="osintKeyboard"></div>
       </section>
     </div>
@@ -629,11 +734,12 @@
       <div class="grid">
         <section>
           <h2><i class="fas fa-fingerprint"></i> IOC Extractor</h2>
-          <p style="color: var(--text-muted); margin-bottom: 1rem;">
-            Paste threat intelligence text to automatically extract IPs, domains, URLs, and file hashes.
-          </p>
+          <div class="alert">
+            <i class="fas fa-info-circle"></i>
+            <span>Paste threat intelligence text to automatically extract IPs, domains, URLs, and file hashes.</span>
+          </div>
           <textarea id="iocInput" placeholder="Paste threat intelligence reports, articles, or logs here..."></textarea>
-          <button class="primary" onclick="extractIOCs()" style="width: 100%;">
+          <button class="primary" onclick="extractIOCs()" style="width: 100%; margin-top: 0.75rem;">
             <i class="fas fa-search-plus"></i> Extract IOCs
           </button>
         </section>
@@ -641,7 +747,7 @@
         <section>
           <h2><i class="fas fa-list"></i> Extracted IOCs</h2>
           <div id="iocResults" class="ioc-list">
-            <p style="color: var(--text-muted); text-align: center;">Extracted IOCs will appear here...</p>
+            <p style="color: var(--text-tertiary); text-align: center; padding: 2rem 0;">Extracted IOCs will appear here...</p>
           </div>
           <div class="btn-group" style="margin-top: 1rem;">
             <button onclick="exportIOCs('txt')"><i class="fas fa-file-alt"></i> Export TXT</button>
@@ -657,24 +763,25 @@
       <div class="grid">
         <section>
           <h2><i class="fas fa-language"></i> Multi-Platform Query Translator</h2>
-          <p style="color: var(--text-muted); margin-bottom: 1rem;">
-            Convert detection queries between different SIEM platforms.
-          </p>
-          <label style="color: var(--text-muted); font-size: 0.85rem; display: block; margin-bottom: 0.3rem;">Source Platform:</label>
-          <select id="sourcePlatform">
+          <div class="alert">
+            <i class="fas fa-info-circle"></i>
+            <span>Convert detection queries between different SIEM platforms (KQL, SPL, Lucene).</span>
+          </div>
+          <label style="color: var(--text-secondary); font-size: 0.875rem; display: block; margin-bottom: 0.5rem; font-weight: 500;">Source Platform:</label>
+          <select id="sourcePlatform" style="margin-bottom: 1rem;">
             <option value="kql">Microsoft Sentinel (KQL)</option>
             <option value="spl">Splunk (SPL)</option>
             <option value="lucene">Elastic (Lucene)</option>
           </select>
-          <label style="color: var(--text-muted); font-size: 0.85rem; display: block; margin-bottom: 0.3rem;">Target Platform:</label>
-          <select id="targetPlatform">
+          <label style="color: var(--text-secondary); font-size: 0.875rem; display: block; margin-bottom: 0.5rem; font-weight: 500;">Target Platform:</label>
+          <select id="targetPlatform" style="margin-bottom: 1rem;">
             <option value="spl" selected>Splunk (SPL)</option>
             <option value="kql">Microsoft Sentinel (KQL)</option>
             <option value="lucene">Elastic (Lucene)</option>
           </select>
-          <label style="color: var(--text-muted); font-size: 0.85rem; display: block; margin-bottom: 0.3rem;">Enter Query:</label>
+          <label style="color: var(--text-secondary); font-size: 0.875rem; display: block; margin-bottom: 0.5rem; font-weight: 500;">Enter Query:</label>
           <textarea id="sourceQuery" placeholder="Enter your detection query here..."></textarea>
-          <button class="primary" onclick="translateQuery()" style="width: 100%;">
+          <button class="primary" onclick="translateQuery()" style="width: 100%; margin-top: 0.75rem;">
             <i class="fas fa-exchange-alt"></i> Translate Query
           </button>
         </section>
@@ -685,14 +792,15 @@
             <button class="copy-btn" onclick="copyToClipboard('translatedQuery')"><i class="fas fa-copy"></i> Copy</button>
             <pre id="translatedQuery">Translated query will appear here...</pre>
           </div>
-          <p style="color: var(--warning); font-size: 0.85rem; margin-top: 1rem;">
-            <i class="fas fa-exclamation-triangle"></i> Note: Query translation is approximate. Manual adjustment may be required for complex queries.
-          </p>
+          <div class="alert" style="background: var(--warning-light); border-color: var(--warning); margin-top: 1rem;">
+            <i class="fas fa-exclamation-triangle" style="color: var(--warning);"></i>
+            <span>Note: Query translation is approximate. Manual adjustment may be required for complex queries.</span>
+          </div>
         </section>
       </div>
     </div>
 
-    <!-- Detection Queries Tab (Moved to End) -->
+    <!-- Detection Queries Tab -->
     <div id="tab-queries" class="tab-content">
       <div class="grid">
         <section class="grid-full">
@@ -719,7 +827,7 @@
 
         <section class="grid-full">
           <h3>Select MITRE Technique</h3>
-          <select id="technique" onchange="showDetectionQuery()">
+          <select id="technique" onchange="showDetectionQuery()" style="margin-bottom: 1rem;">
             <option value="">-- Select MITRE Technique --</option>
             <option value="T1059">T1059 - Command and Scripting Interpreter</option>
             <option value="T1566">T1566 - Phishing</option>
@@ -736,7 +844,7 @@
             <option value="T1486">T1486 - Data Encrypted for Impact</option>
             <option value="T1567">T1567 - Exfiltration Over Web Service</option>
           </select>
-          <div style="position: relative; margin-top: 1rem;">
+          <div style="position: relative;">
             <button class="copy-btn" onclick="copyToClipboard('queryOutput')"><i class="fas fa-copy"></i> Copy</button>
             <pre id="queryOutput">Select a technique to view detection queries across multiple platforms.</pre>
           </div>
@@ -744,19 +852,20 @@
             <button onclick="exportQuery()"><i class="fas fa-download"></i> Export Query</button>
             <button onclick="saveToLibrary()"><i class="fas fa-save"></i> Save to Library</button>
           </div>
-          <p style="color: var(--text-muted); text-align: center; margin-top: 1rem; font-size: 0.85rem;">
-            Platforms: <strong>Microsoft Sentinel (KQL)</strong> | <strong>Splunk (SPL)</strong> | <strong>CrowdStrike Falcon</strong> | <strong>Elastic SIEM</strong> | <strong>Wazuh</strong>
-          </p>
+          <div class="alert" style="margin-top: 1rem;">
+            <i class="fas fa-info-circle"></i>
+            <span><strong>Platforms:</strong> Microsoft Sentinel (KQL) | Splunk (SPL) | CrowdStrike Falcon (LogScale) | Elastic SIEM (Lucene) | Wazuh SIEM</span>
+          </div>
         </section>
       </div>
     </div>
   </div>
 
   <footer>
-    <div style="margin-bottom: 0.5rem;">
-      <i class="fas fa-shield-alt"></i> CyberGator1 - Threat Hunting Command Center
-    </div>
     <div>
+      <strong>CyberGator1</strong> - Threat Hunting Command Center
+    </div>
+    <div style="margin-top: 0.5rem;">
       Created by Pratik | Empowering the Cybersecurity Community
     </div>
   </footer>
@@ -787,7 +896,7 @@
 DeviceProcessEvents
 | where Timestamp > ago(1d)
 | where FileName in~ ("powershell.exe", "cmd.exe", "cscript.exe", "wscript.exe")
-| where ProcessCommandLine !contains "Windows\\System32"
+| where ProcessCommandLine !contains "Windows\\\\System32"
 | project Timestamp, DeviceName, AccountName, FileName, ProcessCommandLine
 
 Splunk (SPL):
@@ -821,7 +930,7 @@ index=o365 sourcetype="o365:management:activity" Operation="MailItemsAccessed"
 
 CrowdStrike Falcon (LogScale):
 #event_simpleName=EmailAttachment
-FileName=/\.(exe|js|zip|docm)$/i
+FileName=/\\.(exe|js|zip|docm)$/i
 | table @timestamp, SenderAddress, RecipientAddress, Subject, FileName
 
 Elastic SIEM (Lucene):
@@ -862,7 +971,7 @@ index=network dest_port IN (21, 22, 80, 443) bytes_out > 10485760
       T1105: `Microsoft Sentinel (KQL):
 DeviceNetworkEvents
 | where Timestamp > ago(1d)
-| where RemoteUrl matches regex @"\.(exe|dll|ps1|bat|vbs)$"
+| where RemoteUrl matches regex @"\\.(exe|dll|ps1|bat|vbs)$"
 | where ActionType == "ConnectionSuccess"
 | project Timestamp, DeviceName, RemoteUrl, RemoteIP, InitiatingProcessFileName
 
@@ -877,7 +986,7 @@ DeviceRegistryEvents
 | project Timestamp, DeviceName, RegistryKey, RegistryValueName, RegistryValueData, InitiatingProcessFileName
 
 Splunk (SPL):
-index=windows sourcetype=WinRegistry key_path="*\\Run*"
+index=windows sourcetype=WinRegistry key_path="*\\\\Run*"
 | table _time, host, key_path, value_name, value_data`,
 
       T1071: `Microsoft Sentinel (KQL):
@@ -970,7 +1079,7 @@ index=auth EventCode=4624 LogonType!=2
       T1486: `Microsoft Sentinel (KQL):
 DeviceFileEvents
 | where ActionType == "FileRenamed"
-| where FileName matches regex @"\.(locked|encrypted|crypt|[a-z]{4,8})$"
+| where FileName matches regex @"\\.(locked|encrypted|crypt|[a-z]{4,8})$"
 | summarize EncryptedFiles = count() by DeviceName, InitiatingProcessFileName
 | where EncryptedFiles > 50
 
@@ -1038,6 +1147,89 @@ bytes_out > 104857600
       alert('Query saved to library! (This feature stores queries in browser localStorage)');
     }
 
+    // ==================== DYNAMIC ACTIVE THREATS ====================
+    function loadActiveThreatCards() {
+      const container = document.getElementById('activeThreatCards');
+      container.innerHTML = `
+        <div class="threat-card critical">
+          <h4>Qilin & Clop Ransomware Surge (December 2025)</h4>
+          <div class="description">
+            Both groups responsible for <strong>15% of global attacks each</strong>. Qilin intensified affiliate recruitment after RansomHub retirement. Clop exploited Oracle E-Business Suite zero-days (CVE-2025-61882).
+          </div>
+          <div class="action">
+            <strong>Action:</strong> Monitor Oracle EBS environments, hunt for data exfiltration patterns<br>
+            <strong>Source:</strong> Check Point Research, December 9, 2025
+          </div>
+        </div>
+
+        <div class="threat-card critical">
+          <h4>GOLD SALEM / Storm-2603 - Warlock Ransomware (Active)</h4>
+          <div class="description">
+            China-based group deploying Warlock ransomware via chained zero-day exploitation (ToolShell) targeting on-premises SharePoint instances since March 2025.
+          </div>
+          <div class="action">
+            <strong>Action:</strong> Patch SharePoint, monitor for ToolShell IOCs, review SharePoint access logs<br>
+            <strong>Source:</strong> Sophos X-Ops, December 10, 2025
+          </div>
+        </div>
+
+        <div class="threat-card high">
+          <h4>Chinese APT - Brickstorm Malware Campaign</h4>
+          <div class="description">
+            State-sponsored hackers using Brickstorm malware to maintain long-term access to government and IT entities via VMware vSphere exploitation for potential sabotage operations.
+          </div>
+          <div class="action">
+            <strong>Action:</strong> Update VMware vSphere, audit virtual machine access, review credential harvesting<br>
+            <strong>Source:</strong> CISA & Canadian Cybersecurity, December 4, 2025
+          </div>
+        </div>
+
+        <div class="threat-card high">
+          <h4>NightSpire Ransomware (Emerging Threat)</h4>
+          <div class="description">
+            New ransomware group emerging in early 2025 with aggressive double-extortion tactics, Bitcoin-based ransoms, and explicit data leak threats if victims don't engage.
+          </div>
+          <div class="action">
+            <strong>Action:</strong> Monitor for file encryption patterns, unusual Tor traffic, Bitcoin wallet indicators<br>
+            <strong>Source:</strong> CYFIRMA Weekly Intelligence, December 10, 2025
+          </div>
+        </div>
+
+        <div class="threat-card high">
+          <h4>Makop Ransomware - GuLoader Campaign</h4>
+          <div class="description">
+            Makop operators deploying GuLoader downloader with local privilege escalation exploits, targeting enterprise environments with enhanced stealth capabilities.
+          </div>
+          <div class="action">
+            <strong>Action:</strong> Hunt for GuLoader IOCs, monitor privilege escalation attempts (Sysmon EID 10)<br>
+            <strong>Source:</strong> SOC Prime Threat Research, December 9, 2025
+          </div>
+        </div>
+
+        <div class="threat-card medium">
+          <h4>AI Supply Chain Attacks (156% Surge)</h4>
+          <div class="description">
+            Malicious package uploads to open-source repositories jumped <strong>156% in 2025</strong>. Shai-Hulud worm compromised 500+ npm packages and 25,000+ GitHub repos using AI-generated bash scripts.
+          </div>
+          <div class="action">
+            <strong>Action:</strong> Review dependency chains, implement SCA tools, monitor CI/CD pipelines for anomalies<br>
+            <strong>Source:</strong> The Hacker News, December 3, 2025
+          </div>
+        </div>
+
+        <div class="threat-card medium">
+          <h4>STAC6565 Targeting Canada (80% of Attacks)</h4>
+          <div class="description">
+            Threat group STAC6565 targeting nearly 40 victims with <strong>80% of attacks hitting Canadian firms</strong>, deploying QWCrypt ransomware via phishing and RDP compromise.
+          </div>
+          <div class="action">
+            <strong>Action:</strong> Monitor Canadian subsidiaries, review RDP exposure, implement MFA on remote access<br>
+            <strong>Source:</strong> Sophos Threat Intelligence, December 8, 2025
+          </div>
+        </div>
+      `;
+    }
+
     // ==================== ENHANCED THREAT INTEL FEEDS ====================
     const rssFeeds = [
       'https://www.bleepingcomputer.com/feed/',
@@ -1072,13 +1264,16 @@ bytes_out > 104857600
         const data = await resp.json();
         const parser = new DOMParser();
         const doc = parser.parseFromString(data.contents, "application/xml");
-        return Array.from(doc.querySelectorAll("item, entry")).slice(0, 5).map(i => ({
-          title: i.querySelector("title")?.textContent || 'No title',
-          link: i.querySelector("link")?.textContent || i.querySelector("link")?.getAttribute("href") || '#',
-          pubDate: i.querySelector("pubDate, updated")?.textContent || '',
-          description: i.querySelector("description, summary")?.textContent || '',
-          source: url
-        }));
+        return Array.from(doc.querySelectorAll("item, entry")).slice(0, 5).map(i => {
+          const description = (i.querySelector("description, summary, content:encoded")?.textContent || '').replace(/<[^>]+>/g, '').trim().slice(0, 200);
+          return {
+            title: i.querySelector("title")?.textContent || 'No title',
+            link: i.querySelector("link")?.textContent || i.querySelector("link")?.getAttribute("href") || '#',
+            pubDate: i.querySelector("pubDate, updated, published")?.textContent || '',
+            description: description,
+            source: new URL(url).hostname
+          };
+        });
       } catch (e) {
         console.error('Feed error:', url, e);
         return [];
@@ -1087,7 +1282,7 @@ bytes_out > 104857600
 
     async function loadFeeds() {
       const area = document.getElementById('feedArea');
-      area.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i><p>Loading feeds...</p></div>';
+      area.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i><p>Loading threat intelligence feeds...</p></div>';
       allArticles = [];
       
       const promises = rssFeeds.map(feed => fetchFeed(feed));
@@ -1108,7 +1303,7 @@ bytes_out > 104857600
     function autoTagArticle(text) {
       const tags = [];
       const lower = text.toLowerCase();
-      if (lower.match(/ransom|lockbit|blackcat|alphv|akira/)) tags.push({ name: 'Ransomware', type: 'critical' });
+      if (lower.match(/ransom|lockbit|blackcat|alphv|akira|qilin|clop/)) tags.push({ name: 'Ransomware', type: 'critical' });
       if (lower.match(/zero.?day|0.?day/)) tags.push({ name: 'Zero-Day', type: 'critical' });
       if (lower.match(/apt\d+|apt\s|nation.state|state.sponsor/)) tags.push({ name: 'APT', type: 'high' });
       if (lower.match(/phish|spear|bec|social.engineer/)) tags.push({ name: 'Phishing', type: 'high' });
@@ -1124,7 +1319,6 @@ bytes_out > 104857600
       
       let filtered = allArticles;
       
-      // Time filter
       if (timeFilter !== 'all') {
         const now = new Date();
         filtered = filtered.filter(article => {
@@ -1139,7 +1333,6 @@ bytes_out > 104857600
         });
       }
       
-      // Search filter
       if (searchTerm) {
         filtered = filtered.filter(article => 
           (article.title + article.description).toLowerCase().includes(searchTerm)
@@ -1152,19 +1345,34 @@ bytes_out > 104857600
     function displayFeeds(articles) {
       const area = document.getElementById('feedArea');
       if (articles.length === 0) {
-        area.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No articles found matching your filters.</p>';
+        area.innerHTML = '<p style="text-align: center; color: var(--text-tertiary); padding: 2rem 0;">No articles found matching your filters.</p>';
         return;
       }
 
-      area.innerHTML = articles.map(item => `
-        <div class="feed-item">
-          <a href="${item.link}" target="_blank" rel="noopener noreferrer">${item.title}</a>
-          <div class="meta">${new Date(item.pubDate).toLocaleString() || 'Recent'}</div>
-          ${item.tags.length > 0 ? `<div class="tags">
-            ${item.tags.map(tag => `<span class="tag ${tag.type}">${tag.name}</span>`).join('')}
-          </div>` : ''}
-        </div>
-      `).join('');
+      area.innerHTML = articles.map(item => {
+        const timeAgo = getTimeAgo(new Date(item.pubDate));
+        return `
+          <div class="feed-item">
+            <a href="${item.link}" target="_blank" rel="noopener noreferrer">${item.title}</a>
+            ${item.description ? `<div class="description">${item.description}</div>` : ''}
+            <div class="meta">
+              <span><i class="fas fa-clock"></i> ${timeAgo}</span>
+              <span><i class="fas fa-globe"></i> ${item.source}</span>
+            </div>
+            ${item.tags.length > 0 ? `<div class="tags">
+              ${item.tags.map(tag => `<span class="tag ${tag.type}">${tag.name}</span>`).join('')}
+            </div>` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function getTimeAgo(date) {
+      const seconds = Math.floor((new Date() - date) / 1000);
+      if (seconds < 3600) return Math.floor(seconds / 60) + 'm ago';
+      if (seconds < 86400) return Math.floor(seconds / 3600) + 'h ago';
+      if (seconds < 604800) return Math.floor(seconds / 86400) + 'd ago';
+      return date.toLocaleDateString();
     }
 
     // ==================== AI HYPOTHESIS GENERATOR ====================
@@ -1188,7 +1396,6 @@ bytes_out > 104857600
             <h4>${i + 1}. ${h.title}</h4>
             <p><strong>Hypothesis:</strong> ${h.hypothesis}</p>
             <div class="context">
-              <strong>Threat Context:</strong><br>
               ${h.context}
             </div>
           </div>
@@ -1201,27 +1408,27 @@ bytes_out > 104857600
         {
           title: (a) => `Hunt for shadow IT exploiting "${a.title.slice(0, 60)}..."`,
           hypothesis: (a) => `Monitor unsanctioned cloud uploads related to this threat by tracking unusual cloud service connections.`,
-          context: (a) => `<ul style="margin: 0.5rem 0;"><li><strong>Insight:</strong> Employees may bypass security uploading data on ${new Date(a.pubDate).toLocaleDateString()}</li><li><strong>TTPs:</strong> Data Exfiltration (T1041), Cloud Service Abuse (T1567)</li><li><strong>Search:</strong> DeviceNetworkEvents | where RemoteUrl has_any ("dropbox", "drive.google")</li></ul>`
+          context: (a) => `<strong>Threat Context:</strong> Employees may bypass security uploading data on ${new Date(a.pubDate).toLocaleDateString()}<br><strong>TTPs:</strong> Data Exfiltration (T1041), Cloud Service Abuse (T1567)<br><strong>Search:</strong> DeviceNetworkEvents | where RemoteUrl has_any ("dropbox", "drive.google")`
         },
         {
           title: (a) => `Investigate if "${a.title.slice(0, 60)}..." masks APT activity`,
           hypothesis: (a) => `This high-profile event may hide stealthier targeted attacks against your organization.`,
-          context: (a) => `<ul style="margin: 0.5rem 0;"><li><strong>Insight:</strong> Attackers use public incidents to hide C2 traffic</li><li><strong>TTPs:</strong> Command and Control (T1071), Obfuscation (T1027)</li><li><strong>Search:</strong> Look for beaconing patterns in network logs</li></ul>`
+          context: (a) => `<strong>Threat Context:</strong> Attackers use public incidents to hide C2 traffic<br><strong>TTPs:</strong> Command and Control (T1071), Obfuscation (T1027)<br><strong>Search:</strong> Look for beaconing patterns in network logs`
         },
         {
           title: (a) => `Hunt for phishing campaigns mimicking "${a.title.slice(0, 60)}..."`,
           hypothesis: (a) => `Attackers weaponize breaking news to craft convincing phishing lures.`,
-          context: (a) => `<ul style="margin: 0.5rem 0;"><li><strong>Insight:</strong> Phishing peaks within 24-48h of major security news</li><li><strong>TTPs:</strong> Spearphishing (T1566), Credential Harvesting</li><li><strong>Search:</strong> EmailEvents | where Subject contains keywords from article</li></ul>`
+          context: (a) => `<strong>Threat Context:</strong> Phishing peaks within 24-48h of major security news<br><strong>TTPs:</strong> Spearphishing (T1566), Credential Harvesting<br><strong>Search:</strong> EmailEvents | where Subject contains keywords from article`
         },
         {
           title: (a) => `Investigate supply chain risk from "${a.title.slice(0, 60)}..."`,
           hypothesis: (a) => `Vendors mentioned may be compromised, creating downstream supply chain risk.`,
-          context: (a) => `<ul style="margin: 0.5rem 0;"><li><strong>Insight:</strong> Third-party breaches cascade to customers</li><li><strong>TTPs:</strong> Supply Chain Compromise (T1195)</li><li><strong>Search:</strong> Monitor vendor-related authentication events</li></ul>`
+          context: (a) => `<strong>Threat Context:</strong> Third-party breaches cascade to customers<br><strong>TTPs:</strong> Supply Chain Compromise (T1195)<br><strong>Search:</strong> Monitor vendor-related authentication events`
         },
         {
           title: (a) => `Probe for insider threats amplifying "${a.title.slice(0, 60)}..."`,
           hypothesis: (a) => `Internal actors may leverage this incident to exfiltrate data while attention is diverted.`,
-          context: (a) => `<ul style="margin: 0.5rem 0;"><li><strong>Insight:</strong> Insider threats spike during major security events</li><li><strong>TTPs:</strong> Data Staged (T1074), Removable Media (T1052)</li><li><strong>Search:</strong> Monitor USB connections and after-hours file access</li></ul>`
+          context: (a) => `<strong>Threat Context:</strong> Insider threats spike during major security events<br><strong>TTPs:</strong> Data Staged (T1074), Removable Media (T1052)<br><strong>Search:</strong> Monitor USB connections and after-hours file access`
         }
       ];
 
@@ -1322,9 +1529,9 @@ bytes_out > 104857600
 
       const addSection = (title, items, type) => {
         if (items.length > 0) {
-          html += `<div style="margin-bottom: 1rem;"><strong style="color: var(--accent);">${title} (${items.length})</strong></div>`;
+          html += `<div style="margin-bottom: 1rem;"><strong style="color: var(--text-primary);">${title} (${items.length})</strong></div>`;
           items.forEach(item => {
-            html += `<div class="ioc-item"><code style="word-break: break-all;">${item}</code><span class="ioc-type">${type}</span></div>`;
+            html += `<div class="ioc-item"><code style="word-break: break-all; color: var(--text-secondary); font-size: 0.8125rem;">${item}</code><span class="ioc-type">${type}</span></div>`;
           });
           total += items.length;
         }
@@ -1335,10 +1542,10 @@ bytes_out > 104857600
       addSection('URLs', extractedIOCs.urls, 'URL');
       addSection('File Hashes', extractedIOCs.hashes, 'HASH');
 
-      container.innerHTML = html || '<p style="text-align: center; color: var(--text-muted);">No IOCs extracted. Try pasting threat intelligence text.</p>';
+      container.innerHTML = html || '<p style="text-align: center; color: var(--text-tertiary); padding: 2rem 0;">No IOCs extracted. Try pasting threat intelligence text.</p>';
       
       if (total > 0) {
-        container.innerHTML = `<div style="background: var(--success); color: var(--bg); padding: 0.5rem; border-radius: 4px; margin-bottom: 1rem; text-align: center; font-weight: 600;">Extracted ${total} IOCs</div>` + container.innerHTML;
+        container.innerHTML = `<div style="background: var(--success-light); color: var(--success); padding: 0.75rem; border-radius: var(--radius); margin-bottom: 1rem; text-align: center; font-weight: 500; border: 1px solid var(--success);">Extracted ${total} IOCs</div>` + container.innerHTML;
       }
     }
 
@@ -1413,27 +1620,22 @@ bytes_out > 104857600
       document.getElementById('translatedQuery').textContent = translated;
     }
 
-    // ==================== RANSOMWARE VICTIMS ====================
-    async function loadRansomwareVictims() {
-      document.getElementById('ransomwareVictims').innerHTML = `
-        <p style="color: var(--text-muted); text-align: center; padding: 1rem;">
-          For the latest ransomware victim disclosures, visit:<br><br>
-          <a href="https://www.ransomware.live/" target="_blank" rel="noopener noreferrer" style="color: var(--accent); text-decoration: none; font-weight: 600;">
-            <i class="fas fa-external-link-alt"></i> Ransomware.live
-          </a>
-        </p>
-      `;
-    }
-
     // ==================== INITIALIZATION ====================
     setInterval(() => {
-      document.getElementById('clock').textContent = new Date().toLocaleString();
+      document.getElementById('clock').textContent = new Date().toLocaleString('en-US', { 
+        weekday: 'short', 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
     }, 1000);
 
     window.addEventListener('load', () => {
       showDetectionQuery();
       loadFeeds();
-      loadRansomwareVictims();
+      loadActiveThreatCards();
     });
   </script>
 </body>
