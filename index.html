@@ -57,54 +57,155 @@
     </div>
     <div id="tab-hypothesis" class="tab-content"><section><h2><i class="fas fa-brain"></i> AI Hypothesis Generator</h2><button class="primary" onclick="generateHypothesis()" style="width:100%;padding:.875rem"><i class="fas fa-radiation"></i> Generate Hypotheses</button><div id="hypothesisLoading" class="loading" style="display:none"><i class="fas fa-spinner"></i><p>Generating...</p></div><div id="hypothesisContainer" style="margin-top:1.5rem"></div></section></div>
     <div id="tab-osint" class="tab-content"><section><h2><i class="fas fa-keyboard"></i> OSINT Tools</h2><div class="alert"><i class="fas fa-info-circle"></i><span>Press any key (A-Z) or click to instantly open that OSINT tool in a new tab. Perfect for rapid IOC investigation.</span></div><div id="osintKeyboard" class="osint-keyboard"></div></section></div>
-    <div id="tab-ioc" class="tab-content"><div class="grid"><section><h2><i class="fas fa-fingerprint"></i> IOC Extractor</h2><textarea id="iocInput" placeholder="Paste intel here..."></textarea><button class="primary" onclick="extractIOCs()" style="width:100%;margin-top:.75rem"><i class="fas fa-search-plus"></i> Extract</button></section><section><h2><i class="fas fa-list"></i> Extracted IOCs</h2><div id="iocResults" class="ioc-list"><p style="color:var(--text-tertiary);text-align:center;padding:2rem 0">IOCs will appear here...</p></div></section></div></div>
-    <div id="tab-translator" class="tab-content"><div class="grid"><section><h2><i class="fas fa-language"></i> Query Translator</h2><select id="sourcePlatform"><option value="kql">Sentinel (KQL)</option><option value="spl">Splunk (SPL)</option></select><select id="targetPlatform"><option value="spl">Splunk (SPL)</option><option value="kql">Sentinel (KQL)</option></select><textarea id="sourceQuery" placeholder="Enter query..."></textarea><button class="primary" onclick="translateQuery()" style="width:100%;margin-top:.75rem"><i class="fas fa-exchange-alt"></i> Translate</button></section><section><h2><i class="fas fa-code"></i> Result</h2><pre id="translatedQuery">Translation appears here...</pre></section></div></div>
-    <div id="tab-queries" class="tab-content"><div class="grid"><section class="grid-full"><h2><i class="fas fa-code"></i> Detection Queries</h2><select id="technique" onchange="showDetectionQuery()"><option value="">-- Select MITRE Technique --</option><option value="T1059">T1059 - Command Interpreter</option><option value="T1566">T1566 - Phishing</option></select><pre id="queryOutput">Select a technique...</pre></section></div></div>
+    <div id="tab-ioc" class="tab-content"><div class="grid"><section><h2><i class="fas fa-fingerprint"></i> IOC Extractor</h2><div class="alert"><i class="fas fa-info-circle"></i><span>Automatically extracts and defangs IPs (8[.]8[.]8[.]8 → 8.8.8.8), domains, URLs, and file hashes from threat intelligence text.</span></div><textarea id="iocInput" placeholder="Paste threat intel here...\n\nExample:\nMalicious IP: 192[.]168[.]1[.]1\nDomain: evil[.]example[.]com\nHash: d41d8cd98f00b204e9800998ecf8427e"></textarea><button class="primary" onclick="extractIOCs()" style="width:100%;margin-top:.75rem"><i class="fas fa-search-plus"></i> Extract IOCs</button></section><section><h2><i class="fas fa-list"></i> Extracted IOCs</h2><div id="iocResults" class="ioc-list"><p style="color:var(--text-tertiary);text-align:center;padding:2rem 0">IOCs will appear here...</p></div><div class="btn-group" style="margin-top:1rem"><button onclick="exportIOCs('txt')"><i class="fas fa-file-alt"></i> Export TXT</button><button onclick="exportIOCs('json')"><i class="fas fa-file-code"></i> Export JSON</button><button onclick="exportIOCs('csv')"><i class="fas fa-file-csv"></i> Export CSV</button></div></section></div></div>
+    <div id="tab-translator" class="tab-content"><div class="grid"><section><h2><i class="fas fa-language"></i> Query Translator</h2><select id="sourcePlatform" style="margin-bottom:1rem"><option value="kql">Microsoft Sentinel (KQL)</option><option value="spl">Splunk (SPL)</option></select><select id="targetPlatform" style="margin-bottom:1rem"><option value="spl">Splunk (SPL)</option><option value="kql">Microsoft Sentinel (KQL)</option></select><textarea id="sourceQuery" placeholder="Enter detection query..."></textarea><button class="primary" onclick="translateQuery()" style="width:100%;margin-top:.75rem"><i class="fas fa-exchange-alt"></i> Translate</button></section><section><h2><i class="fas fa-code"></i> Result</h2><div style="position:relative"><button class="copy-btn" onclick="copyToClipboard('translatedQuery')"><i class="fas fa-copy"></i> Copy</button><pre id="translatedQuery">Translation appears here...</pre></div></section></div></div>
+    <div id="tab-queries" class="tab-content"><div class="grid"><section class="grid-full"><h2><i class="fas fa-code"></i> MITRE ATT&CK Detection Queries</h2><div class="stats-grid"><div class="stat-card"><div class="value">4</div><div class="label">SIEM Platforms</div></div><div class="stat-card"><div class="value">14</div><div class="label">MITRE Techniques</div></div><div class="stat-card"><div class="value">56+</div><div class="label">Detection Queries</div></div></div><h3>Select MITRE ATT&CK Technique</h3><select id="technique" onchange="showDetectionQuery()" style="margin-bottom:1rem"><option value="">-- Select MITRE Technique --</option><option value="T1059">T1059 - Command and Scripting Interpreter</option><option value="T1566">T1566 - Phishing</option><option value="T1021">T1021 - Remote Services</option><option value="T1041">T1041 - Exfiltration Over C2 Channel</option><option value="T1105">T1105 - Remote File Copy</option><option value="T1547">T1547 - Boot or Logon Autostart Execution</option><option value="T1071">T1071 - Application Layer Protocol</option><option value="T1110">T1110 - Brute Force</option><option value="T1055">T1055 - Process Injection</option><option value="T1621">T1621 - Multi-Factor Authentication Fatigue</option><option value="T1003">T1003 - Credential Dumping</option><option value="T1078">T1078 - Valid Accounts</option><option value="T1486">T1486 - Data Encrypted for Impact</option><option value="T1567">T1567 - Exfiltration Over Web Service</option></select><div style="position:relative"><button class="copy-btn" onclick="copyToClipboard('queryOutput')"><i class="fas fa-copy"></i> Copy</button><pre id="queryOutput">Select a technique to view detection queries across multiple SIEM platforms...</pre></div><div class="alert" style="margin-top:1rem"><i class="fas fa-info-circle"></i><span><strong>Platforms:</strong> Microsoft Sentinel (KQL) | Splunk (SPL) | CrowdStrike Falcon (LogScale) | Elastic SIEM (Lucene)</span></div></section></div></div>
   </div>
 
   <footer><div><strong>CyberGator1</strong> - Threat Hunting Command Center</div><div style="margin-top:.5rem">Created by Pratik</div></footer>
 
   <script>
-let currentTab='intel';
-let allArticles=[];
-const detections={T1059:`Microsoft Sentinel (KQL):\nDeviceProcessEvents | where FileName in~ ("powershell.exe", "cmd.exe")\n\nSplunk (SPL):\nindex=windows EventCode=4688 NewProcessName="*powershell.exe"`,T1566:`Microsoft Sentinel (KQL):\nEmailEvents | where Subject has_any ("urgent", "invoice")`};
+let currentTab='intel',allArticles=[];
+const detections={T1059:`Microsoft Sentinel (KQL):
+DeviceProcessEvents
+| where Timestamp > ago(1d)
+| where FileName in~ ("powershell.exe","cmd.exe","cscript.exe","wscript.exe")
+| project Timestamp,DeviceName,AccountName,FileName,ProcessCommandLine
+
+Splunk (SPL):
+index=windows sourcetype=WinEventLog:Security EventCode=4688
+(NewProcessName="*powershell.exe" OR NewProcessName="*cmd.exe")
+| table _time,Computer,SubjectUserName,NewProcessName,CommandLine
+
+CrowdStrike Falcon (LogScale):
+#event_simpleName=ProcessRollup2 FileName=/(powershell|cmd).exe/i
+
+Elastic SIEM (Lucene):
+event.category:process AND process.name:(powershell.exe OR cmd.exe)`,T1566:`Microsoft Sentinel (KQL):
+EmailEvents | where Subject has_any ("urgent","invoice","password")
+| join kind=inner (EmailAttachmentInfo) on NetworkMessageId
+| where FileName endswith ".exe" or FileName endswith ".zip"
+
+Splunk (SPL):
+index=o365 sourcetype="o365:management:activity" Operation="MailItemsAccessed"
+(subject="*invoice*" OR subject="*password*")
+
+CrowdStrike/Elastic:
+email.subject:(invoice OR password OR urgent) AND file.extension:(exe OR zip)`,T1021:`Microsoft Sentinel (KQL):
+SecurityEvent | where EventID==4624 | where LogonType in (3,10)
+| summarize LoginCount=count() by Account,IpAddress,Computer
+| where LoginCount > 5
+
+Splunk (SPL):
+index=wineventlog EventCode=4624 (LogonType=3 OR LogonType=10)
+| stats count by Account_Name,Source_Network_Address
+| where count > 5`,T1041:`Microsoft Sentinel (KQL):
+DeviceNetworkEvents | where RemotePort in (21,22,80,443,8080)
+| where InitiatingProcessFileName in~ ("powershell.exe","curl.exe")
+| summarize TotalBytes=sum(BytesSent) by DeviceName,RemoteIP
+| where TotalBytes > 10485760
+
+Splunk (SPL):
+index=network dest_port IN (21,22,80,443) bytes_out > 10485760
+| stats sum(bytes_out) as total_bytes by src_ip,dest_ip`,T1105:`Microsoft Sentinel (KQL):
+DeviceNetworkEvents | where RemoteUrl matches regex @"\\.(exe|dll|ps1)$"
+| where ActionType=="ConnectionSuccess"
+
+Splunk (SPL):
+index=proxy (url="*.exe" OR url="*.dll" OR url="*.ps1")
+| table _time,src_ip,url,bytes_in`,T1547:`Microsoft Sentinel (KQL):
+DeviceRegistryEvents | where RegistryKey has_any ("Run","RunOnce")
+| where ActionType=="RegistryValueSet"
+
+Splunk (SPL):
+index=windows sourcetype=WinRegistry key_path="*\\\\Run*"
+| table _time,host,key_path,value_name`,T1071:`Microsoft Sentinel (KQL):
+DeviceNetworkEvents | where RemotePort !in (80,443,53)
+| summarize ConnectionCount=count() by DeviceName,RemoteIP,RemotePort
+| where ConnectionCount > 50
+
+CrowdStrike Falcon (LogScale):
+#event_simpleName=NetworkConnectIP4 RemotePort!=/^(80|443|53)$/
+| stats count() by ComputerName,RemoteAddressIP4`,T1110:`Microsoft Sentinel (KQL):
+SecurityEvent | where EventID==4625 | where TimeGenerated > ago(1h)
+| summarize FailedAttempts=count() by Account,IpAddress
+| where FailedAttempts > 10
+
+Splunk (SPL):
+index=windows EventCode=4625 | bucket _time span=1h
+| stats count by Account_Name,Source_Network_Address | where count > 10`,T1055:`Microsoft Sentinel (KQL):
+DeviceProcessEvents | where FileName in~ ("mavinject.exe","rundll32.exe")
+| where ProcessCommandLine has_any ("VirtualAllocEx","CreateRemoteThread")
+
+Splunk (SPL):
+index=sysmon EventCode=8 (TargetImage="*rundll32.exe" OR SourceImage="*inject*")
+| table _time,Computer,SourceImage,TargetImage`,T1621:`Microsoft Sentinel (KQL):
+SigninLogs | where TimeGenerated > ago(1h)
+| where ResultType in ("50074","50076")
+| summarize MFADenials=count() by UserPrincipalName,IPAddress
+| where MFADenials > 5
+
+Splunk (SPL):
+index=azure sourcetype="azure:aad:signin" ResultDescription="MFA denied"
+| stats count by UserPrincipalName,IPAddress | where count > 5`,T1003:`Microsoft Sentinel (KQL):
+DeviceProcessEvents | where FileName in~ ("mimikatz.exe","procdump.exe")
+| or ProcessCommandLine has_any ("sekurlsa","lsadump","lsass")
+
+Splunk (SPL):
+index=sysmon (Image="*mimikatz.exe" OR CommandLine="*sekurlsa*")
+| table _time,Computer,User,Image,CommandLine`,T1078:`Microsoft Sentinel (KQL):
+SigninLogs | where ResultType==0 | where TimeGenerated > ago(24h)
+| summarize LoginCount=count(),Countries=make_set(Location) by UserPrincipalName
+| where LoginCount > 50 or array_length(Countries) > 2
+
+Splunk (SPL):
+index=auth EventCode=4624 LogonType!=2
+| stats count,dc(src_country) as countries by user,src_ip
+| where count > 50 OR countries > 2`,T1486:`Microsoft Sentinel (KQL):
+DeviceFileEvents | where ActionType=="FileRenamed"
+| where FileName matches regex @"\\.(locked|encrypted|crypt)$"
+| summarize EncryptedFiles=count() by DeviceName,InitiatingProcessFileName
+| where EncryptedFiles > 50
+
+Splunk (SPL):
+index=sysmon EventCode=11 (TargetFilename="*.locked" OR TargetFilename="*.encrypted")
+| stats count by Computer,Image | where count > 50`,T1567:`Microsoft Sentinel (KQL):
+DeviceNetworkEvents
+| where RemoteUrl has_any ("dropbox.com","drive.google.com","mega.nz")
+| summarize UploadBytes=sum(BytesSent) by DeviceName,AccountName,RemoteUrl
+| where UploadBytes > 104857600
+
+Splunk (SPL):
+index=proxy (url="*dropbox.com*" OR url="*drive.google.com*")
+bytes_out > 104857600 | stats sum(bytes_out) by src_user,url`};
 
 function switchTab(tab){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));document.getElementById('tab-'+tab).classList.add('active');event.target.classList.add('active');currentTab=tab;if(tab==='osint'&&!document.getElementById('osintKeyboard').innerHTML)loadOSINTKeyboard();}
-
-function showDetectionQuery(){document.getElementById('queryOutput').textContent=detections[document.getElementById('technique').value]||'Select a technique...';}
-
+function showDetectionQuery(){document.getElementById('queryOutput').textContent=detections[document.getElementById('technique').value]||'Select a technique to view detection queries across multiple SIEM platforms...';}
+function copyToClipboard(elementId){navigator.clipboard.writeText(document.getElementById(elementId).textContent).then(()=>{const btn=event.target.closest('.copy-btn'),originalText=btn.innerHTML;btn.innerHTML='<i class="fas fa-check"></i> Copied!';setTimeout(()=>btn.innerHTML=originalText,2000);}).catch(()=>alert('Failed to copy.'));}
 function loadActiveThreatCards(){document.getElementById('activeThreatCards').innerHTML=`<div class="threat-card critical"><h4>Qilin & Clop Ransomware (Dec 2025)</h4><div class="description">15% of global attacks each</div><div class="action"><strong>Action:</strong> Monitor Oracle EBS</div></div><div class="threat-card high"><h4>Warlock Ransomware</h4><div class="description">SharePoint zero-day exploitation</div><div class="action"><strong>Action:</strong> Patch SharePoint</div></div>`;}
 
 const rssFeeds=['https://www.bleepingcomputer.com/feed/','https://feeds.feedburner.com/TheHackersNews','https://krebsonsecurity.com/feed/','https://www.securityweek.com/feed/','https://www.darkreading.com/rss.xml'];
-
 async function fetchFeed(url){try{const resp=await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`);const data=await resp.json();if(data.status==='ok'){return data.items.slice(0,10).map(item=>({title:item.title||'No title',link:item.link||'#',pubDate:item.pubDate||'',description:(item.description||'').replace(/<[^>]+>/g,'').slice(0,450),source:new URL(url).hostname,tags:autoTagArticle(item.title+' '+item.description)}));}return[];}catch(e){return[];}}
-
 async function loadFeeds(){const area=document.getElementById('feedArea');area.innerHTML='<div class="loading"><i class="fas fa-spinner"></i><p>Loading...</p></div>';allArticles=[];const results=await Promise.all(rssFeeds.map(f=>fetchFeed(f)));results.forEach(items=>allArticles.push(...items));allArticles.sort((a,b)=>new Date(b.pubDate)-new Date(a.pubDate));applyFeedFilters();}
-
 function autoTagArticle(text){const lower=text.toLowerCase();const tags=[];if(lower.match(/ransom|lockbit|blackcat|qilin|clop/))tags.push({name:'Ransomware',type:'critical'});if(lower.match(/zero.?day/))tags.push({name:'Zero-Day',type:'critical'});if(lower.match(/apt\d+|apt\s/))tags.push({name:'APT',type:'high'});if(lower.match(/phish/))tags.push({name:'Phishing',type:'high'});if(lower.match(/malware/))tags.push({name:'Malware',type:'high'});return tags;}
-
 function applyFeedFilters(){const timeFilter=document.getElementById('feedFilter').value;const searchTerm=document.getElementById('feedSearch').value.toLowerCase();let filtered=allArticles;if(timeFilter!=='all'){const now=new Date();filtered=filtered.filter(article=>{const articleDate=new Date(article.pubDate);const diff=now-articleDate;switch(timeFilter){case'today':return now.toDateString()===articleDate.toDateString();case'24h':return diff<=86400000;case'7d':return diff<=604800000;default:return true;}});}if(searchTerm){filtered=filtered.filter(a=>(a.title+a.description).toLowerCase().includes(searchTerm));}displayFeeds(filtered.slice(0,50));}
-
 function displayFeeds(articles){const area=document.getElementById('feedArea');if(!articles.length){area.innerHTML='<p style="text-align:center;color:var(--text-tertiary);padding:2rem 0">No articles found.</p>';return;}area.innerHTML=articles.map(a=>`<div class="feed-item"><a href="${a.link}" target="_blank" rel="noopener">${a.title}</a>${a.description?`<div class="description">${a.description}</div>`:''}<div class="meta"><span><i class="fas fa-clock"></i> ${getTimeAgo(new Date(a.pubDate))}</span><span><i class="fas fa-globe"></i> ${a.source}</span></div>${a.tags.length?`<div class="tags">${a.tags.map(t=>`<span class="tag ${t.type}">${t.name}</span>`).join('')}</div>`:''}</div>`).join('');}
-
 function getTimeAgo(date){const seconds=Math.floor((new Date()-date)/1000);if(seconds<3600)return Math.floor(seconds/60)+'m ago';if(seconds<86400)return Math.floor(seconds/3600)+'h ago';if(seconds<604800)return Math.floor(seconds/86400)+'d ago';return date.toLocaleDateString();}
 
 function generateHypothesis(){const container=document.getElementById('hypothesisContainer');const loading=document.getElementById('hypothesisLoading');if(!allArticles.length){alert('Please wait for feeds to load first.');return;}loading.style.display='block';container.innerHTML='';setTimeout(()=>{loading.style.display='none';const templates=[{title:a=>`Hunt for shadow IT exploiting "${a.title.slice(0,50)}..."`,hypothesis:a=>'Adversaries may abuse this incident to exfiltrate data via unsanctioned cloud services. Monitor unusual outbound connections to file-sharing platforms.',context:a=>`<strong>Threat Context:</strong> Employees may bypass security controls during ${new Date(a.pubDate).toLocaleDateString()}<br><strong>TTPs:</strong> Data Exfiltration (T1041), Cloud Service Abuse (T1567)<br><strong>Hunt Query:</strong> DeviceNetworkEvents | where RemoteUrl has_any ("dropbox","drive.google","mega.nz")`},{title:a=>`Investigate if "${a.title.slice(0,50)}..." masks APT activity`,hypothesis:a=>'This high-profile event may hide stealthier targeted attacks. Threat actors leverage breaking news to blend malicious C2 traffic with legitimate communications.',context:a=>`<strong>Threat Context:</strong> APT groups capitalize on media attention to hide infrastructure<br><strong>TTPs:</strong> Command and Control (T1071), Obfuscation (T1027)<br><strong>Hunt Query:</strong> Look for beaconing patterns in proxy logs coinciding with ${new Date(a.pubDate).toLocaleDateString()}`},{title:a=>`Hunt for phishing campaigns weaponizing "${a.title.slice(0,50)}..."`,hypothesis:a=>'Attackers rapidly weaponize breaking security news into phishing lures. Expect surge in themed credential harvesting within 24-48 hours of this disclosure.',context:a=>`<strong>Threat Context:</strong> Phishing activity peaks immediately following major security incidents<br><strong>TTPs:</strong> Spearphishing (T1566), Credential Harvesting<br><strong>Hunt Query:</strong> EmailEvents | where Subject contains keywords from article AND TimeGenerated > ago(48h)`},{title:a=>`Investigate supply chain risk from "${a.title.slice(0,50)}..."`,hypothesis:a=>'Third-party vendors mentioned in this article may be compromised, creating cascading supply chain risk to your organization and partners.',context:a=>`<strong>Threat Context:</strong> Breaches disclosed on ${new Date(a.pubDate).toLocaleDateString()} often have upstream/downstream impacts<br><strong>TTPs:</strong> Supply Chain Compromise (T1195)<br><strong>Hunt Query:</strong> Monitor vendor-related authentication events and data flows`},{title:a=>`Probe for insider threats amplifying "${a.title.slice(0,50)}..."`,hypothesis:a=>'Internal actors may exploit this external distraction to exfiltrate sensitive data while security teams are focused on the publicized threat.',context:a=>`<strong>Threat Context:</strong> Insider threat activity increases during major security events<br><strong>TTPs:</strong> Data Staged (T1074), Removable Media (T1052)<br><strong>Hunt Query:</strong> Monitor USB connections, after-hours file access, and unusual SharePoint downloads`}];const hypotheses=allArticles.slice(0,10).map((a,i)=>{const template=templates[i%templates.length];return{title:template.title(a),hypothesis:template.hypothesis(a),context:template.context(a)};});container.innerHTML=hypotheses.map((h,i)=>`<div class="hypothesis-item"><h4>${i+1}. ${h.title}</h4><p><strong>Hypothesis:</strong> ${h.hypothesis}</p><div class="context">${h.context}</div></div>`).join('');},1500);}
 
 const osintTools=[{key:'A',name:'AbuseIPDB',url:'https://www.abuseipdb.com/check'},{key:'B',name:'BGPView',url:'https://bgpview.io'},{key:'C',name:'Censys',url:'https://search.censys.io'},{key:'D',name:'DNSTrails',url:'https://securitytrails.com/domain'},{key:'E',name:'IPVoid',url:'https://www.ipvoid.com/domain-reputation-check/'},{key:'F',name:'Fofa',url:'https://en.fofa.info'},{key:'G',name:'GreyNoise',url:'https://viz.greynoise.io/query'},{key:'H',name:'Hybrid Analysis',url:'https://www.hybrid-analysis.com'},{key:'I',name:'IPinfo',url:'https://ipinfo.io/'},{key:'J',name:'JoeSandbox',url:'https://www.joesandbox.com'},{key:'K',name:'Kaspersky TI',url:'https://opentip.kaspersky.com'},{key:'L',name:'DNSlytics',url:'https://dnslytics.com/'},{key:'M',name:'Maltiverse',url:'https://www.maltiverse.com/search'},{key:'N',name:'Netlas',url:'https://app.netlas.io'},{key:'O',name:'Onyphe',url:'https://www.onyphe.io'},{key:'P',name:'Pulsedive',url:'https://pulsedive.com'},{key:'Q',name:'Talos Intel',url:'https://www.talosintelligence.com/reputation_center'},{key:'R',name:'AlienVault OTX',url:'https://otx.alienvault.com'},{key:'S',name:'Shodan',url:'https://www.shodan.io/search'},{key:'T',name:'ThreatFox',url:'https://threatfox.abuse.ch'},{key:'U',name:'URLScan',url:'https://urlscan.io'},{key:'V',name:'VirusTotal',url:'https://www.virustotal.com/gui/home/upload'},{key:'W',name:'WHOIS',url:'https://whois.domaintools.com'},{key:'X',name:'X-Force',url:'https://exchange.xforce.ibmcloud.com'},{key:'Y',name:'YARAify',url:'https://yaraify.abuse.ch'},{key:'Z',name:'ZoomEye',url:'https://www.zoomeye.org'}];
-
 function loadOSINTKeyboard(){document.getElementById('osintKeyboard').innerHTML=osintTools.map(t=>`<a href="${t.url}" target="_blank" class="osint-key" accesskey="${t.key.toLowerCase()}"><div class="letter">${t.key}</div><div class="tool-name">${t.name}</div></a>`).join('');}
-
 document.addEventListener('keydown',e=>{if(currentTab==='osint'&&e.key.match(/[a-z]/i)&&!e.ctrlKey&&!e.altKey&&!e.metaKey){const tool=osintTools.find(t=>t.key.toLowerCase()===e.key.toLowerCase());if(tool){window.open(tool.url,'_blank');e.preventDefault();}}});
 
 let extractedIOCs={ips:[],domains:[],urls:[],hashes:[]};
+function defangIOC(text){return text.replace(/\[\.\.\]/g,'.').replace(/\[\.\]/g,'.').replace(/\[:\]/g,':').replace(/hxxp/gi,'http');}
+function extractIOCs(){let text=document.getElementById('iocInput').value;if(!text.trim()){alert('Please paste text first.');return;}text=defangIOC(text);extractedIOCs={ips:[],domains:[],urls:[],hashes:[]};extractedIOCs.ips=[...new Set(text.match(/\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b/g)||[])].filter(ip=>ip.split('.').every(octet=>parseInt(octet)>=0&&parseInt(octet)<=255));extractedIOCs.domains=[...new Set(text.match(/\b(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}\b/gi)||[])].filter(d=>!d.match(/\.(exe|dll|txt|log|jpg|png|pdf)$/i)&&!extractedIOCs.ips.includes(d));extractedIOCs.urls=[...new Set(text.match(/https?:\/\/[^\s<>"{}|\\\^`\[\]]+/gi)||[])];extractedIOCs.hashes=[...new Set(text.match(/\b[a-f0-9]{32}\b|\b[a-f0-9]{40}\b|\b[a-f0-9]{64}\b/gi)||[])];const results=document.getElementById('iocResults');let html='',total=0;const addSection=(title,items,type)=>{if(items.length){html+=`<div style="margin-bottom:1rem"><strong>${title} (${items.length})</strong></div>`;items.forEach(item=>{html+=`<div class="ioc-item"><code style="word-break:break-all;color:var(--text-secondary);font-size:.8125rem">${item}</code><span class="ioc-type">${type}</span></div>`;});total+=items.length;}};addSection('IP Addresses',extractedIOCs.ips,'IP');addSection('Domains',extractedIOCs.domains,'DOMAIN');addSection('URLs',extractedIOCs.urls,'URL');addSection('Hashes',extractedIOCs.hashes,'HASH');results.innerHTML=html||'<p style="text-align:center;color:var(--text-tertiary);padding:2rem 0">No IOCs found.</p>';if(total>0){results.innerHTML=`<div style="background:var(--success-light);color:var(--success);padding:.75rem;border-radius:var(--radius);margin-bottom:1rem;text-align:center;font-weight:500;border:1px solid var(--success)">Extracted ${total} IOCs</div>`+results.innerHTML;}}
+function exportIOCs(format){const total=extractedIOCs.ips.length+extractedIOCs.domains.length+extractedIOCs.urls.length+extractedIOCs.hashes.length;if(!total){alert('No IOCs to export.');return;}let content='';const date=new Date().toISOString().slice(0,10);if(format==='txt'){content='=== IP Addresses ===\n'+extractedIOCs.ips.join('\n')+'\n\n=== Domains ===\n'+extractedIOCs.domains.join('\n')+'\n\n=== URLs ===\n'+extractedIOCs.urls.join('\n')+'\n\n=== Hashes ===\n'+extractedIOCs.hashes.join('\n');}else if(format==='json'){content=JSON.stringify(extractedIOCs,null,2);}else if(format==='csv'){content='Type,Value\n';extractedIOCs.ips.forEach(ip=>content+=`IP,${ip}\n`);extractedIOCs.domains.forEach(d=>content+=`Domain,${d}\n`);extractedIOCs.urls.forEach(u=>content+=`URL,${u}\n`);extractedIOCs.hashes.forEach(h=>content+=`Hash,${h}\n`);}const blob=new Blob([content],{type:format==='json'?'application/json':'text/plain'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`iocs_${date}.${format}`;a.click();URL.revokeObjectURL(url);}
 
-function extractIOCs(){const text=document.getElementById('iocInput').value;if(!text.trim()){alert('Please paste text first.');return;}extractedIOCs={ips:[],domains:[],urls:[],hashes:[]};extractedIOCs.ips=[...new Set(text.match(/\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b/g)||[])];extractedIOCs.domains=[...new Set(text.match(/\b(?:[a-z0-9-]+\.)+[a-z]{2,}\b/gi)||[])].filter(d=>!extractedIOCs.ips.includes(d));extractedIOCs.urls=[...new Set(text.match(/https?:\/\/[^\s<>"]+/gi)||[])];extractedIOCs.hashes=[...new Set(text.match(/\b[a-f0-9]{32,64}\b/gi)||[])];const results=document.getElementById('iocResults');let html='';let total=0;const addSection=(title,items,type)=>{if(items.length){html+=`<div style="margin-bottom:1rem"><strong>${title} (${items.length})</strong></div>`;items.forEach(item=>{html+=`<div class="ioc-item"><code style="word-break:break-all;color:var(--text-secondary);font-size:.8125rem">${item}</code><span class="ioc-type">${type}</span></div>`;});total+=items.length;}};addSection('IP Addresses',extractedIOCs.ips,'IP');addSection('Domains',extractedIOCs.domains,'DOMAIN');addSection('URLs',extractedIOCs.urls,'URL');addSection('Hashes',extractedIOCs.hashes,'HASH');results.innerHTML=html||'<p style="text-align:center;color:var(--text-tertiary);padding:2rem 0">No IOCs found.</p>';if(total>0){results.innerHTML=`<div style="background:var(--success-light);color:var(--success);padding:.75rem;border-radius:var(--radius);margin-bottom:1rem;text-align:center;font-weight:500;border:1px solid var(--success)">Extracted ${total} IOCs</div>`+results.innerHTML;}}
-
-function translateQuery(){const source=document.getElementById('sourcePlatform').value;const target=document.getElementById('targetPlatform').value;const query=document.getElementById('sourceQuery').value;if(!query.trim()){alert('Please enter a query.');return;}let translated=query;if(source==='kql'&&target==='spl'){translated=query.replace(/\| where/g,'| search').replace(/\| project/g,'| table');}else if(source==='spl'&&target==='kql'){translated=query.replace(/\| search/g,'| where').replace(/\| table/g,'| project');}document.getElementById('translatedQuery').textContent=translated;}
+function translateQuery(){const source=document.getElementById('sourcePlatform').value;const target=document.getElementById('targetPlatform').value;const query=document.getElementById('sourceQuery').value;if(!query.trim()){alert('Please enter a query.');return;}let translated=query;if(source==='kql'&&target==='spl'){translated=query.replace(/\| where/g,'| search').replace(/\| project/g,'| table').replace(/\| summarize/g,'| stats');}else if(source==='spl'&&target==='kql'){translated=query.replace(/\| search/g,'| where').replace(/\| table/g,'| project').replace(/\| stats/g,'| summarize');}document.getElementById('translatedQuery').textContent=translated;}
 
 setInterval(()=>{document.getElementById('clock').textContent=new Date().toLocaleString('en-US',{weekday:'short',year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});},1000);
-
 window.addEventListener('load',()=>{showDetectionQuery();loadFeeds();loadActiveThreatCards();});
   </script>
 </body>
