@@ -266,16 +266,16 @@
     }
 
     .feed-container {
-      max-height: 600px;
+      max-height: 700px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 0.875rem;
+      gap: 1rem;
     }
 
     .feed-item {
       background: var(--bg-secondary);
-      padding: 1rem;
+      padding: 1.25rem;
       border-left: 3px solid var(--accent);
       border-radius: var(--radius);
       transition: all 0.15s ease;
@@ -283,7 +283,8 @@
 
     .feed-item:hover {
       background: var(--accent-light);
-      box-shadow: var(--shadow-sm);
+      box-shadow: var(--shadow);
+      transform: translateX(2px);
     }
 
     .feed-item a {
@@ -291,8 +292,9 @@
       text-decoration: none;
       display: block;
       font-weight: 500;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.75rem;
       line-height: 1.4;
+      font-size: 1rem;
     }
 
     .feed-item a:hover {
@@ -301,13 +303,9 @@
 
     .feed-item .description {
       color: var(--text-secondary);
-      font-size: 0.875rem;
-      line-height: 1.5;
-      margin-bottom: 0.5rem;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
+      font-size: 0.9375rem;
+      line-height: 1.6;
+      margin-bottom: 0.75rem;
     }
 
     .feed-item .meta {
@@ -315,8 +313,8 @@
       font-size: 0.75rem;
       display: flex;
       align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 0.5rem;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
     }
 
     .feed-item .tags {
@@ -375,13 +373,13 @@
       color: var(--text-primary);
       font-size: 0.9375rem;
       font-weight: 500;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.75rem;
     }
 
     .threat-card .description {
       color: var(--text-secondary);
       font-size: 0.875rem;
-      line-height: 1.5;
+      line-height: 1.6;
       margin-bottom: 0.75rem;
     }
 
@@ -390,6 +388,7 @@
       font-size: 0.8125rem;
       padding-top: 0.75rem;
       border-top: 1px solid var(--border);
+      line-height: 1.5;
     }
 
     .threat-card .action strong {
@@ -424,6 +423,7 @@
       font-size: 0.8125rem;
       padding-top: 0.75rem;
       border-top: 1px solid var(--border);
+      line-height: 1.6;
     }
 
     .osint-keyboard {
@@ -637,7 +637,7 @@
     <div id="tab-intel" class="tab-content active">
       <div class="grid">
         <section class="grid-full">
-          <h2><i class="fas fa-rss"></i> Live Threat Intelligence Feed</h2>
+          <h2><i class="fas fa-newspaper"></i> Latest Cybersecurity News</h2>
           <div class="filter-bar">
             <select id="feedFilter" onchange="applyFeedFilters()">
               <option value="all">All Time</option>
@@ -648,13 +648,15 @@
             <input type="text" id="feedSearch" placeholder="Search articles..." oninput="applyFeedFilters()" />
             <button onclick="loadFeeds()"><i class="fas fa-sync-alt"></i> Refresh</button>
           </div>
-          <div id="feedArea" class="feed-container">Loading latest threat intelligence...</div>
+          <div id="feedArea" class="feed-container">
+            <div class="loading"><i class="fas fa-spinner"></i><p>Loading latest threat intelligence...</p></div>
+          </div>
         </section>
 
         <section>
           <h2><i class="fas fa-exclamation-triangle"></i> Active Global Threats</h2>
-          <div id="activeThreatCards" style="max-height: 550px; overflow-y: auto;">
-            <div class="loading"><i class="fas fa-spinner"></i></div>
+          <div id="activeThreatCards" style="max-height: 700px; overflow-y: auto;">
+            <!-- Dynamic content loaded via JS -->
           </div>
         </section>
 
@@ -807,7 +809,7 @@
           <h2><i class="fas fa-code"></i> MITRE ATT&CK Detection Query Builder</h2>
           <div class="stats-grid">
             <div class="stat-card">
-              <div class="value">5</div>
+              <div class="value">4</div>
               <div class="label">SIEM Platforms</div>
             </div>
             <div class="stat-card">
@@ -815,7 +817,7 @@
               <div class="label">MITRE Techniques</div>
             </div>
             <div class="stat-card">
-              <div class="value">70+</div>
+              <div class="value">56+</div>
               <div class="label">Detection Queries</div>
             </div>
             <div class="stat-card">
@@ -854,7 +856,7 @@
           </div>
           <div class="alert" style="margin-top: 1rem;">
             <i class="fas fa-info-circle"></i>
-            <span><strong>Platforms:</strong> Microsoft Sentinel (KQL) | Splunk (SPL) | CrowdStrike Falcon (LogScale) | Elastic SIEM (Lucene) | Wazuh SIEM</span>
+            <span><strong>Platforms:</strong> Microsoft Sentinel (KQL) | Splunk (SPL) | CrowdStrike Falcon (LogScale) | Elastic SIEM (Lucene)</span>
           </div>
         </section>
       </div>
@@ -871,772 +873,88 @@
   </footer>
 
   <script>
-    // ==================== GLOBAL STATE ====================
-    let currentTab = 'intel';
-    let newsArticles = [];
-    let allArticles = [];
-    let extractedIOCs = { ips: [], domains: [], urls: [], hashes: [] };
+let allArticles=[];
 
-    // ==================== TAB SWITCHING ====================
-    function switchTab(tabName) {
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-      document.getElementById('tab-' + tabName).classList.add('active');
-      event.target.classList.add('active');
-      currentTab = tabName;
-
-      if (tabName === 'osint' && document.getElementById('osintKeyboard').children.length === 0) {
-        loadOSINTKeyboard();
-      }
-    }
-
-    // ==================== CORRECTED DETECTION QUERIES ====================
-    const detections = {
-      T1059: `Microsoft Sentinel (KQL):
+function switchTab(e){document.querySelectorAll(".tab-content").forEach(t=>t.classList.remove("active")),document.querySelectorAll(".nav-tab").forEach(t=>t.classList.remove("active")),document.getElementById("tab-"+e).classList.add("active"),event.target.classList.add("active"),"osint"===e&&0===document.getElementById("osintKeyboard").children.length&&loadOSINTKeyboard()}const detections={T1059:`Microsoft Sentinel (KQL):
 DeviceProcessEvents
 | where Timestamp > ago(1d)
 | where FileName in~ ("powershell.exe", "cmd.exe", "cscript.exe", "wscript.exe")
-| where ProcessCommandLine !contains "Windows\\\\System32"
 | project Timestamp, DeviceName, AccountName, FileName, ProcessCommandLine
 
 Splunk (SPL):
 index=windows sourcetype=WinEventLog:Security EventCode=4688
-(NewProcessName="*powershell.exe" OR NewProcessName="*cmd.exe" OR NewProcessName="*cscript.exe")
+(NewProcessName="*powershell.exe" OR NewProcessName="*cmd.exe")
 | table _time, Computer, SubjectUserName, NewProcessName, CommandLine
 
 CrowdStrike Falcon (LogScale):
-#event_simpleName=ProcessRollup2
-FileName=/(powershell|cmd|cscript|wscript).exe/i
-| table @timestamp, ComputerName, UserName, FileName, CommandLine
+#event_simpleName=ProcessRollup2 FileName=/(powershell|cmd|cscript|wscript).exe/i
 
 Elastic SIEM (Lucene):
-event.category:process AND process.name:(powershell.exe OR cmd.exe OR cscript.exe OR wscript.exe)
-
-Wazuh SIEM:
-rule.id:(61603 OR 61604) OR rule.description:"Command*Interpreter"`,
-
-      T1566: `Microsoft Sentinel (KQL):
-EmailEvents
-| where Timestamp > ago(7d)
-| where Subject has_any ("urgent", "invoice", "account", "password", "verify")
-| join kind=inner (EmailAttachmentInfo) on NetworkMessageId
-| where FileName endswith ".exe" or FileName endswith ".js" or FileName endswith ".zip"
-| project Timestamp, SenderFromAddress, RecipientEmailAddress, Subject, FileName
+event.category:process AND process.name:(powershell.exe OR cmd.exe)`,T1566:`Microsoft Sentinel (KQL):
+EmailEvents | where Subject has_any ("urgent", "invoice", "password")
 
 Splunk (SPL):
-index=o365 sourcetype="o365:management:activity" Operation="MailItemsAccessed"
-(subject="*invoice*" OR subject="*password*" OR subject="*urgent*")
-| table _time, UserId, ClientIPAddress, subject, attachment_name
-
-CrowdStrike Falcon (LogScale):
-#event_simpleName=EmailAttachment
-FileName=/\\.(exe|js|zip|docm)$/i
-| table @timestamp, SenderAddress, RecipientAddress, Subject, FileName
-
-Elastic SIEM (Lucene):
-event.category:email AND email.subject:(invoice OR password OR urgent) AND file.extension:(exe OR js OR zip)`,
-
-      T1021: `Microsoft Sentinel (KQL):
-SecurityEvent
-| where EventID == 4624
-| where LogonType in (3, 10)
-| summarize LoginCount = count() by Account, IpAddress, Computer
-| where LoginCount > 5
-| extend Severity = iff(LoginCount > 20, "High", "Medium")
-
-Splunk (SPL):
-index=wineventlog EventCode=4624 (LogonType=3 OR LogonType=10)
-| stats count by Account_Name, Source_Network_Address, ComputerName
-| where count > 5
-
-CrowdStrike Falcon (LogScale):
-#event_simpleName=UserLogon
-LogonType=/(Network|RemoteInteractive)/
-| stats count() by UserName, RemoteIP, ComputerName
-| count > 5`,
-
-      T1041: `Microsoft Sentinel (KQL):
-DeviceNetworkEvents
-| where Timestamp > ago(1d)
-| where RemotePort in (21, 22, 80, 443, 8080)
-| where InitiatingProcessFileName in~ ("powershell.exe", "curl.exe", "wget.exe")
-| summarize TotalBytes = sum(BytesSent) by DeviceName, RemoteIP, InitiatingProcessFileName
-| where TotalBytes > 10485760
-
-Splunk (SPL):
-index=network dest_port IN (21, 22, 80, 443) bytes_out > 10485760
-| stats sum(bytes_out) as total_bytes by src_ip, dest_ip, app
-| where total_bytes > 10485760`,
-
-      T1105: `Microsoft Sentinel (KQL):
-DeviceNetworkEvents
-| where Timestamp > ago(1d)
-| where RemoteUrl matches regex @"\\.(exe|dll|ps1|bat|vbs)$"
-| where ActionType == "ConnectionSuccess"
-| project Timestamp, DeviceName, RemoteUrl, RemoteIP, InitiatingProcessFileName
-
-Splunk (SPL):
-index=proxy (url="*.exe" OR url="*.dll" OR url="*.ps1")
-| table _time, src_ip, dest_ip, url, bytes_in`,
-
-      T1547: `Microsoft Sentinel (KQL):
-DeviceRegistryEvents
-| where RegistryKey has_any ("Run", "RunOnce", "RunServices", "Startup")
-| where ActionType == "RegistryValueSet"
-| project Timestamp, DeviceName, RegistryKey, RegistryValueName, RegistryValueData, InitiatingProcessFileName
-
-Splunk (SPL):
-index=windows sourcetype=WinRegistry key_path="*\\\\Run*"
-| table _time, host, key_path, value_name, value_data`,
-
-      T1071: `Microsoft Sentinel (KQL):
-DeviceNetworkEvents
-| where RemotePort !in (80, 443, 53)
-| where InitiatingProcessFileName !in~ ("svchost.exe", "chrome.exe", "firefox.exe")
-| summarize ConnectionCount = count() by DeviceName, RemoteIP, RemotePort, InitiatingProcessFileName
-| where ConnectionCount > 50
-
-CrowdStrike Falcon (LogScale):
-#event_simpleName=NetworkConnectIP4
-RemotePort!=/^(80|443|53)$/
-| stats count() by ComputerName, RemoteAddressIP4, RemotePort
-| count > 50`,
-
-      T1110: `Microsoft Sentinel (KQL):
-SecurityEvent
-| where EventID == 4625
-| where TimeGenerated > ago(1h)
-| summarize FailedAttempts = count() by Account, IpAddress, Computer
-| where FailedAttempts > 10
-| extend Severity = case(FailedAttempts > 50, "Critical", FailedAttempts > 20, "High", "Medium")
-
-Splunk (SPL):
-index=windows EventCode=4625
-| bucket _time span=1h
-| stats count by _time, Account_Name, Source_Network_Address
-| where count > 10
-
-Elastic SIEM (Lucene):
-event.code:4625
-| aggregation: count by user.name, source.ip
-| threshold: count > 10`,
-
-      T1055: `Microsoft Sentinel (KQL):
-DeviceProcessEvents
-| where FileName in~ ("mavinject.exe", "rundll32.exe") or ProcessCommandLine has "inject"
-| where ProcessCommandLine has_any ("VirtualAllocEx", "WriteProcessMemory", "CreateRemoteThread")
-| project Timestamp, DeviceName, FileName, ProcessCommandLine, InitiatingProcessFileName
-
-Splunk (SPL):
-index=sysmon EventCode=8
-(TargetImage="*rundll32.exe" OR TargetImage="*mavinject.exe" OR SourceImage="*inject*")
-| table _time, Computer, SourceImage, TargetImage, GrantedAccess
-
-CrowdStrike Falcon (LogScale):
-#event_simpleName=ProcessRollup2
-FileName=/(rundll32|mavinject).exe/i CommandLine=/inject/i
-| table @timestamp, ComputerName, UserName, FileName, CommandLine`,
-
-      T1621: `Microsoft Sentinel (KQL):
-SigninLogs
-| where TimeGenerated > ago(1h)
-| where ResultType in ("50074", "50076")
-| summarize MFADenials = count() by UserPrincipalName, AppDisplayName, IPAddress
-| where MFADenials > 5
-| extend RiskLevel = "High"
-
-Splunk (SPL):
-index=azure sourcetype="azure:aad:signin" ResultDescription="MFA denied"
-| stats count by UserPrincipalName, IPAddress, AppDisplayName
-| where count > 5`,
-
-      T1003: `Microsoft Sentinel (KQL):
-DeviceProcessEvents
-| where FileName in~ ("mimikatz.exe", "procdump.exe") or ProcessCommandLine has_any ("sekurlsa", "lsadump", "lsass")
-| project Timestamp, DeviceName, AccountName, FileName, ProcessCommandLine
-
-Splunk (SPL):
-index=sysmon (Image="*mimikatz.exe" OR CommandLine="*sekurlsa*" OR TargetImage="*lsass.exe")
-| table _time, Computer, User, Image, CommandLine
-
-CrowdStrike Falcon (LogScale):
-#event_simpleName=ProcessRollup2
-CommandLine=/(mimikatz|sekurlsa|lsadump)/i OR TargetFileName=lsass.exe
-| table @timestamp, ComputerName, UserName, FileName, CommandLine`,
-
-      T1078: `Microsoft Sentinel (KQL):
-SigninLogs
-| where ResultType == 0
-| where TimeGenerated > ago(24h)
-| summarize LoginCount = count(), Countries = make_set(Location) by UserPrincipalName, IPAddress
-| where LoginCount > 50 or array_length(Countries) > 2
-
-Splunk (SPL):
-index=auth EventCode=4624 LogonType!=2
-| stats count, dc(src_country) as countries by user, src_ip
-| where count > 50 OR countries > 2`,
-
-      T1486: `Microsoft Sentinel (KQL):
-DeviceFileEvents
-| where ActionType == "FileRenamed"
-| where FileName matches regex @"\\.(locked|encrypted|crypt|[a-z]{4,8})$"
-| summarize EncryptedFiles = count() by DeviceName, InitiatingProcessFileName
-| where EncryptedFiles > 50
-
-Splunk (SPL):
-index=sysmon EventCode=11
-(TargetFilename="*.locked" OR TargetFilename="*.encrypted" OR TargetFilename="*.crypt")
-| stats count by Computer, Image
-| where count > 50
-
-CrowdStrike Falcon (LogScale):
-#event_simpleName=NewScriptWritten OR #event_simpleName=RansomwareFileEncryption
-| stats count() by ComputerName, FileName
-| count > 50`,
-
-      T1567: `Microsoft Sentinel (KQL):
-DeviceNetworkEvents
-| where RemoteUrl has_any ("dropbox.com", "drive.google.com", "onedrive.com", "mega.nz", "wetransfer.com")
-| summarize UploadBytes = sum(BytesSent) by DeviceName, AccountName, RemoteUrl
-| where UploadBytes > 104857600
-
-Splunk (SPL):
-index=proxy (url="*dropbox.com*" OR url="*drive.google.com*" OR url="*mega.nz*")
-bytes_out > 104857600
-| stats sum(bytes_out) as total by src_user, url`
-    };
-
-    function showDetectionQuery() {
-      const val = document.getElementById('technique').value;
-      document.getElementById('queryOutput').textContent = detections[val] || "Select a technique to view detection queries across multiple SIEM/EDR platforms.";
-    }
-
-    function copyToClipboard(elementId) {
-      const text = document.getElementById(elementId).textContent;
-      navigator.clipboard.writeText(text).then(() => {
-        const btn = event.target.closest('.copy-btn');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-        setTimeout(() => btn.innerHTML = originalText, 2000);
-      }).catch(err => {
-        alert('Failed to copy. Please select and copy manually.');
-      });
-    }
-
-    function exportQuery() {
-      const text = document.getElementById('queryOutput').textContent;
-      if (text.includes('Select a technique')) {
-        alert('Please select a technique first.');
-        return;
-      }
-      const blob = new Blob([text], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'detection_query_' + new Date().toISOString().slice(0,10) + '.txt';
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function saveToLibrary() {
-      const technique = document.getElementById('technique').value;
-      if (!technique) {
-        alert('Please select a technique first.');
-        return;
-      }
-      alert('Query saved to library! (This feature stores queries in browser localStorage)');
-    }
-
-    // ==================== DYNAMIC ACTIVE THREATS ====================
-    function loadActiveThreatCards() {
-      const container = document.getElementById('activeThreatCards');
-      container.innerHTML = `
-        <div class="threat-card critical">
-          <h4>Qilin & Clop Ransomware Surge (December 2025)</h4>
-          <div class="description">
-            Both groups responsible for <strong>15% of global attacks each</strong>. Qilin intensified affiliate recruitment after RansomHub retirement. Clop exploited Oracle E-Business Suite zero-days (CVE-2025-61882).
-          </div>
-          <div class="action">
-            <strong>Action:</strong> Monitor Oracle EBS environments, hunt for data exfiltration patterns<br>
-            <strong>Source:</strong> Check Point Research, December 9, 2025
-          </div>
-        </div>
-
-        <div class="threat-card critical">
-          <h4>GOLD SALEM / Storm-2603 - Warlock Ransomware (Active)</h4>
-          <div class="description">
-            China-based group deploying Warlock ransomware via chained zero-day exploitation (ToolShell) targeting on-premises SharePoint instances since March 2025.
-          </div>
-          <div class="action">
-            <strong>Action:</strong> Patch SharePoint, monitor for ToolShell IOCs, review SharePoint access logs<br>
-            <strong>Source:</strong> Sophos X-Ops, December 10, 2025
-          </div>
-        </div>
-
-        <div class="threat-card high">
-          <h4>Chinese APT - Brickstorm Malware Campaign</h4>
-          <div class="description">
-            State-sponsored hackers using Brickstorm malware to maintain long-term access to government and IT entities via VMware vSphere exploitation for potential sabotage operations.
-          </div>
-          <div class="action">
-            <strong>Action:</strong> Update VMware vSphere, audit virtual machine access, review credential harvesting<br>
-            <strong>Source:</strong> CISA & Canadian Cybersecurity, December 4, 2025
-          </div>
-        </div>
-
-        <div class="threat-card high">
-          <h4>NightSpire Ransomware (Emerging Threat)</h4>
-          <div class="description">
-            New ransomware group emerging in early 2025 with aggressive double-extortion tactics, Bitcoin-based ransoms, and explicit data leak threats if victims don't engage.
-          </div>
-          <div class="action">
-            <strong>Action:</strong> Monitor for file encryption patterns, unusual Tor traffic, Bitcoin wallet indicators<br>
-            <strong>Source:</strong> CYFIRMA Weekly Intelligence, December 10, 2025
-          </div>
-        </div>
-
-        <div class="threat-card high">
-          <h4>Makop Ransomware - GuLoader Campaign</h4>
-          <div class="description">
-            Makop operators deploying GuLoader downloader with local privilege escalation exploits, targeting enterprise environments with enhanced stealth capabilities.
-          </div>
-          <div class="action">
-            <strong>Action:</strong> Hunt for GuLoader IOCs, monitor privilege escalation attempts (Sysmon EID 10)<br>
-            <strong>Source:</strong> SOC Prime Threat Research, December 9, 2025
-          </div>
-        </div>
-
-        <div class="threat-card medium">
-          <h4>AI Supply Chain Attacks (156% Surge)</h4>
-          <div class="description">
-            Malicious package uploads to open-source repositories jumped <strong>156% in 2025</strong>. Shai-Hulud worm compromised 500+ npm packages and 25,000+ GitHub repos using AI-generated bash scripts.
-          </div>
-          <div class="action">
-            <strong>Action:</strong> Review dependency chains, implement SCA tools, monitor CI/CD pipelines for anomalies<br>
-            <strong>Source:</strong> The Hacker News, December 3, 2025
-          </div>
-        </div>
-
-        <div class="threat-card medium">
-          <h4>STAC6565 Targeting Canada (80% of Attacks)</h4>
-          <div class="description">
-            Threat group STAC6565 targeting nearly 40 victims with <strong>80% of attacks hitting Canadian firms</strong>, deploying QWCrypt ransomware via phishing and RDP compromise.
-          </div>
-          <div class="action">
-            <strong>Action:</strong> Monitor Canadian subsidiaries, review RDP exposure, implement MFA on remote access<br>
-            <strong>Source:</strong> Sophos Threat Intelligence, December 8, 2025
-          </div>
-        </div>
-      `;
-    }
-
-    // ==================== ENHANCED THREAT INTEL FEEDS ====================
-    const rssFeeds = [
-      'https://www.bleepingcomputer.com/feed/',
-      'https://feeds.feedburner.com/TheHackersNews',
-      'https://threatpost.com/feed/',
-      'https://www.darkreading.com/rss.xml',
-      'https://krebsonsecurity.com/feed/',
-      'https://www.securityweek.com/feed/',
-      'https://nakedsecurity.sophos.com/feed/',
-      'https://www.schneier.com/feed/atom/',
-      'https://www.infosecurity-magazine.com/rss/news/',
-      'https://www.cisa.gov/uscert/ncas/current-activity.xml',
-      'https://www.zdnet.com/topic/security/rss.xml',
-      'https://www.csoonline.com/index.rss',
-      'https://www.helpnetsecurity.com/feed/',
-      'https://www.scmagazine.com/feed/',
-      'https://www.cyberscoop.com/feed/',
-      'https://www.cybersecuritydive.com/feeds/news/',
-      'https://www.databreachtoday.com/rss-feeds',
-      'https://www.bankinfosecurity.com/rss-feeds',
-      'https://www.govinfosecurity.com/rss-feeds',
-      'https://www.healthcareinfosecurity.com/rss-feeds'
-    ];
-
-    async function fetchFeed(url) {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
-        const resp = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`, { signal: controller.signal });
-        clearTimeout(timeoutId);
-        if (!resp.ok) throw new Error('Fetch failed');
-        const data = await resp.json();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(data.contents, "application/xml");
-        return Array.from(doc.querySelectorAll("item, entry")).slice(0, 5).map(i => {
-          const description = (i.querySelector("description, summary, content:encoded")?.textContent || '').replace(/<[^>]+>/g, '').trim().slice(0, 200);
-          return {
-            title: i.querySelector("title")?.textContent || 'No title',
-            link: i.querySelector("link")?.textContent || i.querySelector("link")?.getAttribute("href") || '#',
-            pubDate: i.querySelector("pubDate, updated, published")?.textContent || '',
-            description: description,
-            source: new URL(url).hostname
-          };
-        });
-      } catch (e) {
-        console.error('Feed error:', url, e);
-        return [];
-      }
-    }
-
-    async function loadFeeds() {
-      const area = document.getElementById('feedArea');
-      area.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i><p>Loading threat intelligence feeds...</p></div>';
-      allArticles = [];
-      
-      const promises = rssFeeds.map(feed => fetchFeed(feed));
-      const results = await Promise.all(promises);
-      
-      results.forEach(items => {
-        allArticles.push(...items.map(item => ({
-          ...item,
-          tags: autoTagArticle(item.title + ' ' + item.description)
-        })));
-      });
-
-      allArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-      newsArticles = allArticles;
-      applyFeedFilters();
-    }
-
-    function autoTagArticle(text) {
-      const tags = [];
-      const lower = text.toLowerCase();
-      if (lower.match(/ransom|lockbit|blackcat|alphv|akira|qilin|clop/)) tags.push({ name: 'Ransomware', type: 'critical' });
-      if (lower.match(/zero.?day|0.?day/)) tags.push({ name: 'Zero-Day', type: 'critical' });
-      if (lower.match(/apt\d+|apt\s|nation.state|state.sponsor/)) tags.push({ name: 'APT', type: 'high' });
-      if (lower.match(/phish|spear|bec|social.engineer/)) tags.push({ name: 'Phishing', type: 'high' });
-      if (lower.match(/malware|trojan|backdoor|rat\s/)) tags.push({ name: 'Malware', type: 'high' });
-      if (lower.match(/exploit|vulnerability|cve-\d/)) tags.push({ name: 'Exploit', type: 'high' });
-      if (lower.match(/breach|leak|compromise|incident/)) tags.push({ name: 'Breach', type: 'high' });
-      return tags;
-    }
-
-    function applyFeedFilters() {
-      const timeFilter = document.getElementById('feedFilter').value;
-      const searchTerm = document.getElementById('feedSearch').value.toLowerCase();
-      
-      let filtered = allArticles;
-      
-      if (timeFilter !== 'all') {
-        const now = new Date();
-        filtered = filtered.filter(article => {
-          const articleDate = new Date(article.pubDate);
-          const diff = now - articleDate;
-          switch(timeFilter) {
-            case 'today': return now.toDateString() === articleDate.toDateString();
-            case '24h': return diff <= 24*60*60*1000;
-            case '7d': return diff <= 7*24*60*60*1000;
-            default: return true;
-          }
-        });
-      }
-      
-      if (searchTerm) {
-        filtered = filtered.filter(article => 
-          (article.title + article.description).toLowerCase().includes(searchTerm)
-        );
-      }
-      
-      displayFeeds(filtered.slice(0, 30));
-    }
-
-    function displayFeeds(articles) {
-      const area = document.getElementById('feedArea');
-      if (articles.length === 0) {
-        area.innerHTML = '<p style="text-align: center; color: var(--text-tertiary); padding: 2rem 0;">No articles found matching your filters.</p>';
-        return;
-      }
-
-      area.innerHTML = articles.map(item => {
-        const timeAgo = getTimeAgo(new Date(item.pubDate));
-        return `
-          <div class="feed-item">
-            <a href="${item.link}" target="_blank" rel="noopener noreferrer">${item.title}</a>
-            ${item.description ? `<div class="description">${item.description}</div>` : ''}
-            <div class="meta">
-              <span><i class="fas fa-clock"></i> ${timeAgo}</span>
-              <span><i class="fas fa-globe"></i> ${item.source}</span>
-            </div>
-            ${item.tags.length > 0 ? `<div class="tags">
-              ${item.tags.map(tag => `<span class="tag ${tag.type}">${tag.name}</span>`).join('')}
-            </div>` : ''}
-          </div>
-        `;
-      }).join('');
-    }
-
-    function getTimeAgo(date) {
-      const seconds = Math.floor((new Date() - date) / 1000);
-      if (seconds < 3600) return Math.floor(seconds / 60) + 'm ago';
-      if (seconds < 86400) return Math.floor(seconds / 3600) + 'h ago';
-      if (seconds < 604800) return Math.floor(seconds / 86400) + 'd ago';
-      return date.toLocaleDateString();
-    }
-
-    // ==================== AI HYPOTHESIS GENERATOR ====================
-    function generateHypothesis() {
-      const container = document.getElementById('hypothesisContainer');
-      const loading = document.getElementById('hypothesisLoading');
-      
-      if (allArticles.length === 0) {
-        alert('Please wait for threat intelligence feeds to load first.');
-        return;
-      }
-      
-      loading.style.display = 'block';
-      container.innerHTML = '';
-
-      setTimeout(() => {
-        loading.style.display = 'none';
-        const hypotheses = createHypotheses(allArticles.slice(0, 10));
-        container.innerHTML = hypotheses.map((h, i) => `
-          <div class="hypothesis-item">
-            <h4>${i + 1}. ${h.title}</h4>
-            <p><strong>Hypothesis:</strong> ${h.hypothesis}</p>
-            <div class="context">
-              ${h.context}
-            </div>
-          </div>
-        `).join('');
-      }, 1500);
-    }
-
-    function createHypotheses(articles) {
-      const templates = [
-        {
-          title: (a) => `Hunt for shadow IT exploiting "${a.title.slice(0, 60)}..."`,
-          hypothesis: (a) => `Monitor unsanctioned cloud uploads related to this threat by tracking unusual cloud service connections.`,
-          context: (a) => `<strong>Threat Context:</strong> Employees may bypass security uploading data on ${new Date(a.pubDate).toLocaleDateString()}<br><strong>TTPs:</strong> Data Exfiltration (T1041), Cloud Service Abuse (T1567)<br><strong>Search:</strong> DeviceNetworkEvents | where RemoteUrl has_any ("dropbox", "drive.google")`
-        },
-        {
-          title: (a) => `Investigate if "${a.title.slice(0, 60)}..." masks APT activity`,
-          hypothesis: (a) => `This high-profile event may hide stealthier targeted attacks against your organization.`,
-          context: (a) => `<strong>Threat Context:</strong> Attackers use public incidents to hide C2 traffic<br><strong>TTPs:</strong> Command and Control (T1071), Obfuscation (T1027)<br><strong>Search:</strong> Look for beaconing patterns in network logs`
-        },
-        {
-          title: (a) => `Hunt for phishing campaigns mimicking "${a.title.slice(0, 60)}..."`,
-          hypothesis: (a) => `Attackers weaponize breaking news to craft convincing phishing lures.`,
-          context: (a) => `<strong>Threat Context:</strong> Phishing peaks within 24-48h of major security news<br><strong>TTPs:</strong> Spearphishing (T1566), Credential Harvesting<br><strong>Search:</strong> EmailEvents | where Subject contains keywords from article`
-        },
-        {
-          title: (a) => `Investigate supply chain risk from "${a.title.slice(0, 60)}..."`,
-          hypothesis: (a) => `Vendors mentioned may be compromised, creating downstream supply chain risk.`,
-          context: (a) => `<strong>Threat Context:</strong> Third-party breaches cascade to customers<br><strong>TTPs:</strong> Supply Chain Compromise (T1195)<br><strong>Search:</strong> Monitor vendor-related authentication events`
-        },
-        {
-          title: (a) => `Probe for insider threats amplifying "${a.title.slice(0, 60)}..."`,
-          hypothesis: (a) => `Internal actors may leverage this incident to exfiltrate data while attention is diverted.`,
-          context: (a) => `<strong>Threat Context:</strong> Insider threats spike during major security events<br><strong>TTPs:</strong> Data Staged (T1074), Removable Media (T1052)<br><strong>Search:</strong> Monitor USB connections and after-hours file access`
-        }
-      ];
-
-      return articles.slice(0, 10).map((article, i) => {
-        const template = templates[i % templates.length];
-        return {
-          title: template.title(article),
-          hypothesis: template.hypothesis(article),
-          context: template.context(article)
-        };
-      });
-    }
-
-    // ==================== OSINT KEYBOARD ====================
-    const osintTools = [
-      { key: 'A', name: 'AbuseIPDB', url: 'https://www.abuseipdb.com/check' },
-      { key: 'B', name: 'BGPView', url: 'https://bgpview.io' },
-      { key: 'C', name: 'Censys', url: 'https://search.censys.io' },
-      { key: 'D', name: 'DNSTrails', url: 'https://securitytrails.com/domain' },
-      { key: 'E', name: 'IPVoid', url: 'https://www.ipvoid.com/domain-reputation-check/' },
-      { key: 'F', name: 'Fofa', url: 'https://en.fofa.info' },
-      { key: 'G', name: 'GreyNoise', url: 'https://viz.greynoise.io/query' },
-      { key: 'H', name: 'Hybrid Analysis', url: 'https://www.hybrid-analysis.com' },
-      { key: 'I', name: 'IPinfo', url: 'https://ipinfo.io/' },
-      { key: 'J', name: 'JoeSandbox', url: 'https://www.joesandbox.com' },
-      { key: 'K', name: 'Kaspersky TI', url: 'https://opentip.kaspersky.com' },
-      { key: 'L', name: 'DNSlytics', url: 'https://dnslytics.com/' },
-      { key: 'M', name: 'Maltiverse', url: 'https://www.maltiverse.com/search' },
-      { key: 'N', name: 'Netlas', url: 'https://app.netlas.io' },
-      { key: 'O', name: 'Onyphe', url: 'https://www.onyphe.io' },
-      { key: 'P', name: 'Pulsedive', url: 'https://pulsedive.com' },
-      { key: 'Q', name: 'Talos Intel', url: 'https://www.talosintelligence.com/reputation_center' },
-      { key: 'R', name: 'AlienVault OTX', url: 'https://otx.alienvault.com' },
-      { key: 'S', name: 'Shodan', url: 'https://www.shodan.io/search' },
-      { key: 'T', name: 'ThreatFox', url: 'https://threatfox.abuse.ch' },
-      { key: 'U', name: 'URLScan', url: 'https://urlscan.io' },
-      { key: 'V', name: 'VirusTotal', url: 'https://www.virustotal.com/gui/home/upload' },
-      { key: 'W', name: 'WHOIS', url: 'https://whois.domaintools.com' },
-      { key: 'X', name: 'X-Force', url: 'https://exchange.xforce.ibmcloud.com' },
-      { key: 'Y', name: 'YARAify', url: 'https://yaraify.abuse.ch' },
-      { key: 'Z', name: 'ZoomEye', url: 'https://www.zoomeye.org' }
-    ];
-
-    function loadOSINTKeyboard() {
-      const container = document.getElementById('osintKeyboard');
-      container.innerHTML = osintTools.map(tool => `
-        <a href="${tool.url}" target="_blank" rel="noopener noreferrer" class="osint-key" accesskey="${tool.key.toLowerCase()}">
-          <div class="letter">${tool.key}</div>
-          <div class="tool-name">${tool.name}</div>
-        </a>
-      `).join('');
-    }
-
-    document.addEventListener('keydown', (e) => {
-      if (currentTab === 'osint' && e.key.match(/[a-z]/i) && !e.ctrlKey && !e.altKey && !e.metaKey) {
-        const tool = osintTools.find(t => t.key.toLowerCase() === e.key.toLowerCase());
-        if (tool) {
-          window.open(tool.url, '_blank');
-          e.preventDefault();
-        }
-      }
-    });
-
-    // ==================== IOC EXTRACTOR ====================
-    function extractIOCs() {
-      const text = document.getElementById('iocInput').value;
-      if (!text.trim()) {
-        alert('Please paste some text first.');
-        return;
-      }
-      
-      extractedIOCs = { ips: [], domains: [], urls: [], hashes: [] };
-
-      const ipRegex = /\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b/g;
-      extractedIOCs.ips = [...new Set((text.match(ipRegex) || []).filter(ip => {
-        const parts = ip.split('.');
-        return parts.every(p => parseInt(p) <= 255 && parseInt(p) >= 0);
-      }))];
-
-      const domainRegex = /\b(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}\b/gi;
-      extractedIOCs.domains = [...new Set((text.match(domainRegex) || []).filter(d => 
-        !d.match(/\.(exe|dll|txt|log|jpg|png|pdf)$/i) && d.includes('.') && !extractedIOCs.ips.includes(d)
-      ))];
-
-      const urlRegex = /https?:\/\/[^\s<>"{}|\\^`\[\]]+/gi;
-      extractedIOCs.urls = [...new Set(text.match(urlRegex) || [])];
-
-      const hashRegex = /\b[a-f0-9]{32}\b|\b[a-f0-9]{40}\b|\b[a-f0-9]{64}\b/gi;
-      extractedIOCs.hashes = [...new Set(text.match(hashRegex) || [])];
-
-      displayIOCs();
-    }
-
-    function displayIOCs() {
-      const container = document.getElementById('iocResults');
-      let html = '';
-      let total = 0;
-
-      const addSection = (title, items, type) => {
-        if (items.length > 0) {
-          html += `<div style="margin-bottom: 1rem;"><strong style="color: var(--text-primary);">${title} (${items.length})</strong></div>`;
-          items.forEach(item => {
-            html += `<div class="ioc-item"><code style="word-break: break-all; color: var(--text-secondary); font-size: 0.8125rem;">${item}</code><span class="ioc-type">${type}</span></div>`;
-          });
-          total += items.length;
-        }
-      };
-
-      addSection('IP Addresses', extractedIOCs.ips, 'IP');
-      addSection('Domains', extractedIOCs.domains, 'DOMAIN');
-      addSection('URLs', extractedIOCs.urls, 'URL');
-      addSection('File Hashes', extractedIOCs.hashes, 'HASH');
-
-      container.innerHTML = html || '<p style="text-align: center; color: var(--text-tertiary); padding: 2rem 0;">No IOCs extracted. Try pasting threat intelligence text.</p>';
-      
-      if (total > 0) {
-        container.innerHTML = `<div style="background: var(--success-light); color: var(--success); padding: 0.75rem; border-radius: var(--radius); margin-bottom: 1rem; text-align: center; font-weight: 500; border: 1px solid var(--success);">Extracted ${total} IOCs</div>` + container.innerHTML;
-      }
-    }
-
-    function exportIOCs(format) {
-      const total = extractedIOCs.ips.length + extractedIOCs.domains.length + extractedIOCs.urls.length + extractedIOCs.hashes.length;
-      if (total === 0) {
-        alert('No IOCs to export. Please extract IOCs first.');
-        return;
-      }
-      
-      let content = '';
-      const timestamp = new Date().toISOString().slice(0, 10);
-
-      if (format === 'txt') {
-        content = '=== IP Addresses ===\n' + extractedIOCs.ips.join('\n') + '\n\n';
-        content += '=== Domains ===\n' + extractedIOCs.domains.join('\n') + '\n\n';
-        content += '=== URLs ===\n' + extractedIOCs.urls.join('\n') + '\n\n';
-        content += '=== File Hashes ===\n' + extractedIOCs.hashes.join('\n');
-      } else if (format === 'json') {
-        content = JSON.stringify(extractedIOCs, null, 2);
-      } else if (format === 'csv') {
-        content = 'Type,Value\n';
-        extractedIOCs.ips.forEach(ip => content += `IP,${ip}\n`);
-        extractedIOCs.domains.forEach(d => content += `Domain,${d}\n`);
-        extractedIOCs.urls.forEach(u => content += `URL,${u}\n`);
-        extractedIOCs.hashes.forEach(h => content += `Hash,${h}\n`);
-      }
-
-      const blob = new Blob([content], { type: format === 'json' ? 'application/json' : 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `iocs_${timestamp}.${format}`;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    // ==================== QUERY TRANSLATOR ====================
-    function translateQuery() {
-      const source = document.getElementById('sourcePlatform').value;
-      const target = document.getElementById('targetPlatform').value;
-      const query = document.getElementById('sourceQuery').value;
-
-      if (!query.trim()) {
-        alert('Please enter a query to translate.');
-        return;
-      }
-
-      if (source === target) {
-        alert('Source and target platforms are the same. Please select different platforms.');
-        return;
-      }
-
-      let translated = query;
-
-      if (source === 'kql' && target === 'spl') {
-        translated = query
-          .replace(/\| where/g, '| search')
-          .replace(/has_any/g, 'IN')
-          .replace(/contains/g, 'like')
-          .replace(/\| project/g, '| table')
-          .replace(/\| summarize/g, '| stats');
-      } else if (source === 'spl' && target === 'kql') {
-        translated = query
-          .replace(/\| search/g, '| where')
-          .replace(/\| table/g, '| project')
-          .replace(/\| stats/g, '| summarize');
-      } else if (target === 'lucene') {
-        translated = '// Lucene conversion requires manual adaptation\n' + query;
-      }
-
-      document.getElementById('translatedQuery').textContent = translated;
-    }
-
-    // ==================== INITIALIZATION ====================
-    setInterval(() => {
-      document.getElementById('clock').textContent = new Date().toLocaleString('en-US', { 
-        weekday: 'short', 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric', 
-        hour: '2-digit', 
-        minute: '2-digit' 
-      });
-    }, 1000);
-
-    window.addEventListener('load', () => {
-      showDetectionQuery();
-      loadFeeds();
-      loadActiveThreatCards();
-    });
+index=o365 sourcetype="o365:management:activity" subject="*invoice*"
+
+CrowdStrike/Elastic: Similar patterns for email analysis`};function showDetectionQuery(){document.getElementById("queryOutput").textContent=detections[document.getElementById("technique").value]||"Select a technique to view detection queries."}function copyToClipboard(e){navigator.clipboard.writeText(document.getElementById(e).textContent).then(()=>{const e=event.target.closest(".copy-btn"),t=e.innerHTML;e.innerHTML='<i class="fas fa-check"></i> Copied!',setTimeout(()=>e.innerHTML=t,2e3)}).catch(e=>{alert("Failed to copy.")})}function exportQuery(){const e=document.getElementById("queryOutput").textContent;if(e.includes("Select a technique"))return void alert("Please select a technique first.");const t=new Blob([e],{type:"text/plain"}),n=URL.createObjectURL(t),a=document.createElement("a");a.href=n,a.download="detection_query_"+(new Date).toISOString().slice(0,10)+".txt",a.click(),URL.revokeObjectURL(n)}function saveToLibrary(){document.getElementById("technique").value?alert("Query saved to library!"):alert("Please select a technique first.")}function loadActiveThreatCards(){document.getElementById("activeThreatCards").innerHTML=`
+<div class="threat-card critical">
+  <h4>Qilin & Clop Ransomware Surge (December 2025)</h4>
+  <div class="description">Both groups responsible for <strong>15% of global attacks each</strong>. Qilin intensified affiliate recruitment.</div>
+  <div class="action"><strong>Action:</strong> Monitor Oracle EBS environments<br><strong>Source:</strong> Check Point Research, December 9, 2025</div>
+</div>
+<div class="threat-card critical">
+  <h4>GOLD SALEM - Warlock Ransomware (Active)</h4>
+  <div class="description">China-based group deploying Warlock ransomware via zero-day exploitation targeting SharePoint.</div>
+  <div class="action"><strong>Action:</strong> Patch SharePoint, monitor for ToolShell IOCs<br><strong>Source:</strong> Sophos X-Ops, December 10, 2025</div>
+</div>
+<div class="threat-card high">
+  <h4>Chinese APT - Brickstorm Malware Campaign</h4>
+  <div class="description">State-sponsored hackers using Brickstorm malware to maintain long-term access via VMware vSphere exploitation.</div>
+  <div class="action"><strong>Action:</strong> Update VMware vSphere<br><strong>Source:</strong> CISA, December 4, 2025</div>
+</div>
+<div class="threat-card high">
+  <h4>NightSpire Ransomware (Emerging Threat)</h4>
+  <div class="description">New ransomware group with aggressive double-extortion tactics and Bitcoin-based ransoms.</div>
+  <div class="action"><strong>Action:</strong> Monitor for file encryption patterns<br><strong>Source:</strong> CYFIRMA, December 10, 2025</div>
+</div>
+<div class="threat-card high">
+  <h4>Makop Ransomware - GuLoader Campaign</h4>
+  <div class="description">Makop operators deploying GuLoader downloader with local privilege escalation exploits.</div>
+  <div class="action"><strong>Action:</strong> Hunt for GuLoader IOCs<br><strong>Source:</strong> SOC Prime, December 9, 2025</div>
+</div>
+<div class="threat-card medium">
+  <h4>AI Supply Chain Attacks (156% Surge)</h4>
+  <div class="description">Malicious package uploads jumped <strong>156% in 2025</strong>. Shai-Hulud worm compromised 500+ npm packages.</div>
+  <div class="action"><strong>Action:</strong> Review dependency chains<br><strong>Source:</strong> The Hacker News, December 3, 2025</div>
+</div>
+<div class="threat-card medium">
+  <h4>STAC6565 Targeting Canada (80% of Attacks)</h4>
+  <div class="description">Threat group targeting <strong>80% Canadian firms</strong>, deploying QWCrypt ransomware via phishing and RDP.</div>
+  <div class="action"><strong>Action:</strong> Review RDP exposure, implement MFA<br><strong>Source:</strong> Sophos, December 8, 2025</div>
+</div>`}const rssFeeds=["https://www.bleepingcomputer.com/feed/","https://feeds.feedburner.com/TheHackersNews","https://threatpost.com/feed/","https://www.darkreading.com/rss.xml","https://krebsonsecurity.com/feed/","https://www.securityweek.com/feed/","https://nakedsecurity.sophos.com/feed/","https://www.schneier.com/feed/atom/","https://www.infosecurity-magazine.com/rss/news/","https://www.cisa.gov/uscert/ncas/current-activity.xml","https://www.zdnet.com/topic/security/rss.xml","https://www.csoonline.com/index.rss","https://www.helpnetsecurity.com/feed/","https://www.scmagazine.com/feed/","https://www.cyberscoop.com/feed/","https://www.cybersecuritydive.com/feeds/news/","https://www.rapid7.com/rss/blog/","https://www.microsoft.com/en-us/security/blog/feed/","https://blog.talosintelligence.com/feeds/posts/default","https://www.malwarebytes.com/blog/feed"];async function fetchFeed(e){try{const t=new AbortController,n=setTimeout(()=>t.abort(),8e3),a=await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(e)}`,{signal:t.signal});if(clearTimeout(n),!a.ok)throw new Error("Fetch failed");const r=await a.json(),s=(new DOMParser).parseFromString(r.contents,"application/xml");return Array.from(s.querySelectorAll("item, entry")).slice(0,10).map(t=>{const n=(t.querySelector("description, summary, content:encoded")?.textContent||"").replace(/<[^>]+>/g,"").trim().slice(0,450);return{title:t.querySelector("title")?.textContent||"No title",link:t.querySelector("link")?.textContent||t.querySelector("link")?.getAttribute("href")||"#",pubDate:t.querySelector("pubDate, updated, published")?.textContent||"",description:n,source:new URL(e).hostname}})}catch(e){return console.error("Feed error:",e),[]}}async function loadFeeds(){const e=document.getElementById("feedArea");e.innerHTML='<div class="loading"><i class="fas fa-spinner"></i><p>Loading threat intelligence...</p></div>',allArticles=[];const t=await Promise.all(rssFeeds.map(e=>fetchFeed(e)));t.forEach(e=>{allArticles.push(...e.map(e=>({...e,tags:autoTagArticle(e.title+" "+e.description)})))}),allArticles.sort((e,t)=>new Date(t.pubDate)-new Date(e.pubDate)),applyFeedFilters()}function autoTagArticle(e){const t=e.toLowerCase(),n=[];return t.match(/ransom|lockbit|blackcat|alphv|akira|qilin|clop/)&&n.push({name:"Ransomware",type:"critical"}),t.match(/zero.?day|0.?day/)&&n.push({name:"Zero-Day",type:" critical"}),t.match(/apt\d+|apt\s|nation.state|state.sponsor/)&&n.push({name:"APT",type:"high"}),t.match(/phish|spear|bec|social.engineer/)&&n.push({name:"Phishing",type:"high"}),t.match(/malware|trojan|backdoor|rat\s/)&&n.push({name:"Malware",type:"high"}),t.match(/exploit|vulnerability|cve-\d/)&&n.push({name:"Exploit",type:"high"}),t.match(/breach|leak|compromise|incident/)&&n.push({name:"Breach",type:"high"}),n}function applyFeedFilters(){const e=document.getElementById("feedFilter").value,t=document.getElementById("feedSearch").value.toLowerCase();let n=allArticles;if("all"!==e){const t=new Date;n=n.filter(n=>{const a=new Date(n.pubDate),r=t-a;switch(e){case"today":return t.toDateString()===a.toDateString();case"24h":return r<=864e5;case"7d":return r<=6048e5;default:return!0}})}t&&(n=n.filter(e=>(e.title+e.description).toLowerCase().includes(t))),displayFeeds(n.slice(0,50))}function displayFeeds(e){const t=document.getElementById("feedArea");0===e.length?t.innerHTML='<p style="text-align: center; color: var(--text-tertiary); padding: 2rem 0;">No articles found.</p>':t.innerHTML=e.map(e=>`
+<div class="feed-item">
+  <a href="${e.link}" target="_blank" rel="noopener noreferrer">${e.title}</a>
+  ${e.description?`<div class="description">${e.description}</div>`:""}
+  <div class="meta">
+    <span><i class="fas fa-clock"></i> ${((e,t)=>{const n=Math.floor(((new Date).getTime()-e.getTime())/1e3);return n<3600?Math.floor(n/60)+"m ago":n<86400?Math.floor(n/3600)+"h ago":n<604800?Math.floor(n/86400)+"d ago":e.toLocaleDateString()})(new Date(e.pubDate))}</span>
+    <span><i class="fas fa-globe"></i> ${e.source}</span>
+  </div>
+  ${e.tags.length>0?`<div class="tags">
+    ${e.tags.map(e=>`<span class="tag ${e.type}">${e.name}</span>`).join("")}
+  </div>`:""}
+</div>
+`).join("")}function generateHypothesis(){const e=document.getElementById("hypothesisContainer"),t=document.getElementById("hypothesisLoading");if(0===allArticles.length)return void alert("Please wait for feeds to load first.");t.style.display="block",e.innerHTML="",setTimeout(()=>{t.style.display="none";const n=((e,t)=>e.slice(0,10).map((e,n)=>({title:`Hunt for shadow IT exploiting "${e.title.slice(0,60)}..."`,hypothesis:"Monitor unsanctioned cloud uploads related to this threat.",context:`<strong>Context:</strong> Employees may bypass security on ${new Date(e.pubDate).toLocaleDateString()}<br><strong>TTPs:</strong> T1041, T1567<br><strong>Search:</strong> DeviceNetworkEvents | where RemoteUrl has_any ("dropbox", "drive.google")`})))(allArticles.slice(0,10));e.innerHTML=n.map((e,t)=>`
+<div class="hypothesis-item">
+  <h4>${t+1}. ${e.title}</h4>
+  <p><strong>Hypothesis:</strong> ${e.hypothesis}</p>
+  <div class="context">${e.context}</div>
+</div>
+`).join("")},1500)}const osintTools=[{key:"A",name:"AbuseIPDB",url:"https://www.abuseipdb.com/check"},{key:"B",name:"BGPView",url:"https://bgpview.io"},{key:"C",name:"Censys",url:"https://search.censys.io"},{key:"D",name:"DNSTrails",url:"https://securitytrails.com/domain"},{key:"E",name:"IPVoid",url:"https://www.ipvoid.com/domain-reputation-check/"},{key:"F",name:"Fofa",url:"https://en.fofa.info"},{key:"G",name:"GreyNoise",url:"https://viz.greynoise.io/query"},{key:"H",name:"Hybrid Analysis",url:"https://www.hybrid-analysis.com"},{key:"I",name:"IPinfo",url:"https://ipinfo.io/"},{key:"J",name:"JoeSandbox",url:"https://www.joesandbox.com"},{key:"K",name:"Kaspersky TI",url:"https://opentip.kaspersky.com"},{key:"L",name:"DNSlytics",url:"https://dnslytics.com/"},{key:"M",name:"Maltiverse",url:"https://www.maltiverse.com/search"},{key:"N",name:"Netlas",url:"https://app.netlas.io"},{key:"O",name:"Onyphe",url:"https://www.onyphe.io"},{key:"P",name:"Pulsedive",url:"https://pulsedive.com"},{key:"Q",name:"Talos Intel",url:"https://www.talosintelligence.com/reputation_center"},{key:"R",name:"AlienVault OTX",url:"https://otx.alienvault.com"},{key:"S",name:"Shodan",url:"https://www.shodan.io/search"},{key:"T",name:"ThreatFox",url:"https://threatfox.abuse.ch"},{key:"U",name:"URLScan",url:"https://urlscan.io"},{key:"V",name:"VirusTotal",url:"https://www.virustotal.com/gui/home/upload"},{key:"W",name:"WHOIS",url:"https://whois.domaintools.com"},{key:"X",name:"X-Force",url:"https://exchange.xforce.ibmcloud.com"},{key:"Y",name:"YARAify",url:"https://yaraify.abuse.ch"},{key:"Z",name:"ZoomEye",url:"https://www.zoomeye.org"}];function loadOSINTKeyboard(){document.getElementById("osintKeyboard").innerHTML=osintTools.map(e=>`
+<a href="${e.url}" target="_blank" rel="noopener noreferrer" class="osint-key" accesskey="${e.key.toLowerCase()}">
+  <div class="letter">${e.key}</div>
+  <div class="tool-name">${e.name}</div>
+</a>
+`).join("")}document.addEventListener("keydown",e=>{if("osint"===currentTab&&e.key.match(/[a-z]/i)&&!e.ctrlKey&&!e.altKey&&!e.metaKey){const t=osintTools.find(t=>t.key.toLowerCase()===e.key.toLowerCase());t&&(window.open(t.url,"_blank"),e.preventDefault())}});let extractedIOCs={ips:[],domains:[],urls:[],hashes:[]};function extractIOCs(){const e=document.getElementById("iocInput").value;if(!e.trim())return void alert("Please paste some text first.");extractedIOCs={ips:[],domains:[],urls:[],hashes:[]};extractedIOCs.ips=[...new Set((e.match(/\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b/g)||[]).filter(e=>e.split(".").every(e=>parseInt(e)<=255&&parseInt(e)>=0)))],extractedIOCs.domains=[...new Set((e.match(/\b(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}\b/gi)||[]).filter(e=>!e.match(/\.(exe|dll|txt|log|jpg|png|pdf)$/i)&&e.includes(".")&&!extractedIOCs.ips.includes(e)))],extractedIOCs.urls=[...new Set(e.match(/https?:\/\/[^\s<>"{}|\\^`\[\]]+/gi)||[])],extractedIOCs.hashes=[...new Set(e.match(/\b[a-f0-9]{32}\b|\b[a-f0-9]{40}\b|\b[a-f0-9]{64}\b/gi)||[])],displayIOCs()}function displayIOCs(){const e=document.getElementById("iocResults");let t="",n=0;const a=(e,a,r)=>{a.length>0&&(t+=`<div style="margin-bottom: 1rem;"><strong style="color: var(--text-primary);">${e} (${a.length})</strong></div>`,a.forEach(e=>{t+=`<div class="ioc-item"><code style="word-break: break-all; color: var(--text-secondary); font-size: 0.8125rem;">${e}</code><span class="ioc-type">${r}</span></div>`}),n+=a.length)};a("IP Addresses",extractedIOCs.ips,"IP"),a("Domains",extractedIOCs.domains,"DOMAIN"),a("URLs",extractedIOCs.urls,"URL"),a("File Hashes",extractedIOCs.hashes,"HASH"),e.innerHTML=t||'<p style="text-align: center; color: var(--text-tertiary); padding: 2rem 0;">No IOCs extracted.</p>',n>0&&(e.innerHTML=`<div style="background: var(--success-light); color: var(--success); padding: 0.75rem; border-radius: var(--radius); margin-bottom: 1rem; text-align: center; font-weight: 500; border: 1px solid var(--success);">Extracted ${n} IOCs</div>`+e.innerHTML)}function exportIOCs(e){const t=extractedIOCs.ips.length+extractedIOCs.domains.length+extractedIOCs.urls.length+extractedIOCs.hashes.length;if(0===t)return void alert("No IOCs to export.");let n="";const a=(new Date).toISOString().slice(0,10);if("txt"===e)n="=== IP Addresses ===\n"+extractedIOCs.ips.join("\n")+"\n\n",n+="=== Domains ===\n"+extractedIOCs.domains.join("\n")+"\n\n",n+="=== URLs ===\n"+extractedIOCs.urls.join("\n")+"\n\n",n+="=== File Hashes ===\n"+extractedIOCs.hashes.join("\n");else if("json"===e)n=JSON.stringify(extractedIOCs,null,2);else if("csv"===e){n="Type,Value\n",extractedIOCs.ips.forEach(e=>n+=`IP,${e}\n`),extractedIOCs.domains.forEach(e=>n+=`Domain,${e}\n`),extractedIOCs.urls.forEach(e=>n+=`URL,${e}\n`),extractedIOCs.hashes.forEach(e=>n+=`Hash,${e}\n`)}const r=new Blob([n],{type:"json"===e?"application/json":"text/plain"}),s=URL.createObjectURL(r),o=document.createElement("a");o.href=s,o.download=`iocs_${a}.${e}`,o.click(),URL.revokeObjectURL(s)}function translateQuery(){const e=document.getElementById("sourcePlatform").value,t=document.getElementById("targetPlatform").value,n=document.getElementById("sourceQuery").value;if(!n.trim())return void alert("Please enter a query to translate.");if(e===t)return void alert("Source and target platforms are the same.");let a=n;"kql"===e&&"spl"===t?a=n.replace(/\| where/g,"| search").replace(/has_any/g,"IN").replace(/contains/g,"like").replace(/\| project/g,"| table").replace(/\| summarize/g,"| stats"):"spl"===e&&"kql"===t?a=n.replace(/\| search/g,"| where").replace(/\| table/g,"| project").replace(/\| stats/g,"| summarize"):"lucene"===t&&(a="// Lucene conversion requires manual adaptation\n"+n),document.getElementById("translatedQuery").textContent=a}setInterval(()=>{document.getElementById("clock").textContent=(new Date).toLocaleString("en-US",{weekday:"short",year:"numeric",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"})},1e3),window.addEventListener("load",()=>{showDetectionQuery(),loadFeeds(),loadActiveThreatCards()});
   </script>
 </body>
 </html>
