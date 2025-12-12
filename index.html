@@ -56,7 +56,7 @@
       </div>
     </div>
     <div id="tab-hypothesis" class="tab-content"><section><h2><i class="fas fa-brain"></i> AI Hypothesis Generator</h2><button class="primary" onclick="generateHypothesis()" style="width:100%;padding:.875rem"><i class="fas fa-radiation"></i> Generate Hypotheses</button><div id="hypothesisLoading" class="loading" style="display:none"><i class="fas fa-spinner"></i><p>Generating...</p></div><div id="hypothesisContainer" style="margin-top:1.5rem"></div></section></div>
-    <div id="tab-osint" class="tab-content"><section><h2><i class="fas fa-keyboard"></i> OSINT Tools</h2><div id="osintKeyboard" class="osint-keyboard"></div></section></div>
+    <div id="tab-osint" class="tab-content"><section><h2><i class="fas fa-keyboard"></i> OSINT Tools</h2><div class="alert"><i class="fas fa-info-circle"></i><span>Press any key (A-Z) or click to instantly open that OSINT tool in a new tab. Perfect for rapid IOC investigation.</span></div><div id="osintKeyboard" class="osint-keyboard"></div></section></div>
     <div id="tab-ioc" class="tab-content"><div class="grid"><section><h2><i class="fas fa-fingerprint"></i> IOC Extractor</h2><textarea id="iocInput" placeholder="Paste intel here..."></textarea><button class="primary" onclick="extractIOCs()" style="width:100%;margin-top:.75rem"><i class="fas fa-search-plus"></i> Extract</button></section><section><h2><i class="fas fa-list"></i> Extracted IOCs</h2><div id="iocResults" class="ioc-list"><p style="color:var(--text-tertiary);text-align:center;padding:2rem 0">IOCs will appear here...</p></div></section></div></div>
     <div id="tab-translator" class="tab-content"><div class="grid"><section><h2><i class="fas fa-language"></i> Query Translator</h2><select id="sourcePlatform"><option value="kql">Sentinel (KQL)</option><option value="spl">Splunk (SPL)</option></select><select id="targetPlatform"><option value="spl">Splunk (SPL)</option><option value="kql">Sentinel (KQL)</option></select><textarea id="sourceQuery" placeholder="Enter query..."></textarea><button class="primary" onclick="translateQuery()" style="width:100%;margin-top:.75rem"><i class="fas fa-exchange-alt"></i> Translate</button></section><section><h2><i class="fas fa-code"></i> Result</h2><pre id="translatedQuery">Translation appears here...</pre></section></div></div>
     <div id="tab-queries" class="tab-content"><div class="grid"><section class="grid-full"><h2><i class="fas fa-code"></i> Detection Queries</h2><select id="technique" onchange="showDetectionQuery()"><option value="">-- Select MITRE Technique --</option><option value="T1059">T1059 - Command Interpreter</option><option value="T1566">T1566 - Phishing</option></select><pre id="queryOutput">Select a technique...</pre></section></div></div>
@@ -67,12 +67,7 @@
   <script>
 let currentTab='intel';
 let allArticles=[];
-const detections={T1059:`Microsoft Sentinel (KQL):
-DeviceProcessEvents | where FileName in~ ("powershell.exe", "cmd.exe")
-
-Splunk (SPL):
-index=windows EventCode=4688 NewProcessName="*powershell.exe"`,T1566:`Microsoft Sentinel (KQL):
-EmailEvents | where Subject has_any ("urgent", "invoice")`};
+const detections={T1059:`Microsoft Sentinel (KQL):\nDeviceProcessEvents | where FileName in~ ("powershell.exe", "cmd.exe")\n\nSplunk (SPL):\nindex=windows EventCode=4688 NewProcessName="*powershell.exe"`,T1566:`Microsoft Sentinel (KQL):\nEmailEvents | where Subject has_any ("urgent", "invoice")`};
 
 function switchTab(tab){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));document.getElementById('tab-'+tab).classList.add('active');event.target.classList.add('active');currentTab=tab;if(tab==='osint'&&!document.getElementById('osintKeyboard').innerHTML)loadOSINTKeyboard();}
 
@@ -82,217 +77,35 @@ function loadActiveThreatCards(){document.getElementById('activeThreatCards').in
 
 const rssFeeds=['https://www.bleepingcomputer.com/feed/','https://feeds.feedburner.com/TheHackersNews','https://krebsonsecurity.com/feed/','https://www.securityweek.com/feed/','https://www.darkreading.com/rss.xml'];
 
-async function fetchFeed(url){
-  try{
-    console.log('Fetching:',url);
-    const resp=await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`);
-    const data=await resp.json();
-    console.log('Feed data:',data);
-    if(data.status==='ok'){
-      return data.items.slice(0,10).map(item=>({
-        title:item.title||'No title',
-        link:item.link||'#',
-        pubDate:item.pubDate||'',
-        description:(item.description||'').replace(/<[^>]+>/g,'').slice(0,450),
-        source:new URL(url).hostname,
-        tags:autoTagArticle(item.title+' '+item.description)
-      }));
-    }
-    return[];
-  }catch(e){
-    console.error('Feed error:',url,e);
-    return[];
-  }
-}
+async function fetchFeed(url){try{const resp=await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`);const data=await resp.json();if(data.status==='ok'){return data.items.slice(0,10).map(item=>({title:item.title||'No title',link:item.link||'#',pubDate:item.pubDate||'',description:(item.description||'').replace(/<[^>]+>/g,'').slice(0,450),source:new URL(url).hostname,tags:autoTagArticle(item.title+' '+item.description)}));}return[];}catch(e){return[];}}
 
-async function loadFeeds(){
-  const area=document.getElementById('feedArea');
-  area.innerHTML='<div class="loading"><i class="fas fa-spinner"></i><p>Loading...</p></div>';
-  allArticles=[];
-  console.log('Starting feed load...');
-  
-  const results=await Promise.all(rssFeeds.map(f=>fetchFeed(f)));
-  results.forEach(items=>allArticles.push(...items));
-  allArticles.sort((a,b)=>new Date(b.pubDate)-new Date(a.pubDate));
-  
-  console.log('Total articles:',allArticles.length);
-  applyFeedFilters();
-}
+async function loadFeeds(){const area=document.getElementById('feedArea');area.innerHTML='<div class="loading"><i class="fas fa-spinner"></i><p>Loading...</p></div>';allArticles=[];const results=await Promise.all(rssFeeds.map(f=>fetchFeed(f)));results.forEach(items=>allArticles.push(...items));allArticles.sort((a,b)=>new Date(b.pubDate)-new Date(a.pubDate));applyFeedFilters();}
 
-function autoTagArticle(text){
-  const lower=text.toLowerCase();
-  const tags=[];
-  if(lower.match(/ransom|lockbit|blackcat|qilin|clop/))tags.push({name:'Ransomware',type:'critical'});
-  if(lower.match(/zero.?day/))tags.push({name:'Zero-Day',type:'critical'});
-  if(lower.match(/apt\d+|apt\s/))tags.push({name:'APT',type:'high'});
-  if(lower.match(/phish/))tags.push({name:'Phishing',type:'high'});
-  if(lower.match(/malware/))tags.push({name:'Malware',type:'high'});
-  return tags;
-}
+function autoTagArticle(text){const lower=text.toLowerCase();const tags=[];if(lower.match(/ransom|lockbit|blackcat|qilin|clop/))tags.push({name:'Ransomware',type:'critical'});if(lower.match(/zero.?day/))tags.push({name:'Zero-Day',type:'critical'});if(lower.match(/apt\d+|apt\s/))tags.push({name:'APT',type:'high'});if(lower.match(/phish/))tags.push({name:'Phishing',type:'high'});if(lower.match(/malware/))tags.push({name:'Malware',type:'high'});return tags;}
 
-function applyFeedFilters(){
-  const timeFilter=document.getElementById('feedFilter').value;
-  const searchTerm=document.getElementById('feedSearch').value.toLowerCase();
-  let filtered=allArticles;
-  
-  if(timeFilter!=='all'){
-    const now=new Date();
-    filtered=filtered.filter(article=>{
-      const articleDate=new Date(article.pubDate);
-      const diff=now-articleDate;
-      switch(timeFilter){
-        case'today':return now.toDateString()===articleDate.toDateString();
-        case'24h':return diff<=86400000;
-        case'7d':return diff<=604800000;
-        default:return true;
-      }
-    });
-  }
-  
-  if(searchTerm){
-    filtered=filtered.filter(a=>(a.title+a.description).toLowerCase().includes(searchTerm));
-  }
-  
-  displayFeeds(filtered.slice(0,50));
-}
+function applyFeedFilters(){const timeFilter=document.getElementById('feedFilter').value;const searchTerm=document.getElementById('feedSearch').value.toLowerCase();let filtered=allArticles;if(timeFilter!=='all'){const now=new Date();filtered=filtered.filter(article=>{const articleDate=new Date(article.pubDate);const diff=now-articleDate;switch(timeFilter){case'today':return now.toDateString()===articleDate.toDateString();case'24h':return diff<=86400000;case'7d':return diff<=604800000;default:return true;}});}if(searchTerm){filtered=filtered.filter(a=>(a.title+a.description).toLowerCase().includes(searchTerm));}displayFeeds(filtered.slice(0,50));}
 
-function displayFeeds(articles){
-  const area=document.getElementById('feedArea');
-  if(!articles.length){
-    area.innerHTML='<p style="text-align:center;color:var(--text-tertiary);padding:2rem 0">No articles found.</p>';
-    return;
-  }
-  
-  area.innerHTML=articles.map(a=>`
-<div class="feed-item">
-  <a href="${a.link}" target="_blank" rel="noopener">${a.title}</a>
-  ${a.description?`<div class="description">${a.description}</div>`:''}
-  <div class="meta">
-    <span><i class="fas fa-clock"></i> ${getTimeAgo(new Date(a.pubDate))}</span>
-    <span><i class="fas fa-globe"></i> ${a.source}</span>
-  </div>
-  ${a.tags.length?`<div class="tags">${a.tags.map(t=>`<span class="tag ${t.type}">${t.name}</span>`).join('')}</div>`:''}
-</div>
-`).join('');
-}
+function displayFeeds(articles){const area=document.getElementById('feedArea');if(!articles.length){area.innerHTML='<p style="text-align:center;color:var(--text-tertiary);padding:2rem 0">No articles found.</p>';return;}area.innerHTML=articles.map(a=>`<div class="feed-item"><a href="${a.link}" target="_blank" rel="noopener">${a.title}</a>${a.description?`<div class="description">${a.description}</div>`:''}<div class="meta"><span><i class="fas fa-clock"></i> ${getTimeAgo(new Date(a.pubDate))}</span><span><i class="fas fa-globe"></i> ${a.source}</span></div>${a.tags.length?`<div class="tags">${a.tags.map(t=>`<span class="tag ${t.type}">${t.name}</span>`).join('')}</div>`:''}</div>`).join('');}
 
-function getTimeAgo(date){
-  const seconds=Math.floor((new Date()-date)/1000);
-  if(seconds<3600)return Math.floor(seconds/60)+'m ago';
-  if(seconds<86400)return Math.floor(seconds/3600)+'h ago';
-  if(seconds<604800)return Math.floor(seconds/86400)+'d ago';
-  return date.toLocaleDateString();
-}
+function getTimeAgo(date){const seconds=Math.floor((new Date()-date)/1000);if(seconds<3600)return Math.floor(seconds/60)+'m ago';if(seconds<86400)return Math.floor(seconds/3600)+'h ago';if(seconds<604800)return Math.floor(seconds/86400)+'d ago';return date.toLocaleDateString();}
 
-function generateHypothesis(){
-  const container=document.getElementById('hypothesisContainer');
-  const loading=document.getElementById('hypothesisLoading');
-  
-  if(!allArticles.length){
-    alert('Please wait for feeds to load first.');
-    return;
-  }
-  
-  loading.style.display='block';
-  container.innerHTML='';
-  
-  setTimeout(()=>{
-    loading.style.display='none';
-    const hypotheses=allArticles.slice(0,5).map((a,i)=>({
-      title:`Hunt for shadow IT exploiting "${a.title.slice(0,60)}..."`,
-      hypothesis:'Monitor unsanctioned cloud uploads.',
-      context:`<strong>Context:</strong> ${new Date(a.pubDate).toLocaleDateString()}<br><strong>TTPs:</strong> T1041, T1567`
-    }));
-    container.innerHTML=hypotheses.map((h,i)=>`
-<div class="hypothesis-item">
-  <h4>${i+1}. ${h.title}</h4>
-  <p><strong>Hypothesis:</strong> ${h.hypothesis}</p>
-  <div class="context">${h.context}</div>
-</div>
-`).join('');
-  },1500);
-}
+function generateHypothesis(){const container=document.getElementById('hypothesisContainer');const loading=document.getElementById('hypothesisLoading');if(!allArticles.length){alert('Please wait for feeds to load first.');return;}loading.style.display='block';container.innerHTML='';setTimeout(()=>{loading.style.display='none';const templates=[{title:a=>`Hunt for shadow IT exploiting "${a.title.slice(0,50)}..."`,hypothesis:a=>'Adversaries may abuse this incident to exfiltrate data via unsanctioned cloud services. Monitor unusual outbound connections to file-sharing platforms.',context:a=>`<strong>Threat Context:</strong> Employees may bypass security controls during ${new Date(a.pubDate).toLocaleDateString()}<br><strong>TTPs:</strong> Data Exfiltration (T1041), Cloud Service Abuse (T1567)<br><strong>Hunt Query:</strong> DeviceNetworkEvents | where RemoteUrl has_any ("dropbox","drive.google","mega.nz")`},{title:a=>`Investigate if "${a.title.slice(0,50)}..." masks APT activity`,hypothesis:a=>'This high-profile event may hide stealthier targeted attacks. Threat actors leverage breaking news to blend malicious C2 traffic with legitimate communications.',context:a=>`<strong>Threat Context:</strong> APT groups capitalize on media attention to hide infrastructure<br><strong>TTPs:</strong> Command and Control (T1071), Obfuscation (T1027)<br><strong>Hunt Query:</strong> Look for beaconing patterns in proxy logs coinciding with ${new Date(a.pubDate).toLocaleDateString()}`},{title:a=>`Hunt for phishing campaigns weaponizing "${a.title.slice(0,50)}..."`,hypothesis:a=>'Attackers rapidly weaponize breaking security news into phishing lures. Expect surge in themed credential harvesting within 24-48 hours of this disclosure.',context:a=>`<strong>Threat Context:</strong> Phishing activity peaks immediately following major security incidents<br><strong>TTPs:</strong> Spearphishing (T1566), Credential Harvesting<br><strong>Hunt Query:</strong> EmailEvents | where Subject contains keywords from article AND TimeGenerated > ago(48h)`},{title:a=>`Investigate supply chain risk from "${a.title.slice(0,50)}..."`,hypothesis:a=>'Third-party vendors mentioned in this article may be compromised, creating cascading supply chain risk to your organization and partners.',context:a=>`<strong>Threat Context:</strong> Breaches disclosed on ${new Date(a.pubDate).toLocaleDateString()} often have upstream/downstream impacts<br><strong>TTPs:</strong> Supply Chain Compromise (T1195)<br><strong>Hunt Query:</strong> Monitor vendor-related authentication events and data flows`},{title:a=>`Probe for insider threats amplifying "${a.title.slice(0,50)}..."`,hypothesis:a=>'Internal actors may exploit this external distraction to exfiltrate sensitive data while security teams are focused on the publicized threat.',context:a=>`<strong>Threat Context:</strong> Insider threat activity increases during major security events<br><strong>TTPs:</strong> Data Staged (T1074), Removable Media (T1052)<br><strong>Hunt Query:</strong> Monitor USB connections, after-hours file access, and unusual SharePoint downloads`}];const hypotheses=allArticles.slice(0,10).map((a,i)=>{const template=templates[i%templates.length];return{title:template.title(a),hypothesis:template.hypothesis(a),context:template.context(a)};});container.innerHTML=hypotheses.map((h,i)=>`<div class="hypothesis-item"><h4>${i+1}. ${h.title}</h4><p><strong>Hypothesis:</strong> ${h.hypothesis}</p><div class="context">${h.context}</div></div>`).join('');},1500);}
 
-const osintTools=[{key:'A',name:'AbuseIPDB',url:'https://www.abuseipdb.com/check'},{key:'B',name:'BGPView',url:'https://bgpview.io'},{key:'C',name:'Censys',url:'https://search.censys.io'},{key:'D',name:'DNSTrails',url:'https://securitytrails.com/domain'},{key:'V',name:'VirusTotal',url:'https://www.virustotal.com/gui/home/upload'},{key:'S',name:'Shodan',url:'https://www.shodan.io/search'}];
+const osintTools=[{key:'A',name:'AbuseIPDB',url:'https://www.abuseipdb.com/check'},{key:'B',name:'BGPView',url:'https://bgpview.io'},{key:'C',name:'Censys',url:'https://search.censys.io'},{key:'D',name:'DNSTrails',url:'https://securitytrails.com/domain'},{key:'E',name:'IPVoid',url:'https://www.ipvoid.com/domain-reputation-check/'},{key:'F',name:'Fofa',url:'https://en.fofa.info'},{key:'G',name:'GreyNoise',url:'https://viz.greynoise.io/query'},{key:'H',name:'Hybrid Analysis',url:'https://www.hybrid-analysis.com'},{key:'I',name:'IPinfo',url:'https://ipinfo.io/'},{key:'J',name:'JoeSandbox',url:'https://www.joesandbox.com'},{key:'K',name:'Kaspersky TI',url:'https://opentip.kaspersky.com'},{key:'L',name:'DNSlytics',url:'https://dnslytics.com/'},{key:'M',name:'Maltiverse',url:'https://www.maltiverse.com/search'},{key:'N',name:'Netlas',url:'https://app.netlas.io'},{key:'O',name:'Onyphe',url:'https://www.onyphe.io'},{key:'P',name:'Pulsedive',url:'https://pulsedive.com'},{key:'Q',name:'Talos Intel',url:'https://www.talosintelligence.com/reputation_center'},{key:'R',name:'AlienVault OTX',url:'https://otx.alienvault.com'},{key:'S',name:'Shodan',url:'https://www.shodan.io/search'},{key:'T',name:'ThreatFox',url:'https://threatfox.abuse.ch'},{key:'U',name:'URLScan',url:'https://urlscan.io'},{key:'V',name:'VirusTotal',url:'https://www.virustotal.com/gui/home/upload'},{key:'W',name:'WHOIS',url:'https://whois.domaintools.com'},{key:'X',name:'X-Force',url:'https://exchange.xforce.ibmcloud.com'},{key:'Y',name:'YARAify',url:'https://yaraify.abuse.ch'},{key:'Z',name:'ZoomEye',url:'https://www.zoomeye.org'}];
 
-function loadOSINTKeyboard(){
-  document.getElementById('osintKeyboard').innerHTML=osintTools.map(t=>`
-<a href="${t.url}" target="_blank" class="osint-key">
-  <div class="letter">${t.key}</div>
-  <div class="tool-name">${t.name}</div>
-</a>
-`).join('');
-}
+function loadOSINTKeyboard(){document.getElementById('osintKeyboard').innerHTML=osintTools.map(t=>`<a href="${t.url}" target="_blank" class="osint-key" accesskey="${t.key.toLowerCase()}"><div class="letter">${t.key}</div><div class="tool-name">${t.name}</div></a>`).join('');}
+
+document.addEventListener('keydown',e=>{if(currentTab==='osint'&&e.key.match(/[a-z]/i)&&!e.ctrlKey&&!e.altKey&&!e.metaKey){const tool=osintTools.find(t=>t.key.toLowerCase()===e.key.toLowerCase());if(tool){window.open(tool.url,'_blank');e.preventDefault();}}});
 
 let extractedIOCs={ips:[],domains:[],urls:[],hashes:[]};
 
-function extractIOCs(){
-  const text=document.getElementById('iocInput').value;
-  if(!text.trim()){
-    alert('Please paste text first.');
-    return;
-  }
-  extractedIOCs={ips:[],domains:[],urls:[],hashes:[]};
-  extractedIOCs.ips=[...new Set(text.match(/\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b/g)||[])];
-  extractedIOCs.domains=[...new Set(text.match(/\b(?:[a-z0-9-]+\.)+[a-z]{2,}\b/gi)||[])].filter(d=>!extractedIOCs.ips.includes(d));
-  extractedIOCs.urls=[...new Set(text.match(/https?:\/\/[^\s<>"]+/gi)||[])];
-  extractedIOCs.hashes=[...new Set(text.match(/\b[a-f0-9]{32,64}\b/gi)||[])];
-  
-  const results=document.getElementById('iocResults');
-  let html='';
-  let total=0;
-  
-  const addSection=(title,items,type)=>{
-    if(items.length){
-      html+=`<div style="margin-bottom:1rem"><strong>${title} (${items.length})</strong></div>`;
-      items.forEach(item=>{
-        html+=`<div class="ioc-item"><code style="word-break:break-all;color:var(--text-secondary);font-size:.8125rem">${item}</code><span class="ioc-type">${type}</span></div>`;
-      });
-      total+=items.length;
-    }
-  };
-  
-  addSection('IP Addresses',extractedIOCs.ips,'IP');
-  addSection('Domains',extractedIOCs.domains,'DOMAIN');
-  addSection('URLs',extractedIOCs.urls,'URL');
-  addSection('Hashes',extractedIOCs.hashes,'HASH');
-  
-  results.innerHTML=html||'<p style="text-align:center;color:var(--text-tertiary);padding:2rem 0">No IOCs found.</p>';
-  
-  if(total>0){
-    results.innerHTML=`<div style="background:var(--success-light);color:var(--success);padding:.75rem;border-radius:var(--radius);margin-bottom:1rem;text-align:center;font-weight:500;border:1px solid var(--success)">Extracted ${total} IOCs</div>`+results.innerHTML;
-  }
-}
+function extractIOCs(){const text=document.getElementById('iocInput').value;if(!text.trim()){alert('Please paste text first.');return;}extractedIOCs={ips:[],domains:[],urls:[],hashes:[]};extractedIOCs.ips=[...new Set(text.match(/\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b/g)||[])];extractedIOCs.domains=[...new Set(text.match(/\b(?:[a-z0-9-]+\.)+[a-z]{2,}\b/gi)||[])].filter(d=>!extractedIOCs.ips.includes(d));extractedIOCs.urls=[...new Set(text.match(/https?:\/\/[^\s<>"]+/gi)||[])];extractedIOCs.hashes=[...new Set(text.match(/\b[a-f0-9]{32,64}\b/gi)||[])];const results=document.getElementById('iocResults');let html='';let total=0;const addSection=(title,items,type)=>{if(items.length){html+=`<div style="margin-bottom:1rem"><strong>${title} (${items.length})</strong></div>`;items.forEach(item=>{html+=`<div class="ioc-item"><code style="word-break:break-all;color:var(--text-secondary);font-size:.8125rem">${item}</code><span class="ioc-type">${type}</span></div>`;});total+=items.length;}};addSection('IP Addresses',extractedIOCs.ips,'IP');addSection('Domains',extractedIOCs.domains,'DOMAIN');addSection('URLs',extractedIOCs.urls,'URL');addSection('Hashes',extractedIOCs.hashes,'HASH');results.innerHTML=html||'<p style="text-align:center;color:var(--text-tertiary);padding:2rem 0">No IOCs found.</p>';if(total>0){results.innerHTML=`<div style="background:var(--success-light);color:var(--success);padding:.75rem;border-radius:var(--radius);margin-bottom:1rem;text-align:center;font-weight:500;border:1px solid var(--success)">Extracted ${total} IOCs</div>`+results.innerHTML;}}
 
-function translateQuery(){
-  const source=document.getElementById('sourcePlatform').value;
-  const target=document.getElementById('targetPlatform').value;
-  const query=document.getElementById('sourceQuery').value;
-  
-  if(!query.trim()){
-    alert('Please enter a query.');
-    return;
-  }
-  
-  let translated=query;
-  if(source==='kql'&&target==='spl'){
-    translated=query.replace(/\| where/g,'| search').replace(/\| project/g,'| table');
-  }else if(source==='spl'&&target==='kql'){
-    translated=query.replace(/\| search/g,'| where').replace(/\| table/g,'| project');
-  }
-  
-  document.getElementById('translatedQuery').textContent=translated;
-}
+function translateQuery(){const source=document.getElementById('sourcePlatform').value;const target=document.getElementById('targetPlatform').value;const query=document.getElementById('sourceQuery').value;if(!query.trim()){alert('Please enter a query.');return;}let translated=query;if(source==='kql'&&target==='spl'){translated=query.replace(/\| where/g,'| search').replace(/\| project/g,'| table');}else if(source==='spl'&&target==='kql'){translated=query.replace(/\| search/g,'| where').replace(/\| table/g,'| project');}document.getElementById('translatedQuery').textContent=translated;}
 
-setInterval(()=>{
-  document.getElementById('clock').textContent=new Date().toLocaleString('en-US',{weekday:'short',year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
-},1000);
+setInterval(()=>{document.getElementById('clock').textContent=new Date().toLocaleString('en-US',{weekday:'short',year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});},1000);
 
-window.addEventListener('load',()=>{
-  showDetectionQuery();
-  loadFeeds();
-  loadActiveThreatCards();
-});
+window.addEventListener('load',()=>{showDetectionQuery();loadFeeds();loadActiveThreatCards();});
   </script>
 </body>
 </html>
