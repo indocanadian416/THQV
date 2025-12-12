@@ -6,611 +6,7 @@
   <title>CyberGator1 - Threat Hunting Command Center</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <style>
-    :root {
-      --bg-primary: #ffffff;
-      --bg-secondary: #f8f9fa;
-      --bg-tertiary: #f1f3f5;
-      --surface: #ffffff;
-      --surface-elevated: #ffffff;
-      --text-primary: #202124;
-      --text-secondary: #5f6368;
-      --text-tertiary: #80868b;
-      --border: #e8eaed;
-      --border-strong: #dadce0;
-      --accent: #1a73e8;
-      --accent-hover: #1557b0;
-      --accent-light: #e8f0fe;
-      --success: #137333;
-      --success-light: #e6f4ea;
-      --warning: #f9ab00;
-      --warning-light: #fef7e0;
-      --danger: #d93025;
-      --danger-light: #fce8e6;
-      --info: #1967d2;
-      --shadow-sm: 0 1px 2px 0 rgba(60, 64, 67, 0.1);
-      --shadow: 0 1px 3px 0 rgba(60, 64, 67, 0.15);
-      --shadow-lg: 0 4px 8px 0 rgba(60, 64, 67, 0.15), 0 1px 3px 0 rgba(60, 64, 67, 0.1);
-      --radius: 8px;
-      --radius-lg: 12px;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      background: var(--bg-secondary);
-      color: var(--text-primary);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      line-height: 1.6;
-      font-size: 15px;
-    }
-
-    header {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 1rem 2rem;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      box-shadow: var(--shadow-sm);
-    }
-
-    header .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    header h1 {
-      color: var(--text-primary);
-      font-size: 1.5rem;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    header h1 i {
-      color: var(--accent);
-    }
-
-    header time {
-      color: var(--text-tertiary);
-      font-size: 0.875rem;
-    }
-
-    .nav-tabs {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: 65px;
-      z-index: 999;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-
-    .nav-tabs::-webkit-scrollbar {
-      display: none;
-    }
-
-    .nav-tabs .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      display: flex;
-      gap: 0;
-      padding: 0 2rem;
-    }
-
-    .nav-tab {
-      background: transparent;
-      color: var(--text-secondary);
-      border: none;
-      border-bottom: 2px solid transparent;
-      padding: 0.875rem 1rem;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      font-size: 0.875rem;
-      font-weight: 500;
-      white-space: nowrap;
-    }
-
-    .nav-tab:hover {
-      color: var(--accent);
-      background: var(--accent-light);
-    }
-
-    .nav-tab.active {
-      color: var(--accent);
-      border-bottom-color: var(--accent);
-    }
-
-    .content {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
-
-    .tab-content {
-      display: none;
-    }
-
-    .tab-content.active {
-      display: block;
-      animation: fadeIn 0.2s ease-in;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .grid-full {
-      grid-column: 1 / -1;
-    }
-
-    section {
-      background: var(--surface);
-      border-radius: var(--radius-lg);
-      padding: 1.5rem;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-sm);
-    }
-
-    h2 {
-      color: var(--text-primary);
-      font-size: 1.125rem;
-      font-weight: 500;
-      margin-bottom: 1.25rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    h2 i {
-      color: var(--accent);
-      font-size: 1rem;
-    }
-
-    h3 {
-      color: var(--text-primary);
-      font-size: 1rem;
-      font-weight: 500;
-      margin-bottom: 1rem;
-    }
-
-    select, button, input, textarea {
-      font-family: inherit;
-      font-size: 0.875rem;
-      border-radius: var(--radius);
-      transition: all 0.15s ease;
-    }
-
-    select, input, textarea {
-      background: var(--surface);
-      color: var(--text-primary);
-      border: 1px solid var(--border-strong);
-      padding: 0.625rem 0.875rem;
-      width: 100%;
-    }
-
-    select:hover, input:hover, textarea:hover {
-      border-color: var(--text-tertiary);
-    }
-
-    select:focus, input:focus, textarea:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-light);
-    }
-
-    textarea {
-      min-height: 120px;
-      resize: vertical;
-      font-family: 'Monaco', 'Courier New', monospace;
-      line-height: 1.5;
-    }
-
-    button {
-      background: var(--surface);
-      color: var(--text-primary);
-      border: 1px solid var(--border-strong);
-      padding: 0.625rem 1rem;
-      cursor: pointer;
-      font-weight: 500;
-    }
-
-    button:hover {
-      background: var(--bg-tertiary);
-      border-color: var(--text-tertiary);
-    }
-
-    button.primary {
-      background: var(--accent);
-      color: #ffffff;
-      border: none;
-    }
-
-    button.primary:hover {
-      background: var(--accent-hover);
-    }
-
-    pre {
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1rem;
-      overflow-x: auto;
-      font-size: 0.8125rem;
-      line-height: 1.5;
-      position: relative;
-      font-family: 'Monaco', 'Courier New', monospace;
-    }
-
-    .copy-btn {
-      position: absolute;
-      top: 0.5rem;
-      right: 0.5rem;
-      padding: 0.375rem 0.75rem;
-      font-size: 0.75rem;
-    }
-
-    .feed-container {
-      max-height: 700px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .feed-item {
-      background: var(--bg-secondary);
-      padding: 1.25rem;
-      border-left: 3px solid var(--accent);
-      border-radius: var(--radius);
-      transition: all 0.15s ease;
-    }
-
-    .feed-item:hover {
-      background: var(--accent-light);
-      box-shadow: var(--shadow);
-      transform: translateX(2px);
-    }
-
-    .feed-item a {
-      color: var(--accent);
-      text-decoration: none;
-      display: block;
-      font-weight: 500;
-      margin-bottom: 0.75rem;
-      line-height: 1.4;
-      font-size: 1rem;
-    }
-
-    .feed-item a:hover {
-      text-decoration: underline;
-    }
-
-    .feed-item .description {
-      color: var(--text-secondary);
-      font-size: 0.9375rem;
-      line-height: 1.6;
-      margin-bottom: 0.75rem;
-    }
-
-    .feed-item .meta {
-      color: var(--text-tertiary);
-      font-size: 0.75rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 0.75rem;
-    }
-
-    .feed-item .tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-
-    .tag {
-      background: var(--bg-tertiary);
-      color: var(--text-secondary);
-      padding: 0.25rem 0.625rem;
-      border-radius: 4px;
-      font-size: 0.6875rem;
-      font-weight: 500;
-      border: 1px solid var(--border);
-    }
-
-    .tag.critical { 
-      background: var(--danger-light); 
-      color: var(--danger); 
-      border-color: var(--danger); 
-    }
-    
-    .tag.high { 
-      background: var(--warning-light); 
-      color: #b35800; 
-      border-color: var(--warning); 
-    }
-
-    .tag.success {
-      background: var(--success-light);
-      color: var(--success);
-      border-color: var(--success);
-    }
-
-    .threat-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-left: 4px solid var(--danger);
-      padding: 1.25rem;
-      margin-bottom: 1rem;
-      border-radius: var(--radius);
-      transition: all 0.15s ease;
-    }
-
-    .threat-card:hover {
-      box-shadow: var(--shadow);
-    }
-
-    .threat-card.critical { border-left-color: var(--danger); }
-    .threat-card.high { border-left-color: var(--warning); }
-    .threat-card.medium { border-left-color: var(--info); }
-
-    .threat-card h4 {
-      color: var(--text-primary);
-      font-size: 0.9375rem;
-      font-weight: 500;
-      margin-bottom: 0.75rem;
-    }
-
-    .threat-card .description {
-      color: var(--text-secondary);
-      font-size: 0.875rem;
-      line-height: 1.6;
-      margin-bottom: 0.75rem;
-    }
-
-    .threat-card .action {
-      color: var(--text-secondary);
-      font-size: 0.8125rem;
-      padding-top: 0.75rem;
-      border-top: 1px solid var(--border);
-      line-height: 1.5;
-    }
-
-    .threat-card .action strong {
-      color: var(--accent);
-    }
-
-    .hypothesis-item {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      border-left: 3px solid var(--accent);
-      padding: 1.25rem;
-      margin-bottom: 1rem;
-      border-radius: var(--radius);
-    }
-
-    .hypothesis-item h4 {
-      color: var(--text-primary);
-      font-size: 0.9375rem;
-      font-weight: 500;
-      margin-bottom: 0.75rem;
-    }
-
-    .hypothesis-item p {
-      color: var(--text-secondary);
-      font-size: 0.875rem;
-      line-height: 1.5;
-      margin-bottom: 0.5rem;
-    }
-
-    .hypothesis-item .context {
-      color: var(--text-secondary);
-      font-size: 0.8125rem;
-      padding-top: 0.75rem;
-      border-top: 1px solid var(--border);
-      line-height: 1.6;
-    }
-
-    .osint-keyboard {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-      gap: 0.75rem;
-    }
-
-    .osint-key {
-      background: var(--surface);
-      border: 1px solid var(--border-strong);
-      border-radius: var(--radius);
-      padding: 1rem;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      text-decoration: none;
-      color: var(--text-primary);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.375rem;
-    }
-
-    .osint-key:hover {
-      background: var(--accent);
-      color: #ffffff;
-      border-color: var(--accent);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow);
-    }
-
-    .osint-key .letter {
-      font-size: 1.5rem;
-      font-weight: 600;
-    }
-
-    .osint-key .tool-name {
-      font-size: 0.6875rem;
-      font-weight: 500;
-    }
-
-    .ioc-list {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1rem;
-      max-height: 400px;
-      overflow-y: auto;
-    }
-
-    .ioc-item {
-      padding: 0.625rem 0;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .ioc-item:last-child {
-      border-bottom: none;
-    }
-
-    .ioc-type {
-      color: var(--accent);
-      font-size: 0.6875rem;
-      font-weight: 500;
-      background: var(--accent-light);
-      padding: 0.25rem 0.5rem;
-      border-radius: 4px;
-      white-space: nowrap;
-    }
-
-    .loading {
-      text-align: center;
-      padding: 3rem;
-      color: var(--text-tertiary);
-    }
-
-    .loading i {
-      font-size: 2rem;
-      animation: spin 1s linear infinite;
-      color: var(--accent);
-    }
-
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-
-    footer {
-      text-align: center;
-      color: var(--text-tertiary);
-      padding: 2rem;
-      background: var(--surface);
-      border-top: 1px solid var(--border);
-      font-size: 0.875rem;
-    }
-
-    .filter-bar {
-      display: flex;
-      gap: 0.75rem;
-      margin-bottom: 1.25rem;
-      flex-wrap: wrap;
-    }
-
-    .filter-bar select,
-    .filter-bar input {
-      flex: 1;
-      min-width: 180px;
-    }
-
-    .filter-bar button {
-      flex-shrink: 0;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .stat-card {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.25rem;
-      text-align: center;
-    }
-
-    .stat-card .value {
-      font-size: 1.875rem;
-      color: var(--accent);
-      font-weight: 600;
-      line-height: 1;
-    }
-
-    .stat-card .label {
-      font-size: 0.8125rem;
-      color: var(--text-secondary);
-      margin-top: 0.5rem;
-    }
-
-    .btn-group {
-      display: flex;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-    }
-
-    .alert {
-      background: var(--accent-light);
-      border: 1px solid var(--accent);
-      border-radius: var(--radius);
-      padding: 0.875rem 1rem;
-      margin-bottom: 1rem;
-      color: var(--text-primary);
-      font-size: 0.875rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .alert i {
-      color: var(--accent);
-    }
-
-    @media (max-width: 768px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
-      
-      .nav-tabs .container {
-        padding: 0 1rem;
-      }
-      
-      .osint-keyboard {
-        grid-template-columns: repeat(3, 1fr);
-      }
-
-      header .container,
-      .content {
-        padding-left: 1rem;
-        padding-right: 1rem;
-      }
-    }
+    :root{--bg-primary:#fff;--bg-secondary:#f8f9fa;--bg-tertiary:#f1f3f5;--surface:#fff;--text-primary:#202124;--text-secondary:#5f6368;--text-tertiary:#80868b;--border:#e8eaed;--border-strong:#dadce0;--accent:#1a73e8;--accent-hover:#1557b0;--accent-light:#e8f0fe;--success:#137333;--success-light:#e6f4ea;--warning:#f9ab00;--warning-light:#fef7e0;--danger:#d93025;--danger-light:#fce8e6;--info:#1967d2;--shadow-sm:0 1px 2px 0 rgba(60,64,67,.1);--shadow:0 1px 3px 0 rgba(60,64,67,.15);--radius:8px;--radius-lg:12px}*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg-secondary);color:var(--text-primary);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;line-height:1.6;font-size:15px}header{background:var(--surface);border-bottom:1px solid var(--border);padding:1rem 2rem;position:sticky;top:0;z-index:1000;box-shadow:var(--shadow-sm)}header .container{max-width:1400px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}header h1{color:var(--text-primary);font-size:1.5rem;font-weight:500;display:flex;align-items:center;gap:.5rem}header h1 i{color:var(--accent)}header time{color:var(--text-tertiary);font-size:.875rem}.nav-tabs{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:65px;z-index:999;overflow-x:auto;scrollbar-width:none}.nav-tabs::-webkit-scrollbar{display:none}.nav-tabs .container{max-width:1400px;margin:0 auto;display:flex;gap:0;padding:0 2rem}.nav-tab{background:0 0;color:var(--text-secondary);border:none;border-bottom:2px solid transparent;padding:.875rem 1rem;cursor:pointer;transition:all .15s ease;font-size:.875rem;font-weight:500;white-space:nowrap}.nav-tab:hover{color:var(--accent);background:var(--accent-light)}.nav-tab.active{color:var(--accent);border-bottom-color:var(--accent)}.content{max-width:1400px;margin:0 auto;padding:2rem}.tab-content{display:none}.tab-content.active{display:block;animation:fadeIn .2s ease-in}@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:1.5rem}.grid-full{grid-column:1/-1}section{background:var(--surface);border-radius:var(--radius-lg);padding:1.5rem;border:1px solid var(--border);box-shadow:var(--shadow-sm)}h2{color:var(--text-primary);font-size:1.125rem;font-weight:500;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem}h2 i{color:var(--accent);font-size:1rem}h3{color:var(--text-primary);font-size:1rem;font-weight:500;margin-bottom:1rem}button,input,select,textarea{font-family:inherit;font-size:.875rem;border-radius:var(--radius);transition:all .15s ease}input,select,textarea{background:var(--surface);color:var(--text-primary);border:1px solid var(--border-strong);padding:.625rem .875rem;width:100%}input:hover,select:hover,textarea:hover{border-color:var(--text-tertiary)}input:focus,select:focus,textarea:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-light)}textarea{min-height:120px;resize:vertical;font-family:Monaco,'Courier New',monospace;line-height:1.5}button{background:var(--surface);color:var(--text-primary);border:1px solid var(--border-strong);padding:.625rem 1rem;cursor:pointer;font-weight:500}button:hover{background:var(--bg-tertiary);border-color:var(--text-tertiary)}button.primary{background:var(--accent);color:#fff;border:none}button.primary:hover{background:var(--accent-hover)}pre{background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;overflow-x:auto;font-size:.8125rem;line-height:1.5;position:relative;font-family:Monaco,'Courier New',monospace}.copy-btn{position:absolute;top:.5rem;right:.5rem;padding:.375rem .75rem;font-size:.75rem}.feed-container{max-height:700px;overflow-y:auto;display:flex;flex-direction:column;gap:1rem}.feed-item{background:var(--bg-secondary);padding:1.25rem;border-left:3px solid var(--accent);border-radius:var(--radius);transition:all .15s ease}.feed-item:hover{background:var(--accent-light);box-shadow:var(--shadow);transform:translateX(2px)}.feed-item a{color:var(--accent);text-decoration:none;display:block;font-weight:500;margin-bottom:.75rem;line-height:1.4;font-size:1rem}.feed-item a:hover{text-decoration:underline}.feed-item .description{color:var(--text-secondary);font-size:.9375rem;line-height:1.6;margin-bottom:.75rem}.feed-item .meta{color:var(--text-tertiary);font-size:.75rem;display:flex;align-items:center;gap:1rem;margin-bottom:.75rem}.feed-item .tags{display:flex;flex-wrap:wrap;gap:.5rem}.tag{background:var(--bg-tertiary);color:var(--text-secondary);padding:.25rem .625rem;border-radius:4px;font-size:.6875rem;font-weight:500;border:1px solid var(--border)}.tag.critical{background:var(--danger-light);color:var(--danger);border-color:var(--danger)}.tag.high{background:var(--warning-light);color:#b35800;border-color:var(--warning)}.tag.success{background:var(--success-light);color:var(--success);border-color:var(--success)}.threat-card{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--danger);padding:1.25rem;margin-bottom:1rem;border-radius:var(--radius);transition:all .15s ease}.threat-card:hover{box-shadow:var(--shadow)}.threat-card.critical{border-left-color:var(--danger)}.threat-card.high{border-left-color:var(--warning)}.threat-card.medium{border-left-color:var(--info)}.threat-card h4{color:var(--text-primary);font-size:.9375rem;font-weight:500;margin-bottom:.75rem}.threat-card .description{color:var(--text-secondary);font-size:.875rem;line-height:1.6;margin-bottom:.75rem}.threat-card .action{color:var(--text-secondary);font-size:.8125rem;padding-top:.75rem;border-top:1px solid var(--border);line-height:1.5}.threat-card .action strong{color:var(--accent)}.hypothesis-item{background:var(--bg-secondary);border:1px solid var(--border);border-left:3px solid var(--accent);padding:1.25rem;margin-bottom:1rem;border-radius:var(--radius)}.hypothesis-item h4{color:var(--text-primary);font-size:.9375rem;font-weight:500;margin-bottom:.75rem}.hypothesis-item p{color:var(--text-secondary);font-size:.875rem;line-height:1.5;margin-bottom:.5rem}.hypothesis-item .context{color:var(--text-secondary);font-size:.8125rem;padding-top:.75rem;border-top:1px solid var(--border);line-height:1.6}.osint-keyboard{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:.75rem}.osint-key{background:var(--surface);border:1px solid var(--border-strong);border-radius:var(--radius);padding:1rem;text-align:center;cursor:pointer;transition:all .15s ease;text-decoration:none;color:var(--text-primary);display:flex;flex-direction:column;align-items:center;gap:.375rem}.osint-key:hover{background:var(--accent);color:#fff;border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--shadow)}.osint-key .letter{font-size:1.5rem;font-weight:600}.osint-key .tool-name{font-size:.6875rem;font-weight:500}.ioc-list{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;max-height:400px;overflow-y:auto}.ioc-item{padding:.625rem 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:1rem}.ioc-item:last-child{border-bottom:none}.ioc-type{color:var(--accent);font-size:.6875rem;font-weight:500;background:var(--accent-light);padding:.25rem .5rem;border-radius:4px;white-space:nowrap}.loading{text-align:center;padding:3rem;color:var(--text-tertiary)}.loading i{font-size:2rem;animation:spin 1s linear infinite;color:var(--accent)}@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}footer{text-align:center;color:var(--text-tertiary);padding:2rem;background:var(--surface);border-top:1px solid var(--border);font-size:.875rem}.filter-bar{display:flex;gap:.75rem;margin-bottom:1.25rem;flex-wrap:wrap}.filter-bar input,.filter-bar select{flex:1;min-width:180px}.filter-bar button{flex-shrink:0}.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:1.5rem}.stat-card{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;text-align:center}.stat-card .value{font-size:1.875rem;color:var(--accent);font-weight:600;line-height:1}.stat-card .label{font-size:.8125rem;color:var(--text-secondary);margin-top:.5rem}.btn-group{display:flex;gap:.75rem;flex-wrap:wrap}.alert{background:var(--accent-light);border:1px solid var(--accent);border-radius:var(--radius);padding:.875rem 1rem;margin-bottom:1rem;color:var(--text-primary);font-size:.875rem;display:flex;align-items:center;gap:.75rem}.alert i{color:var(--accent)}@media (max-width:768px){.grid{grid-template-columns:1fr}.nav-tabs .container{padding:0 1rem}.osint-keyboard{grid-template-columns:repeat(3,1fr)}header .container,.content{padding-left:1rem;padding-right:1rem}}
   </style>
 </head>
 <body>
@@ -633,7 +29,6 @@
   </div>
 
   <div class="content">
-    <!-- Threat Intel Tab -->
     <div id="tab-intel" class="tab-content active">
       <div class="grid">
         <section class="grid-full">
@@ -648,313 +43,256 @@
             <input type="text" id="feedSearch" placeholder="Search articles..." oninput="applyFeedFilters()" />
             <button onclick="loadFeeds()"><i class="fas fa-sync-alt"></i> Refresh</button>
           </div>
-          <div id="feedArea" class="feed-container">
-            <div class="loading"><i class="fas fa-spinner"></i><p>Loading latest threat intelligence...</p></div>
-          </div>
+          <div id="feedArea" class="feed-container"><div class="loading"><i class="fas fa-spinner"></i><p>Loading feeds...</p></div></div>
         </section>
-
         <section>
-          <h2><i class="fas fa-exclamation-triangle"></i> Active Global Threats</h2>
-          <div id="activeThreatCards" style="max-height: 700px; overflow-y: auto;">
-            <!-- Dynamic content loaded via JS -->
-          </div>
+          <h2><i class="fas fa-exclamation-triangle"></i> Active Threats</h2>
+          <div id="activeThreatCards" style="max-height:700px;overflow-y:auto"></div>
         </section>
-
         <section>
-          <h2><i class="fas fa-chart-line"></i> Threat Landscape Metrics</h2>
-          <div id="threatMetrics">
-            <div class="threat-card medium">
-              <h4>Ransomware Activity (Nov 2025)</h4>
-              <div class="description">
-                <strong>727 reported attacks</strong> globally, marking a <strong>22% increase</strong> year-over-year. North America accounts for 55% of incidents.
-              </div>
-              <div class="action">
-                <strong>Top Groups:</strong> Qilin (15%), Clop (15%), Akira (12%)<br>
-                <strong>Source:</strong> Check Point Research, December 2025
-              </div>
-            </div>
-
-            <div class="threat-card high">
-              <h4>APT Activity Surge</h4>
-              <div class="description">
-                Advanced Persistent Threats increased <strong>18.9% from 2022-2025</strong>, reaching 504 incidents in 2025. Asia-Pacific leads in APT concentration.
-              </div>
-              <div class="action">
-                <strong>Emerging Trend:</strong> AI-generated phishing, deepfake vishing, IoT exploitation<br>
-                <strong>Source:</strong> BISI Global APT Review, September 2025
-              </div>
-            </div>
-
-            <div class="threat-card critical">
-              <h4>Zero-Day Exploits (December 2025)</h4>
-              <div class="description">
-                Microsoft addressed <strong>57 vulnerabilities</strong> including <strong>1 actively exploited zero-day</strong> and 2 publicly disclosed Important zero-days in December Patch Tuesday.
-              </div>
-              <div class="action">
-                <strong>Top Risk:</strong> Elevation of Privilege (49%), Remote Code Execution (34%)<br>
-                <strong>Source:</strong> CrowdStrike Patch Tuesday Analysis, Dec 8, 2025
-              </div>
-            </div>
-          </div>
+          <h2><i class="fas fa-chart-line"></i> Metrics</h2>
+          <div id="threatMetrics"><div class="threat-card medium"><h4>Ransomware (Nov 2025)</h4><div class="description"><strong>727 attacks</strong> globally, <strong>22% increase</strong> YoY.</div><div class="action"><strong>Top Groups:</strong> Qilin (15%), Clop (15%)</div></div></div>
         </section>
       </div>
     </div>
-
-    <!-- AI Hypothesis Tab -->
-    <div id="tab-hypothesis" class="tab-content">
-      <section>
-        <h2><i class="fas fa-brain"></i> AI-Powered Threat Hunting Hypothesis Generator</h2>
-        <div class="alert">
-          <i class="fas fa-info-circle"></i>
-          <span>Generate creative threat hunting hypotheses based on current threat intelligence feeds and emerging attack patterns.</span>
-        </div>
-        <button class="primary" onclick="generateHypothesis()" style="width: 100%; padding: 0.875rem; font-size: 0.9375rem;">
-          <i class="fas fa-radiation"></i> Generate Hunting Hypotheses
-        </button>
-        <div id="hypothesisLoading" class="loading" style="display: none;">
-          <i class="fas fa-spinner"></i>
-          <p>Analyzing threat intelligence and generating hypotheses...</p>
-        </div>
-        <div id="hypothesisContainer" style="margin-top: 1.5rem;"></div>
-      </section>
-    </div>
-
-    <!-- OSINT Tools Tab -->
-    <div id="tab-osint" class="tab-content">
-      <section>
-        <h2><i class="fas fa-keyboard"></i> OSINT Keyboard Shortcuts</h2>
-        <div class="alert">
-          <i class="fas fa-info-circle"></i>
-          <span>Press any key (A-Z) or click to instantly open that OSINT tool in a new tab. Perfect for rapid IOC investigation.</span>
-        </div>
-        <div class="osint-keyboard" id="osintKeyboard"></div>
-      </section>
-    </div>
-
-    <!-- IOC Extractor Tab -->
-    <div id="tab-ioc" class="tab-content">
-      <div class="grid">
-        <section>
-          <h2><i class="fas fa-fingerprint"></i> IOC Extractor</h2>
-          <div class="alert">
-            <i class="fas fa-info-circle"></i>
-            <span>Paste threat intelligence text to automatically extract IPs, domains, URLs, and file hashes.</span>
-          </div>
-          <textarea id="iocInput" placeholder="Paste threat intelligence reports, articles, or logs here..."></textarea>
-          <button class="primary" onclick="extractIOCs()" style="width: 100%; margin-top: 0.75rem;">
-            <i class="fas fa-search-plus"></i> Extract IOCs
-          </button>
-        </section>
-
-        <section>
-          <h2><i class="fas fa-list"></i> Extracted IOCs</h2>
-          <div id="iocResults" class="ioc-list">
-            <p style="color: var(--text-tertiary); text-align: center; padding: 2rem 0;">Extracted IOCs will appear here...</p>
-          </div>
-          <div class="btn-group" style="margin-top: 1rem;">
-            <button onclick="exportIOCs('txt')"><i class="fas fa-file-alt"></i> Export TXT</button>
-            <button onclick="exportIOCs('json')"><i class="fas fa-file-code"></i> Export JSON</button>
-            <button onclick="exportIOCs('csv')"><i class="fas fa-file-csv"></i> Export CSV</button>
-          </div>
-        </section>
-      </div>
-    </div>
-
-    <!-- Query Translator Tab -->
-    <div id="tab-translator" class="tab-content">
-      <div class="grid">
-        <section>
-          <h2><i class="fas fa-language"></i> Multi-Platform Query Translator</h2>
-          <div class="alert">
-            <i class="fas fa-info-circle"></i>
-            <span>Convert detection queries between different SIEM platforms (KQL, SPL, Lucene).</span>
-          </div>
-          <label style="color: var(--text-secondary); font-size: 0.875rem; display: block; margin-bottom: 0.5rem; font-weight: 500;">Source Platform:</label>
-          <select id="sourcePlatform" style="margin-bottom: 1rem;">
-            <option value="kql">Microsoft Sentinel (KQL)</option>
-            <option value="spl">Splunk (SPL)</option>
-            <option value="lucene">Elastic (Lucene)</option>
-          </select>
-          <label style="color: var(--text-secondary); font-size: 0.875rem; display: block; margin-bottom: 0.5rem; font-weight: 500;">Target Platform:</label>
-          <select id="targetPlatform" style="margin-bottom: 1rem;">
-            <option value="spl" selected>Splunk (SPL)</option>
-            <option value="kql">Microsoft Sentinel (KQL)</option>
-            <option value="lucene">Elastic (Lucene)</option>
-          </select>
-          <label style="color: var(--text-secondary); font-size: 0.875rem; display: block; margin-bottom: 0.5rem; font-weight: 500;">Enter Query:</label>
-          <textarea id="sourceQuery" placeholder="Enter your detection query here..."></textarea>
-          <button class="primary" onclick="translateQuery()" style="width: 100%; margin-top: 0.75rem;">
-            <i class="fas fa-exchange-alt"></i> Translate Query
-          </button>
-        </section>
-
-        <section>
-          <h2><i class="fas fa-code"></i> Translated Query</h2>
-          <div style="position: relative;">
-            <button class="copy-btn" onclick="copyToClipboard('translatedQuery')"><i class="fas fa-copy"></i> Copy</button>
-            <pre id="translatedQuery">Translated query will appear here...</pre>
-          </div>
-          <div class="alert" style="background: var(--warning-light); border-color: var(--warning); margin-top: 1rem;">
-            <i class="fas fa-exclamation-triangle" style="color: var(--warning);"></i>
-            <span>Note: Query translation is approximate. Manual adjustment may be required for complex queries.</span>
-          </div>
-        </section>
-      </div>
-    </div>
-
-    <!-- Detection Queries Tab -->
-    <div id="tab-queries" class="tab-content">
-      <div class="grid">
-        <section class="grid-full">
-          <h2><i class="fas fa-code"></i> MITRE ATT&CK Detection Query Builder</h2>
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div class="value">4</div>
-              <div class="label">SIEM Platforms</div>
-            </div>
-            <div class="stat-card">
-              <div class="value">14</div>
-              <div class="label">MITRE Techniques</div>
-            </div>
-            <div class="stat-card">
-              <div class="value">56+</div>
-              <div class="label">Detection Queries</div>
-            </div>
-            <div class="stat-card">
-              <div class="value">Real-time</div>
-              <div class="label">Threat Intel</div>
-            </div>
-          </div>
-        </section>
-
-        <section class="grid-full">
-          <h3>Select MITRE Technique</h3>
-          <select id="technique" onchange="showDetectionQuery()" style="margin-bottom: 1rem;">
-            <option value="">-- Select MITRE Technique --</option>
-            <option value="T1059">T1059 - Command and Scripting Interpreter</option>
-            <option value="T1566">T1566 - Phishing</option>
-            <option value="T1021">T1021 - Remote Services</option>
-            <option value="T1041">T1041 - Exfiltration Over C2 Channel</option>
-            <option value="T1105">T1105 - Remote File Copy</option>
-            <option value="T1547">T1547 - Boot or Logon Autostart Execution</option>
-            <option value="T1071">T1071 - Application Layer Protocol</option>
-            <option value="T1110">T1110 - Brute Force</option>
-            <option value="T1055">T1055 - Process Injection</option>
-            <option value="T1621">T1621 - Multi-Factor Authentication Fatigue</option>
-            <option value="T1003">T1003 - Credential Dumping</option>
-            <option value="T1078">T1078 - Valid Accounts</option>
-            <option value="T1486">T1486 - Data Encrypted for Impact</option>
-            <option value="T1567">T1567 - Exfiltration Over Web Service</option>
-          </select>
-          <div style="position: relative;">
-            <button class="copy-btn" onclick="copyToClipboard('queryOutput')"><i class="fas fa-copy"></i> Copy</button>
-            <pre id="queryOutput">Select a technique to view detection queries across multiple platforms.</pre>
-          </div>
-          <div class="btn-group" style="margin-top: 1rem;">
-            <button onclick="exportQuery()"><i class="fas fa-download"></i> Export Query</button>
-            <button onclick="saveToLibrary()"><i class="fas fa-save"></i> Save to Library</button>
-          </div>
-          <div class="alert" style="margin-top: 1rem;">
-            <i class="fas fa-info-circle"></i>
-            <span><strong>Platforms:</strong> Microsoft Sentinel (KQL) | Splunk (SPL) | CrowdStrike Falcon (LogScale) | Elastic SIEM (Lucene)</span>
-          </div>
-        </section>
-      </div>
-    </div>
+    <div id="tab-hypothesis" class="tab-content"><section><h2><i class="fas fa-brain"></i> AI Hypothesis Generator</h2><button class="primary" onclick="generateHypothesis()" style="width:100%;padding:.875rem"><i class="fas fa-radiation"></i> Generate Hypotheses</button><div id="hypothesisLoading" class="loading" style="display:none"><i class="fas fa-spinner"></i><p>Generating...</p></div><div id="hypothesisContainer" style="margin-top:1.5rem"></div></section></div>
+    <div id="tab-osint" class="tab-content"><section><h2><i class="fas fa-keyboard"></i> OSINT Tools</h2><div id="osintKeyboard" class="osint-keyboard"></div></section></div>
+    <div id="tab-ioc" class="tab-content"><div class="grid"><section><h2><i class="fas fa-fingerprint"></i> IOC Extractor</h2><textarea id="iocInput" placeholder="Paste intel here..."></textarea><button class="primary" onclick="extractIOCs()" style="width:100%;margin-top:.75rem"><i class="fas fa-search-plus"></i> Extract</button></section><section><h2><i class="fas fa-list"></i> Extracted IOCs</h2><div id="iocResults" class="ioc-list"><p style="color:var(--text-tertiary);text-align:center;padding:2rem 0">IOCs will appear here...</p></div></section></div></div>
+    <div id="tab-translator" class="tab-content"><div class="grid"><section><h2><i class="fas fa-language"></i> Query Translator</h2><select id="sourcePlatform"><option value="kql">Sentinel (KQL)</option><option value="spl">Splunk (SPL)</option></select><select id="targetPlatform"><option value="spl">Splunk (SPL)</option><option value="kql">Sentinel (KQL)</option></select><textarea id="sourceQuery" placeholder="Enter query..."></textarea><button class="primary" onclick="translateQuery()" style="width:100%;margin-top:.75rem"><i class="fas fa-exchange-alt"></i> Translate</button></section><section><h2><i class="fas fa-code"></i> Result</h2><pre id="translatedQuery">Translation appears here...</pre></section></div></div>
+    <div id="tab-queries" class="tab-content"><div class="grid"><section class="grid-full"><h2><i class="fas fa-code"></i> Detection Queries</h2><select id="technique" onchange="showDetectionQuery()"><option value="">-- Select MITRE Technique --</option><option value="T1059">T1059 - Command Interpreter</option><option value="T1566">T1566 - Phishing</option></select><pre id="queryOutput">Select a technique...</pre></section></div></div>
   </div>
 
-  <footer>
-    <div>
-      <strong>CyberGator1</strong> - Threat Hunting Command Center
-    </div>
-    <div style="margin-top: 0.5rem;">
-      Created by Pratik | Empowering the Cybersecurity Community
-    </div>
-  </footer>
+  <footer><div><strong>CyberGator1</strong> - Threat Hunting Command Center</div><div style="margin-top:.5rem">Created by Pratik</div></footer>
 
   <script>
+let currentTab='intel';
 let allArticles=[];
-
-function switchTab(e){document.querySelectorAll(".tab-content").forEach(t=>t.classList.remove("active")),document.querySelectorAll(".nav-tab").forEach(t=>t.classList.remove("active")),document.getElementById("tab-"+e).classList.add("active"),event.target.classList.add("active"),"osint"===e&&0===document.getElementById("osintKeyboard").children.length&&loadOSINTKeyboard()}const detections={T1059:`Microsoft Sentinel (KQL):
-DeviceProcessEvents
-| where Timestamp > ago(1d)
-| where FileName in~ ("powershell.exe", "cmd.exe", "cscript.exe", "wscript.exe")
-| project Timestamp, DeviceName, AccountName, FileName, ProcessCommandLine
+const detections={T1059:`Microsoft Sentinel (KQL):
+DeviceProcessEvents | where FileName in~ ("powershell.exe", "cmd.exe")
 
 Splunk (SPL):
-index=windows sourcetype=WinEventLog:Security EventCode=4688
-(NewProcessName="*powershell.exe" OR NewProcessName="*cmd.exe")
-| table _time, Computer, SubjectUserName, NewProcessName, CommandLine
+index=windows EventCode=4688 NewProcessName="*powershell.exe"`,T1566:`Microsoft Sentinel (KQL):
+EmailEvents | where Subject has_any ("urgent", "invoice")`};
 
-CrowdStrike Falcon (LogScale):
-#event_simpleName=ProcessRollup2 FileName=/(powershell|cmd|cscript|wscript).exe/i
+function switchTab(tab){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));document.getElementById('tab-'+tab).classList.add('active');event.target.classList.add('active');currentTab=tab;if(tab==='osint'&&!document.getElementById('osintKeyboard').innerHTML)loadOSINTKeyboard();}
 
-Elastic SIEM (Lucene):
-event.category:process AND process.name:(powershell.exe OR cmd.exe)`,T1566:`Microsoft Sentinel (KQL):
-EmailEvents | where Subject has_any ("urgent", "invoice", "password")
+function showDetectionQuery(){document.getElementById('queryOutput').textContent=detections[document.getElementById('technique').value]||'Select a technique...';}
 
-Splunk (SPL):
-index=o365 sourcetype="o365:management:activity" subject="*invoice*"
+function loadActiveThreatCards(){document.getElementById('activeThreatCards').innerHTML=`<div class="threat-card critical"><h4>Qilin & Clop Ransomware (Dec 2025)</h4><div class="description">15% of global attacks each</div><div class="action"><strong>Action:</strong> Monitor Oracle EBS</div></div><div class="threat-card high"><h4>Warlock Ransomware</h4><div class="description">SharePoint zero-day exploitation</div><div class="action"><strong>Action:</strong> Patch SharePoint</div></div>`;}
 
-CrowdStrike/Elastic: Similar patterns for email analysis`};function showDetectionQuery(){document.getElementById("queryOutput").textContent=detections[document.getElementById("technique").value]||"Select a technique to view detection queries."}function copyToClipboard(e){navigator.clipboard.writeText(document.getElementById(e).textContent).then(()=>{const e=event.target.closest(".copy-btn"),t=e.innerHTML;e.innerHTML='<i class="fas fa-check"></i> Copied!',setTimeout(()=>e.innerHTML=t,2e3)}).catch(e=>{alert("Failed to copy.")})}function exportQuery(){const e=document.getElementById("queryOutput").textContent;if(e.includes("Select a technique"))return void alert("Please select a technique first.");const t=new Blob([e],{type:"text/plain"}),n=URL.createObjectURL(t),a=document.createElement("a");a.href=n,a.download="detection_query_"+(new Date).toISOString().slice(0,10)+".txt",a.click(),URL.revokeObjectURL(n)}function saveToLibrary(){document.getElementById("technique").value?alert("Query saved to library!"):alert("Please select a technique first.")}function loadActiveThreatCards(){document.getElementById("activeThreatCards").innerHTML=`
-<div class="threat-card critical">
-  <h4>Qilin & Clop Ransomware Surge (December 2025)</h4>
-  <div class="description">Both groups responsible for <strong>15% of global attacks each</strong>. Qilin intensified affiliate recruitment.</div>
-  <div class="action"><strong>Action:</strong> Monitor Oracle EBS environments<br><strong>Source:</strong> Check Point Research, December 9, 2025</div>
-</div>
-<div class="threat-card critical">
-  <h4>GOLD SALEM - Warlock Ransomware (Active)</h4>
-  <div class="description">China-based group deploying Warlock ransomware via zero-day exploitation targeting SharePoint.</div>
-  <div class="action"><strong>Action:</strong> Patch SharePoint, monitor for ToolShell IOCs<br><strong>Source:</strong> Sophos X-Ops, December 10, 2025</div>
-</div>
-<div class="threat-card high">
-  <h4>Chinese APT - Brickstorm Malware Campaign</h4>
-  <div class="description">State-sponsored hackers using Brickstorm malware to maintain long-term access via VMware vSphere exploitation.</div>
-  <div class="action"><strong>Action:</strong> Update VMware vSphere<br><strong>Source:</strong> CISA, December 4, 2025</div>
-</div>
-<div class="threat-card high">
-  <h4>NightSpire Ransomware (Emerging Threat)</h4>
-  <div class="description">New ransomware group with aggressive double-extortion tactics and Bitcoin-based ransoms.</div>
-  <div class="action"><strong>Action:</strong> Monitor for file encryption patterns<br><strong>Source:</strong> CYFIRMA, December 10, 2025</div>
-</div>
-<div class="threat-card high">
-  <h4>Makop Ransomware - GuLoader Campaign</h4>
-  <div class="description">Makop operators deploying GuLoader downloader with local privilege escalation exploits.</div>
-  <div class="action"><strong>Action:</strong> Hunt for GuLoader IOCs<br><strong>Source:</strong> SOC Prime, December 9, 2025</div>
-</div>
-<div class="threat-card medium">
-  <h4>AI Supply Chain Attacks (156% Surge)</h4>
-  <div class="description">Malicious package uploads jumped <strong>156% in 2025</strong>. Shai-Hulud worm compromised 500+ npm packages.</div>
-  <div class="action"><strong>Action:</strong> Review dependency chains<br><strong>Source:</strong> The Hacker News, December 3, 2025</div>
-</div>
-<div class="threat-card medium">
-  <h4>STAC6565 Targeting Canada (80% of Attacks)</h4>
-  <div class="description">Threat group targeting <strong>80% Canadian firms</strong>, deploying QWCrypt ransomware via phishing and RDP.</div>
-  <div class="action"><strong>Action:</strong> Review RDP exposure, implement MFA<br><strong>Source:</strong> Sophos, December 8, 2025</div>
-</div>`}const rssFeeds=["https://www.bleepingcomputer.com/feed/","https://feeds.feedburner.com/TheHackersNews","https://threatpost.com/feed/","https://www.darkreading.com/rss.xml","https://krebsonsecurity.com/feed/","https://www.securityweek.com/feed/","https://nakedsecurity.sophos.com/feed/","https://www.schneier.com/feed/atom/","https://www.infosecurity-magazine.com/rss/news/","https://www.cisa.gov/uscert/ncas/current-activity.xml","https://www.zdnet.com/topic/security/rss.xml","https://www.csoonline.com/index.rss","https://www.helpnetsecurity.com/feed/","https://www.scmagazine.com/feed/","https://www.cyberscoop.com/feed/","https://www.cybersecuritydive.com/feeds/news/","https://www.rapid7.com/rss/blog/","https://www.microsoft.com/en-us/security/blog/feed/","https://blog.talosintelligence.com/feeds/posts/default","https://www.malwarebytes.com/blog/feed"];async function fetchFeed(e){try{const t=new AbortController,n=setTimeout(()=>t.abort(),8e3),a=await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(e)}`,{signal:t.signal});if(clearTimeout(n),!a.ok)throw new Error("Fetch failed");const r=await a.json(),s=(new DOMParser).parseFromString(r.contents,"application/xml");return Array.from(s.querySelectorAll("item, entry")).slice(0,10).map(t=>{const n=(t.querySelector("description, summary, content:encoded")?.textContent||"").replace(/<[^>]+>/g,"").trim().slice(0,450);return{title:t.querySelector("title")?.textContent||"No title",link:t.querySelector("link")?.textContent||t.querySelector("link")?.getAttribute("href")||"#",pubDate:t.querySelector("pubDate, updated, published")?.textContent||"",description:n,source:new URL(e).hostname}})}catch(e){return console.error("Feed error:",e),[]}}async function loadFeeds(){const e=document.getElementById("feedArea");e.innerHTML='<div class="loading"><i class="fas fa-spinner"></i><p>Loading threat intelligence...</p></div>',allArticles=[];const t=await Promise.all(rssFeeds.map(e=>fetchFeed(e)));t.forEach(e=>{allArticles.push(...e.map(e=>({...e,tags:autoTagArticle(e.title+" "+e.description)})))}),allArticles.sort((e,t)=>new Date(t.pubDate)-new Date(e.pubDate)),applyFeedFilters()}function autoTagArticle(e){const t=e.toLowerCase(),n=[];return t.match(/ransom|lockbit|blackcat|alphv|akira|qilin|clop/)&&n.push({name:"Ransomware",type:"critical"}),t.match(/zero.?day|0.?day/)&&n.push({name:"Zero-Day",type:" critical"}),t.match(/apt\d+|apt\s|nation.state|state.sponsor/)&&n.push({name:"APT",type:"high"}),t.match(/phish|spear|bec|social.engineer/)&&n.push({name:"Phishing",type:"high"}),t.match(/malware|trojan|backdoor|rat\s/)&&n.push({name:"Malware",type:"high"}),t.match(/exploit|vulnerability|cve-\d/)&&n.push({name:"Exploit",type:"high"}),t.match(/breach|leak|compromise|incident/)&&n.push({name:"Breach",type:"high"}),n}function applyFeedFilters(){const e=document.getElementById("feedFilter").value,t=document.getElementById("feedSearch").value.toLowerCase();let n=allArticles;if("all"!==e){const t=new Date;n=n.filter(n=>{const a=new Date(n.pubDate),r=t-a;switch(e){case"today":return t.toDateString()===a.toDateString();case"24h":return r<=864e5;case"7d":return r<=6048e5;default:return!0}})}t&&(n=n.filter(e=>(e.title+e.description).toLowerCase().includes(t))),displayFeeds(n.slice(0,50))}function displayFeeds(e){const t=document.getElementById("feedArea");0===e.length?t.innerHTML='<p style="text-align: center; color: var(--text-tertiary); padding: 2rem 0;">No articles found.</p>':t.innerHTML=e.map(e=>`
+const rssFeeds=['https://www.bleepingcomputer.com/feed/','https://feeds.feedburner.com/TheHackersNews','https://krebsonsecurity.com/feed/','https://www.securityweek.com/feed/','https://www.darkreading.com/rss.xml'];
+
+async function fetchFeed(url){
+  try{
+    console.log('Fetching:',url);
+    const resp=await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`);
+    const data=await resp.json();
+    console.log('Feed data:',data);
+    if(data.status==='ok'){
+      return data.items.slice(0,10).map(item=>({
+        title:item.title||'No title',
+        link:item.link||'#',
+        pubDate:item.pubDate||'',
+        description:(item.description||'').replace(/<[^>]+>/g,'').slice(0,450),
+        source:new URL(url).hostname,
+        tags:autoTagArticle(item.title+' '+item.description)
+      }));
+    }
+    return[];
+  }catch(e){
+    console.error('Feed error:',url,e);
+    return[];
+  }
+}
+
+async function loadFeeds(){
+  const area=document.getElementById('feedArea');
+  area.innerHTML='<div class="loading"><i class="fas fa-spinner"></i><p>Loading...</p></div>';
+  allArticles=[];
+  console.log('Starting feed load...');
+  
+  const results=await Promise.all(rssFeeds.map(f=>fetchFeed(f)));
+  results.forEach(items=>allArticles.push(...items));
+  allArticles.sort((a,b)=>new Date(b.pubDate)-new Date(a.pubDate));
+  
+  console.log('Total articles:',allArticles.length);
+  applyFeedFilters();
+}
+
+function autoTagArticle(text){
+  const lower=text.toLowerCase();
+  const tags=[];
+  if(lower.match(/ransom|lockbit|blackcat|qilin|clop/))tags.push({name:'Ransomware',type:'critical'});
+  if(lower.match(/zero.?day/))tags.push({name:'Zero-Day',type:'critical'});
+  if(lower.match(/apt\d+|apt\s/))tags.push({name:'APT',type:'high'});
+  if(lower.match(/phish/))tags.push({name:'Phishing',type:'high'});
+  if(lower.match(/malware/))tags.push({name:'Malware',type:'high'});
+  return tags;
+}
+
+function applyFeedFilters(){
+  const timeFilter=document.getElementById('feedFilter').value;
+  const searchTerm=document.getElementById('feedSearch').value.toLowerCase();
+  let filtered=allArticles;
+  
+  if(timeFilter!=='all'){
+    const now=new Date();
+    filtered=filtered.filter(article=>{
+      const articleDate=new Date(article.pubDate);
+      const diff=now-articleDate;
+      switch(timeFilter){
+        case'today':return now.toDateString()===articleDate.toDateString();
+        case'24h':return diff<=86400000;
+        case'7d':return diff<=604800000;
+        default:return true;
+      }
+    });
+  }
+  
+  if(searchTerm){
+    filtered=filtered.filter(a=>(a.title+a.description).toLowerCase().includes(searchTerm));
+  }
+  
+  displayFeeds(filtered.slice(0,50));
+}
+
+function displayFeeds(articles){
+  const area=document.getElementById('feedArea');
+  if(!articles.length){
+    area.innerHTML='<p style="text-align:center;color:var(--text-tertiary);padding:2rem 0">No articles found.</p>';
+    return;
+  }
+  
+  area.innerHTML=articles.map(a=>`
 <div class="feed-item">
-  <a href="${e.link}" target="_blank" rel="noopener noreferrer">${e.title}</a>
-  ${e.description?`<div class="description">${e.description}</div>`:""}
+  <a href="${a.link}" target="_blank" rel="noopener">${a.title}</a>
+  ${a.description?`<div class="description">${a.description}</div>`:''}
   <div class="meta">
-    <span><i class="fas fa-clock"></i> ${((e,t)=>{const n=Math.floor(((new Date).getTime()-e.getTime())/1e3);return n<3600?Math.floor(n/60)+"m ago":n<86400?Math.floor(n/3600)+"h ago":n<604800?Math.floor(n/86400)+"d ago":e.toLocaleDateString()})(new Date(e.pubDate))}</span>
-    <span><i class="fas fa-globe"></i> ${e.source}</span>
+    <span><i class="fas fa-clock"></i> ${getTimeAgo(new Date(a.pubDate))}</span>
+    <span><i class="fas fa-globe"></i> ${a.source}</span>
   </div>
-  ${e.tags.length>0?`<div class="tags">
-    ${e.tags.map(e=>`<span class="tag ${e.type}">${e.name}</span>`).join("")}
-  </div>`:""}
+  ${a.tags.length?`<div class="tags">${a.tags.map(t=>`<span class="tag ${t.type}">${t.name}</span>`).join('')}</div>`:''}
 </div>
-`).join("")}function generateHypothesis(){const e=document.getElementById("hypothesisContainer"),t=document.getElementById("hypothesisLoading");if(0===allArticles.length)return void alert("Please wait for feeds to load first.");t.style.display="block",e.innerHTML="",setTimeout(()=>{t.style.display="none";const n=((e,t)=>e.slice(0,10).map((e,n)=>({title:`Hunt for shadow IT exploiting "${e.title.slice(0,60)}..."`,hypothesis:"Monitor unsanctioned cloud uploads related to this threat.",context:`<strong>Context:</strong> Employees may bypass security on ${new Date(e.pubDate).toLocaleDateString()}<br><strong>TTPs:</strong> T1041, T1567<br><strong>Search:</strong> DeviceNetworkEvents | where RemoteUrl has_any ("dropbox", "drive.google")`})))(allArticles.slice(0,10));e.innerHTML=n.map((e,t)=>`
+`).join('');
+}
+
+function getTimeAgo(date){
+  const seconds=Math.floor((new Date()-date)/1000);
+  if(seconds<3600)return Math.floor(seconds/60)+'m ago';
+  if(seconds<86400)return Math.floor(seconds/3600)+'h ago';
+  if(seconds<604800)return Math.floor(seconds/86400)+'d ago';
+  return date.toLocaleDateString();
+}
+
+function generateHypothesis(){
+  const container=document.getElementById('hypothesisContainer');
+  const loading=document.getElementById('hypothesisLoading');
+  
+  if(!allArticles.length){
+    alert('Please wait for feeds to load first.');
+    return;
+  }
+  
+  loading.style.display='block';
+  container.innerHTML='';
+  
+  setTimeout(()=>{
+    loading.style.display='none';
+    const hypotheses=allArticles.slice(0,5).map((a,i)=>({
+      title:`Hunt for shadow IT exploiting "${a.title.slice(0,60)}..."`,
+      hypothesis:'Monitor unsanctioned cloud uploads.',
+      context:`<strong>Context:</strong> ${new Date(a.pubDate).toLocaleDateString()}<br><strong>TTPs:</strong> T1041, T1567`
+    }));
+    container.innerHTML=hypotheses.map((h,i)=>`
 <div class="hypothesis-item">
-  <h4>${t+1}. ${e.title}</h4>
-  <p><strong>Hypothesis:</strong> ${e.hypothesis}</p>
-  <div class="context">${e.context}</div>
+  <h4>${i+1}. ${h.title}</h4>
+  <p><strong>Hypothesis:</strong> ${h.hypothesis}</p>
+  <div class="context">${h.context}</div>
 </div>
-`).join("")},1500)}const osintTools=[{key:"A",name:"AbuseIPDB",url:"https://www.abuseipdb.com/check"},{key:"B",name:"BGPView",url:"https://bgpview.io"},{key:"C",name:"Censys",url:"https://search.censys.io"},{key:"D",name:"DNSTrails",url:"https://securitytrails.com/domain"},{key:"E",name:"IPVoid",url:"https://www.ipvoid.com/domain-reputation-check/"},{key:"F",name:"Fofa",url:"https://en.fofa.info"},{key:"G",name:"GreyNoise",url:"https://viz.greynoise.io/query"},{key:"H",name:"Hybrid Analysis",url:"https://www.hybrid-analysis.com"},{key:"I",name:"IPinfo",url:"https://ipinfo.io/"},{key:"J",name:"JoeSandbox",url:"https://www.joesandbox.com"},{key:"K",name:"Kaspersky TI",url:"https://opentip.kaspersky.com"},{key:"L",name:"DNSlytics",url:"https://dnslytics.com/"},{key:"M",name:"Maltiverse",url:"https://www.maltiverse.com/search"},{key:"N",name:"Netlas",url:"https://app.netlas.io"},{key:"O",name:"Onyphe",url:"https://www.onyphe.io"},{key:"P",name:"Pulsedive",url:"https://pulsedive.com"},{key:"Q",name:"Talos Intel",url:"https://www.talosintelligence.com/reputation_center"},{key:"R",name:"AlienVault OTX",url:"https://otx.alienvault.com"},{key:"S",name:"Shodan",url:"https://www.shodan.io/search"},{key:"T",name:"ThreatFox",url:"https://threatfox.abuse.ch"},{key:"U",name:"URLScan",url:"https://urlscan.io"},{key:"V",name:"VirusTotal",url:"https://www.virustotal.com/gui/home/upload"},{key:"W",name:"WHOIS",url:"https://whois.domaintools.com"},{key:"X",name:"X-Force",url:"https://exchange.xforce.ibmcloud.com"},{key:"Y",name:"YARAify",url:"https://yaraify.abuse.ch"},{key:"Z",name:"ZoomEye",url:"https://www.zoomeye.org"}];function loadOSINTKeyboard(){document.getElementById("osintKeyboard").innerHTML=osintTools.map(e=>`
-<a href="${e.url}" target="_blank" rel="noopener noreferrer" class="osint-key" accesskey="${e.key.toLowerCase()}">
-  <div class="letter">${e.key}</div>
-  <div class="tool-name">${e.name}</div>
+`).join('');
+  },1500);
+}
+
+const osintTools=[{key:'A',name:'AbuseIPDB',url:'https://www.abuseipdb.com/check'},{key:'B',name:'BGPView',url:'https://bgpview.io'},{key:'C',name:'Censys',url:'https://search.censys.io'},{key:'D',name:'DNSTrails',url:'https://securitytrails.com/domain'},{key:'V',name:'VirusTotal',url:'https://www.virustotal.com/gui/home/upload'},{key:'S',name:'Shodan',url:'https://www.shodan.io/search'}];
+
+function loadOSINTKeyboard(){
+  document.getElementById('osintKeyboard').innerHTML=osintTools.map(t=>`
+<a href="${t.url}" target="_blank" class="osint-key">
+  <div class="letter">${t.key}</div>
+  <div class="tool-name">${t.name}</div>
 </a>
-`).join("")}document.addEventListener("keydown",e=>{if("osint"===currentTab&&e.key.match(/[a-z]/i)&&!e.ctrlKey&&!e.altKey&&!e.metaKey){const t=osintTools.find(t=>t.key.toLowerCase()===e.key.toLowerCase());t&&(window.open(t.url,"_blank"),e.preventDefault())}});let extractedIOCs={ips:[],domains:[],urls:[],hashes:[]};function extractIOCs(){const e=document.getElementById("iocInput").value;if(!e.trim())return void alert("Please paste some text first.");extractedIOCs={ips:[],domains:[],urls:[],hashes:[]};extractedIOCs.ips=[...new Set((e.match(/\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b/g)||[]).filter(e=>e.split(".").every(e=>parseInt(e)<=255&&parseInt(e)>=0)))],extractedIOCs.domains=[...new Set((e.match(/\b(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}\b/gi)||[]).filter(e=>!e.match(/\.(exe|dll|txt|log|jpg|png|pdf)$/i)&&e.includes(".")&&!extractedIOCs.ips.includes(e)))],extractedIOCs.urls=[...new Set(e.match(/https?:\/\/[^\s<>"{}|\\^`\[\]]+/gi)||[])],extractedIOCs.hashes=[...new Set(e.match(/\b[a-f0-9]{32}\b|\b[a-f0-9]{40}\b|\b[a-f0-9]{64}\b/gi)||[])],displayIOCs()}function displayIOCs(){const e=document.getElementById("iocResults");let t="",n=0;const a=(e,a,r)=>{a.length>0&&(t+=`<div style="margin-bottom: 1rem;"><strong style="color: var(--text-primary);">${e} (${a.length})</strong></div>`,a.forEach(e=>{t+=`<div class="ioc-item"><code style="word-break: break-all; color: var(--text-secondary); font-size: 0.8125rem;">${e}</code><span class="ioc-type">${r}</span></div>`}),n+=a.length)};a("IP Addresses",extractedIOCs.ips,"IP"),a("Domains",extractedIOCs.domains,"DOMAIN"),a("URLs",extractedIOCs.urls,"URL"),a("File Hashes",extractedIOCs.hashes,"HASH"),e.innerHTML=t||'<p style="text-align: center; color: var(--text-tertiary); padding: 2rem 0;">No IOCs extracted.</p>',n>0&&(e.innerHTML=`<div style="background: var(--success-light); color: var(--success); padding: 0.75rem; border-radius: var(--radius); margin-bottom: 1rem; text-align: center; font-weight: 500; border: 1px solid var(--success);">Extracted ${n} IOCs</div>`+e.innerHTML)}function exportIOCs(e){const t=extractedIOCs.ips.length+extractedIOCs.domains.length+extractedIOCs.urls.length+extractedIOCs.hashes.length;if(0===t)return void alert("No IOCs to export.");let n="";const a=(new Date).toISOString().slice(0,10);if("txt"===e)n="=== IP Addresses ===\n"+extractedIOCs.ips.join("\n")+"\n\n",n+="=== Domains ===\n"+extractedIOCs.domains.join("\n")+"\n\n",n+="=== URLs ===\n"+extractedIOCs.urls.join("\n")+"\n\n",n+="=== File Hashes ===\n"+extractedIOCs.hashes.join("\n");else if("json"===e)n=JSON.stringify(extractedIOCs,null,2);else if("csv"===e){n="Type,Value\n",extractedIOCs.ips.forEach(e=>n+=`IP,${e}\n`),extractedIOCs.domains.forEach(e=>n+=`Domain,${e}\n`),extractedIOCs.urls.forEach(e=>n+=`URL,${e}\n`),extractedIOCs.hashes.forEach(e=>n+=`Hash,${e}\n`)}const r=new Blob([n],{type:"json"===e?"application/json":"text/plain"}),s=URL.createObjectURL(r),o=document.createElement("a");o.href=s,o.download=`iocs_${a}.${e}`,o.click(),URL.revokeObjectURL(s)}function translateQuery(){const e=document.getElementById("sourcePlatform").value,t=document.getElementById("targetPlatform").value,n=document.getElementById("sourceQuery").value;if(!n.trim())return void alert("Please enter a query to translate.");if(e===t)return void alert("Source and target platforms are the same.");let a=n;"kql"===e&&"spl"===t?a=n.replace(/\| where/g,"| search").replace(/has_any/g,"IN").replace(/contains/g,"like").replace(/\| project/g,"| table").replace(/\| summarize/g,"| stats"):"spl"===e&&"kql"===t?a=n.replace(/\| search/g,"| where").replace(/\| table/g,"| project").replace(/\| stats/g,"| summarize"):"lucene"===t&&(a="// Lucene conversion requires manual adaptation\n"+n),document.getElementById("translatedQuery").textContent=a}setInterval(()=>{document.getElementById("clock").textContent=(new Date).toLocaleString("en-US",{weekday:"short",year:"numeric",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"})},1e3),window.addEventListener("load",()=>{showDetectionQuery(),loadFeeds(),loadActiveThreatCards()});
+`).join('');
+}
+
+let extractedIOCs={ips:[],domains:[],urls:[],hashes:[]};
+
+function extractIOCs(){
+  const text=document.getElementById('iocInput').value;
+  if(!text.trim()){
+    alert('Please paste text first.');
+    return;
+  }
+  extractedIOCs={ips:[],domains:[],urls:[],hashes:[]};
+  extractedIOCs.ips=[...new Set(text.match(/\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b/g)||[])];
+  extractedIOCs.domains=[...new Set(text.match(/\b(?:[a-z0-9-]+\.)+[a-z]{2,}\b/gi)||[])].filter(d=>!extractedIOCs.ips.includes(d));
+  extractedIOCs.urls=[...new Set(text.match(/https?:\/\/[^\s<>"]+/gi)||[])];
+  extractedIOCs.hashes=[...new Set(text.match(/\b[a-f0-9]{32,64}\b/gi)||[])];
+  
+  const results=document.getElementById('iocResults');
+  let html='';
+  let total=0;
+  
+  const addSection=(title,items,type)=>{
+    if(items.length){
+      html+=`<div style="margin-bottom:1rem"><strong>${title} (${items.length})</strong></div>`;
+      items.forEach(item=>{
+        html+=`<div class="ioc-item"><code style="word-break:break-all;color:var(--text-secondary);font-size:.8125rem">${item}</code><span class="ioc-type">${type}</span></div>`;
+      });
+      total+=items.length;
+    }
+  };
+  
+  addSection('IP Addresses',extractedIOCs.ips,'IP');
+  addSection('Domains',extractedIOCs.domains,'DOMAIN');
+  addSection('URLs',extractedIOCs.urls,'URL');
+  addSection('Hashes',extractedIOCs.hashes,'HASH');
+  
+  results.innerHTML=html||'<p style="text-align:center;color:var(--text-tertiary);padding:2rem 0">No IOCs found.</p>';
+  
+  if(total>0){
+    results.innerHTML=`<div style="background:var(--success-light);color:var(--success);padding:.75rem;border-radius:var(--radius);margin-bottom:1rem;text-align:center;font-weight:500;border:1px solid var(--success)">Extracted ${total} IOCs</div>`+results.innerHTML;
+  }
+}
+
+function translateQuery(){
+  const source=document.getElementById('sourcePlatform').value;
+  const target=document.getElementById('targetPlatform').value;
+  const query=document.getElementById('sourceQuery').value;
+  
+  if(!query.trim()){
+    alert('Please enter a query.');
+    return;
+  }
+  
+  let translated=query;
+  if(source==='kql'&&target==='spl'){
+    translated=query.replace(/\| where/g,'| search').replace(/\| project/g,'| table');
+  }else if(source==='spl'&&target==='kql'){
+    translated=query.replace(/\| search/g,'| where').replace(/\| table/g,'| project');
+  }
+  
+  document.getElementById('translatedQuery').textContent=translated;
+}
+
+setInterval(()=>{
+  document.getElementById('clock').textContent=new Date().toLocaleString('en-US',{weekday:'short',year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+},1000);
+
+window.addEventListener('load',()=>{
+  showDetectionQuery();
+  loadFeeds();
+  loadActiveThreatCards();
+});
   </script>
 </body>
 </html>
