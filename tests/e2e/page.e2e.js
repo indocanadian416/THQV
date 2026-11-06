@@ -265,3 +265,18 @@ test('table reference: Defender and CrowdStrike tables, filter and related-query
   assert.match(await page.textContent('#queryOutput'), /#event_simpleName=DnsRequest/);
   await context.close();
 });
+
+test('table/event catalog is shown by default on the query page and links to search', async () => {
+  const { page, context } = await openPage({ hash: '#queries' });
+  const { defenderCatalog, crowdstrikeCatalog } = require('../../js/catalog.js');
+  const count = (c) => c.reduce((n, g) => n + g.items.reduce((m, i) => m + i.names.length, 0), 0);
+  assert.equal(await page.isVisible('#defenderCatalog'), true);
+  assert.equal(await page.isVisible('#crowdstrikeCatalog'), true);
+  assert.equal(await page.locator('#defenderCatalog .catalog-name').count(), count(defenderCatalog));
+  assert.equal(await page.locator('#crowdstrikeCatalog .catalog-name').count(), count(crowdstrikeCatalog));
+  await page.locator('#crowdstrikeCatalog .catalog-name', { hasText: /^DnsRequest$/ }).click();
+  assert.equal(await page.inputValue('#querySearch'), 'DnsRequest');
+  assert.ok((await page.locator('#querySearchResults .search-hit').count()) >= 1);
+  assert.equal(await page.evaluate(strayNullText), false);
+  await context.close();
+});

@@ -654,6 +654,34 @@
     });
   }
 
+  // ---------------------------------------------------------------- table / event catalog
+
+  function renderCatalog(containerId, catalog) {
+    const search = $('querySearch');
+    const nameButton = (name) => el('button', {
+      className: 'catalog-name', attrs: { type: 'button', title: 'Find queries that use ' + name },
+      on: { click: () => {
+        search.value = name;
+        search.dispatchEvent(new Event('input'));
+        search.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        search.focus({ preventScroll: true });
+      } }
+    }, name);
+    $(containerId).replaceChildren(...catalog.flatMap((group) => [
+      el('h4', { text: group.category }),
+      el('div', { className: 'field-table-wrap' }, el('table', { className: 'field-table catalog-table' },
+        el('tbody', null, group.items.map((item) => el('tr', null,
+          el('td', null, el('div', { className: 'catalog-names' }, item.names.map(nameButton))),
+          el('td', { text: item.desc })
+        )))))
+    ]));
+  }
+
+  function initCatalog() {
+    renderCatalog('defenderCatalog', T.defenderCatalog);
+    renderCatalog('crowdstrikeCatalog', T.crowdstrikeCatalog);
+  }
+
   // ---------------------------------------------------------------- table reference
 
   let schemaPlatform = 'defender';
@@ -760,6 +788,7 @@
     initIoc();
     initQueries();
     initQuerySearch();
+    initCatalog();
     initSchema();
     $('generateHypotheses').addEventListener('click', renderHypotheses);
     initFeeds();

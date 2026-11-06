@@ -55,6 +55,8 @@ Paste an indicator (IP, domain, URL, hash, CVE - defanged is fine) and click a t
 | Microsoft Defender XDR advanced hunting (KQL) | 23 | Device* tables, Identity*, Email*, UrlClickEvents, CloudAppEvents, AlertInfo/AlertEvidence |
 | CrowdStrike Falcon LogScale (CQL) | 19 | ProcessRollup2, NetworkConnectIP4, DnsRequest, UserLogon, UserLogonFailed2, ScheduledTaskRegistered, NewExecutableWritten, FileOpenInfo |
 
+Below the library, a **"Which table to use for what"** guide lists 36 Microsoft Defender XDR tables and 44 CrowdStrike Falcon `#event_simpleName` events by category with their purpose; click any name to find the queries that use it.
+
 Categories: Initial Access, Execution, Persistence, Privilege Escalation, Defense Evasion, Credential Access, Discovery, Lateral Movement, Collection & Exfiltration, Command and Control, Impact, Identity & Cloud, and Triage & Correlation.
 
 Every query lists the data source it needs. **All 47 KQL queries are parsed and type-checked** against the documented table schemas with Microsoft's own Kusto parser in the test suite (see below), so syntax errors and non-existent columns are caught automatically. Thresholds and exclusions still need tuning for your environment.

@@ -455,3 +455,20 @@ footer a, .hypothesis-item a, .threat-card h4 a { color: var(--accent); }
   .schema-item { min-width: 230px; }
   .schema-item .item-name { word-break: normal; overflow-wrap: anywhere; }
 }
+
+/* ---------- Table / event catalog (Detection Queries page) ---------- */
+
+.catalog-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(460px, 100%), 1fr)); gap: 1.5rem; }
+.catalog-grid h3 { font-size: 1rem; font-weight: 600; margin-bottom: .75rem; }
+.catalog-grid h4 { font-size: .8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: .3px; color: var(--text-secondary); margin: 1.25rem 0 .5rem; }
+.catalog-grid h4:first-child { margin-top: 0; }
+.catalog-table td:first-child { width: 40%; }
+.catalog-name { background: none; border: none; padding: 0; font-family: var(--mono); font-size: .8125rem; font-weight: 600; color: var(--accent); text-align: left; cursor: pointer; overflow-wrap: anywhere; }
+.catalog-name:hover { text-decoration: underline; background: none; }
+.catalog-names { display: flex; flex-direction: column; gap: .125rem; }
+
+@media (max-width: 640px) {
+  .catalog-table, .catalog-table tbody, .catalog-table tr, .catalog-table td { display: block; width: 100%; }
+  .catalog-table td:first-child { width: 100%; padding-bottom: .125rem; border-bottom: none; }
+  .catalog-table td + td { padding-top: 0; }
+}
