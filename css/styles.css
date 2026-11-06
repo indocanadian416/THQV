@@ -398,3 +398,60 @@ footer a, .hypothesis-item a, .threat-card h4 a { color: var(--accent); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* ---------- Query search ---------- */
+
+.query-search { margin-bottom: 1.25rem; }
+.search-results { display: flex; flex-direction: column; gap: .5rem; margin-top: .5rem; max-height: 360px; overflow-y: auto; }
+.search-results:empty { display: none; }
+.search-hit {
+  text-align: left; display: flex; flex-direction: column; gap: .25rem;
+  background: var(--bg-secondary); border: 1px solid var(--border); padding: .625rem .875rem;
+}
+.search-hit:hover, .search-hit:focus-visible { border-color: var(--accent); background: var(--accent-light); }
+.search-hit .hit-title { font-weight: 600; color: var(--text-primary); }
+.search-hit .hit-meta { font-size: .75rem; color: var(--text-tertiary); font-weight: 400; }
+
+/* ---------- Table reference ---------- */
+
+.schema-toolbar { display: flex; gap: .75rem; flex-wrap: wrap; align-items: center; margin-bottom: 1.25rem; }
+.schema-toolbar input { flex: 1; min-width: 220px; }
+.segmented { display: inline-flex; border: 1px solid var(--border-strong); border-radius: var(--radius); overflow: hidden; }
+.seg-btn { border: none; border-radius: 0; background: var(--surface); color: var(--text-secondary); }
+.seg-btn + .seg-btn { border-left: 1px solid var(--border-strong); }
+.seg-btn[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+
+.schema-layout { display: grid; grid-template-columns: minmax(200px, 260px) 1fr; gap: 1.25rem; align-items: start; }
+.schema-list { display: flex; flex-direction: column; gap: .375rem; max-height: 75vh; overflow-y: auto; position: sticky; top: 8rem; }
+.schema-item { text-align: left; display: flex; flex-direction: column; gap: .125rem; padding: .5rem .75rem; background: var(--surface); }
+.schema-item .item-name { font-family: var(--mono); font-size: .8125rem; font-weight: 600; word-break: break-word; }
+.schema-item .item-source { font-size: .6875rem; color: var(--text-tertiary); font-weight: 400; }
+.schema-item[aria-current="true"] { border-color: var(--accent); background: var(--accent-light); }
+.schema-item[aria-current="true"] .item-name { color: var(--accent); }
+
+.schema-detail { min-width: 0; }
+.schema-detail h3 { font-family: var(--mono); font-size: 1.125rem; display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+.schema-detail h4 { font-size: .9375rem; font-weight: 600; margin: 1.25rem 0 .5rem; }
+.schema-detail p, .schema-detail li { color: var(--text-secondary); font-size: .875rem; }
+.schema-detail ul { padding-left: 1.25rem; }
+.schema-detail li + li { margin-top: .25rem; }
+
+.field-table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); }
+.field-table { width: 100%; border-collapse: collapse; font-size: .8125rem; }
+.field-table th, .field-table td { text-align: left; padding: .5rem .75rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+.field-table th { background: var(--bg-tertiary); font-weight: 600; color: var(--text-primary); white-space: nowrap; }
+.field-table tr:last-child td { border-bottom: none; }
+.field-table td:first-child { font-family: var(--mono); white-space: nowrap; color: var(--text-primary); }
+.field-table td.type { font-family: var(--mono); color: var(--text-tertiary); white-space: nowrap; }
+.verify-badge { font-size: .625rem; margin-left: .375rem; padding: .0625rem .375rem; }
+
+.join-notes { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius); padding: .75rem 1rem .75rem 2rem; margin-bottom: 1rem; }
+.related-list { display: flex; flex-direction: column; gap: .375rem; }
+.related-list button { text-align: left; font-weight: 500; }
+
+@media (max-width: 768px) {
+  .schema-layout { grid-template-columns: 1fr; }
+  .schema-list { position: static; max-height: none; flex-direction: row; overflow-x: auto; padding-bottom: .25rem; }
+  .schema-item { min-width: 230px; }
+  .schema-item .item-name { word-break: normal; overflow-wrap: anywhere; }
+}

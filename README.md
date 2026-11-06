@@ -47,14 +47,26 @@ Paste an indicator (IP, domain, URL, hash, CVE - defanged is fine) and click a t
 - Export as TXT, JSON or CSV, optionally defanged. CSV values are quoted and protected against spreadsheet formula injection.
 
 ### 5. Detection query library
-23 hunting queries across 3 platforms, 8 categories and 27 ATT&CK techniques:
-- **Microsoft Sentinel (KQL)** - SigninLogs, SecurityEvent, CommonSecurityLog, DnsEvents and Defender XDR tables
-- **Microsoft Defender XDR advanced hunting (KQL)** - endpoint and Defender for Identity tables
-- **CrowdStrike Falcon LogScale (CQL)** - ProcessRollup2, NetworkConnectIP4, FileOpenInfo
+**66 hunting queries** across 3 platforms, 14 categories and 54 ATT&CK techniques, with full-text search (name, ATT&CK ID, table or keyword):
 
-Every query lists the data source it needs. **All KQL is parsed and type-checked** against the documented table schemas with Microsoft's own Kusto parser in the test suite (see below), so syntax errors and non-existent columns are caught automatically. Thresholds and exclusions still need tuning for your environment.
+| Platform | Queries | Data sources |
+|---|---|---|
+| Microsoft Sentinel (KQL) | 24 | SigninLogs, AuditLogs, OfficeActivity, AzureActivity, SecurityEvent, CommonSecurityLog, DnsEvents, Defender XDR tables |
+| Microsoft Defender XDR advanced hunting (KQL) | 23 | Device* tables, Identity*, Email*, UrlClickEvents, CloudAppEvents, AlertInfo/AlertEvidence |
+| CrowdStrike Falcon LogScale (CQL) | 19 | ProcessRollup2, NetworkConnectIP4, DnsRequest, UserLogon, UserLogonFailed2, ScheduledTaskRegistered, NewExecutableWritten, FileOpenInfo |
 
-### 6. Dark/light theme
+Categories: Initial Access, Execution, Persistence, Privilege Escalation, Defense Evasion, Credential Access, Discovery, Lateral Movement, Collection & Exfiltration, Command and Control, Impact, Identity & Cloud, and Triage & Correlation.
+
+Every query lists the data source it needs. **All 47 KQL queries are parsed and type-checked** against the documented table schemas with Microsoft's own Kusto parser in the test suite (see below), so syntax errors and non-existent columns are caught automatically. Thresholds and exclusions still need tuning for your environment.
+
+### 6. EDR table reference (Defender XDR + CrowdStrike Falcon)
+A field guide for people who operate these EDRs:
+- **19 Microsoft Defender XDR tables** (DeviceProcessEvents, DeviceNetworkEvents, DeviceLogonEvents, DeviceEvents, EmailEvents, IdentityLogonEvents, CloudAppEvents, AlertEvidence and more)
+- **11 CrowdStrike Falcon event types** (ProcessRollup2, NetworkConnectIP4, DnsRequest, UserLogon, UserLogonFailed2, ScheduledTaskRegistered, AsepValueUpdate and more), plus how Falcon events join together (aid + TargetProcessId/ContextProcessId)
+
+For each one: what it records, what to hunt for with it, the key columns/fields and what they tell you, common ActionType values, an illustrative sample record, a starter query, and links to every library query that uses it. Defender columns and types are checked against Microsoft's documentation in the tests; CrowdStrike fields that could not be confirmed publicly are flagged **verify**.
+
+### 7. Dark/light theme
 Follows your OS preference by default; your choice is remembered.
 
 ---
@@ -68,6 +80,8 @@ Follows your OS preference by default; your choice is remembered.
 | ![Hunt hypotheses](docs/screenshots/hypotheses.png) | ![OSINT keyboard with an indicator](docs/screenshots/osint.png) |
 | **IOC extractor (dark theme)** | **Detection query library** |
 | ![IOC extractor](docs/screenshots/ioc-extractor.png) | ![Detection queries](docs/screenshots/detection-queries.png) |
+| **EDR table reference** | |
+| ![Table reference](docs/screenshots/table-reference.png) | |
 
 <p align="center"><img src="docs/screenshots/mobile.png" alt="Mobile layout" width="260"></p>
 
@@ -93,6 +107,7 @@ js/ioc.js             IOC re-fang / extract / classify / export
 js/queries.js         Hunting query library
 js/osint.js           OSINT tools and indicator pivot URLs
 js/hypothesis.js      Rule-based hypothesis builder
+js/tables.js          Defender XDR table and CrowdStrike event reference
 js/app.js             UI wiring
 tests/                Unit tests (node:test) and tests/e2e/ browser tests (Playwright)
 docs/screenshots/     README screenshots
@@ -122,9 +137,9 @@ python3 -m http.server 8000   # then open http://localhost:8000
 Requires Node.js 18+.
 ```bash
 npm install                        # dev tools only: Kusto parser + Playwright
-npm test                           # 49 unit tests + KQL parse/type-check of every query
+npm test                           # 143 unit tests incl. KQL parse/type-check of every query
 npx playwright install chromium    # once
-npm run test:e2e                   # 9 browser tests against the real page
+npm run test:e2e                   # 11 browser tests against the real page
 npm run check                      # syntax check of every browser script
 ```
 - **Unit tests** cover IOC extraction/export, URL and HTML sanitising, feed date parsing, OSINT URL building and hypothesis generation, and validate **every KQL query** (library and generated) with Microsoft's Kusto parser against the table schemas in `tests/kql-schema.js` (taken from Microsoft Learn). LogScale queries are linted for legacy SPL syntax.
@@ -140,6 +155,7 @@ CI runs both on every push and pull request.
 - **OSINT tools:** edit `osintTools` in `js/osint.js`. Add a `build(value, type)` function and `types` to enable direct lookups.
 - **Queries:** add entries to `huntingQueries` in `js/queries.js` (`name`, `mitre`, `requires`, `desc`, `query`). If a KQL query uses a new table or column, add it to `tests/kql-schema.js` after checking Microsoft's docs; `npm test` will tell you if anything doesn't parse.
 - **Hypothesis rules:** edit `RULES` in `js/hypothesis.js`.
+- **Table reference:** edit `defenderTables` / `crowdstrikeEvents` in `js/tables.js`. Defender columns must exist in `tests/kql-schema.js` with the same type, and starter queries are validated like the library.
 
 ---
 

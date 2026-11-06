@@ -13,8 +13,16 @@ test('every query has the required metadata', () => {
   for (const { platform, q } of all) {
     assert.ok(PLATFORMS[platform], 'unknown platform ' + platform);
     assert.ok(q.name && q.desc && q.requires && q.query, 'missing field in ' + q.name);
-    assert.ok(q.mitre.length > 0, q.name + ' has no ATT&CK technique');
+    assert.ok(Array.isArray(q.mitre), q.name + ': mitre must be an array');
+    assert.ok(q.mitre.length > 0 || q.triage === true, q.name + ' has no ATT&CK technique (only triage queries may omit it)');
     q.mitre.forEach((t) => assert.match(t, /^T\d{4}(\.\d{3})?$/, q.name + ': bad technique id ' + t));
+  }
+});
+
+test('library has at least 50 hunting queries across all platforms', () => {
+  assert.ok(all.length >= 50, 'only ' + all.length + ' queries');
+  for (const platform of Object.keys(huntingQueries)) {
+    assert.ok(all.filter((x) => x.platform === platform).length >= 15, platform + ' has fewer than 15 queries');
   }
 });
 

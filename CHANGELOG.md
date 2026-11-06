@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.1.0 - 2026-11-06
+
+### Added
+- **43 new hunting queries (66 total)**: Entra ID (legacy auth, multi-country sign-ins, privileged role assignment, MFA method changes, OAuth consent), Microsoft 365 (BEC inbox rules, mass SharePoint downloads), Azure (mass deletion), Windows Security (brute force then success, privileged group changes, malicious services, short-lived accounts, log clearing), Defender XDR (LSASS handle access, web shells, WMI/PsExec lateral movement, recon bursts, quishing, risky clicks, alert-chain triage) and 15 CrowdStrike LogScale hunts.
+- **Table Reference tab**: 19 Defender XDR tables and 11 CrowdStrike Falcon events with key fields, ActionTypes, sample records, starter queries and links to related library queries.
+- Full-text search across the query library.
+- Test schemas for 12 more tables from Microsoft Learn; tests that check every reference column against them.
+
+### Fixed
+- Optional page sections could render as the text "null" (metrics panel, reference view); now covered by a browser test.
+
 ## 2.0.0 - 2026-11-06
 
 A full review-and-fix release. Highlights below; see the commit history for detail.

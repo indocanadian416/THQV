@@ -37,6 +37,7 @@
         <button class="nav-tab" type="button" role="tab" id="tabbtn-osint" aria-controls="tab-osint" aria-selected="false" tabindex="-1" data-tab="osint"><i class="fas fa-keyboard" aria-hidden="true"></i> OSINT Tools</button>
         <button class="nav-tab" type="button" role="tab" id="tabbtn-ioc" aria-controls="tab-ioc" aria-selected="false" tabindex="-1" data-tab="ioc"><i class="fas fa-fingerprint" aria-hidden="true"></i> IOC Extractor</button>
         <button class="nav-tab" type="button" role="tab" id="tabbtn-queries" aria-controls="tab-queries" aria-selected="false" tabindex="-1" data-tab="queries"><i class="fas fa-search" aria-hidden="true"></i> Detection Queries</button>
+        <button class="nav-tab" type="button" role="tab" id="tabbtn-schema" aria-controls="tab-schema" aria-selected="false" tabindex="-1" data-tab="schema"><i class="fas fa-table" aria-hidden="true"></i> Table Reference</button>
       </div>
     </nav>
   </div>
@@ -142,6 +143,12 @@
 
           <div class="stats-grid" id="queryStats"></div>
 
+          <div class="query-search">
+            <label for="querySearch" class="visually-hidden">Search all hunting queries</label>
+            <input type="search" id="querySearch" placeholder="Search all queries by name, ATT&amp;CK ID (T1003), table or keyword..." autocomplete="off">
+            <div id="querySearchResults" class="search-results" aria-live="polite"></div>
+          </div>
+
           <div class="filter-bar">
             <select id="queryPlatform" aria-label="Platform"><option value="">-- Select Platform --</option></select>
             <select id="queryCategory" aria-label="Category" disabled><option value="">-- Select Category --</option></select>
@@ -173,10 +180,33 @@
 
           <div id="queryPlaceholder" class="placeholder">
             <i class="fas fa-search" aria-hidden="true"></i>
-            <p>Select a platform, category, and hunt query to begin</p>
+            <p>Search above, or select a platform, category and hunt query to begin</p>
           </div>
         </section>
       </div>
+    </div>
+
+    <!-- ================= Table reference ================= -->
+    <div id="tab-schema" class="tab-content" role="tabpanel" aria-labelledby="tabbtn-schema" tabindex="0" hidden>
+      <section>
+        <h2><i class="fas fa-table" aria-hidden="true"></i> EDR Telemetry Reference</h2>
+        <div class="alert">
+          <i class="fas fa-info-circle" aria-hidden="true"></i>
+          <span>What each Microsoft Defender XDR table and CrowdStrike Falcon event records, which fields matter for hunting, an example record and a starter query. Defender columns are checked against Microsoft's documented schemas; sample records are illustrative.</span>
+        </div>
+        <div class="schema-toolbar">
+          <div class="segmented" role="group" aria-label="Platform">
+            <button type="button" class="seg-btn" data-schema-platform="defender" aria-pressed="true">Microsoft Defender XDR</button>
+            <button type="button" class="seg-btn" data-schema-platform="crowdstrike" aria-pressed="false">CrowdStrike Falcon</button>
+          </div>
+          <label for="schemaFilter" class="visually-hidden">Filter tables and fields</label>
+          <input type="search" id="schemaFilter" placeholder="Filter by table, field or use case (e.g. RemoteIP, phishing)" autocomplete="off">
+        </div>
+        <div class="schema-layout">
+          <nav id="schemaList" class="schema-list" aria-label="Tables"></nav>
+          <div id="schemaDetail" class="schema-detail" aria-live="polite"></div>
+        </div>
+      </section>
     </div>
   </main>
 
@@ -192,6 +222,7 @@
   <script src="js/queries.js"></script>
   <script src="js/osint.js"></script>
   <script src="js/hypothesis.js"></script>
+  <script src="js/tables.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
