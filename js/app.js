@@ -27,6 +27,11 @@
     return node;
   }
 
+  /** replaceChildren that skips null/false - optional sections would otherwise render as the text "null". */
+  function setChildren(node, ...kids) {
+    node.replaceChildren(...kids.flat().filter((k) => k != null && k !== false));
+  }
+
   const icon = (cls) => el('i', { className: cls, attrs: { 'aria-hidden': 'true' } });
 
   /** External link that cannot reach back into this page. Falls back to plain text for unsafe URLs. */
@@ -398,7 +403,7 @@
         el('span', { className: 'metric-value', text: String(n) }));
     };
 
-    box.replaceChildren(
+    setChildren(box,
       el('div', { className: 'stats-grid' },
         el('div', { className: 'stat-card' }, el('div', { className: 'value', text: String(week.length) }), el('div', { className: 'label', text: 'Articles' })),
         el('div', { className: 'stat-card' }, el('div', { className: 'value', text: String(cves.size) }), el('div', { className: 'label', text: 'CVEs mentioned' })),
@@ -583,7 +588,7 @@
       $('queryDescription').textContent = q.desc;
       $('queryRequires').textContent = q.requires;
       $('queryPlatformTag').textContent = T.PLATFORMS[platform.value].label;
-      $('queryMitre').replaceChildren(...q.mitre.map((t) => mitreTag(t)));
+      setChildren($('queryMitre'), q.mitre.length ? q.mitre.map((t) => mitreTag(t)) : el('span', { className: 'tag', text: 'Triage / correlation' }));
       $('queryOutput').textContent = q.query;
       $('queryDetailsContainer').hidden = false;
       $('queryPlaceholder').hidden = true;
@@ -594,6 +599,175 @@
       btn.replaceChildren(icon(ok ? 'fas fa-check' : 'fas fa-times'), ok ? ' Copied!' : ' Copy failed');
       setTimeout(() => btn.replaceChildren(icon('fas fa-copy'), ' Copy'), 2000);
     }));
+  }
+
+  // ---------------------------------------------------------------- query search + deep links
+
+  /** Flat list of every query with the text used for searching. */
+  function queryIndex() {
+    const out = [];
+    Object.entries(T.huntingQueries).forEach(([platform, cats]) => {
+      Object.entries(cats).forEach(([category, list]) => {
+        list.forEach((q, index) => out.push({
+          platform, category, index, q,
+          text: [q.name, q.desc, q.requires, category, T.PLATFORMS[platform].label, q.mitre.join(' '), q.query].join(' ').toLowerCase()
+        }));
+      });
+    });
+    return out;
+  }
+
+  /** Select a query in the library UI (switches to the Detection Queries tab). */
+  function openQuery(platform, category, index) {
+    switchTab('queries');
+    const fire = (el, value) => { el.value = value; el.dispatchEvent(new Event('change')); };
+    fire($('queryPlatform'), platform);
+    fire($('queryCategory'), category);
+    fire($('queryName'), String(index));
+    const details = $('queryDetailsContainer');
+    if (details.scrollIntoView) details.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    $('queryOutput').focus({ preventScroll: true });
+  }
+
+  function hitButton(hit) {
+    return el('button', {
+      className: 'search-hit', attrs: { type: 'button' },
+      on: { click: () => openQuery(hit.platform, hit.category, hit.index) }
+    },
+    el('span', { className: 'hit-title', text: hit.q.name }),
+    el('span', { className: 'hit-meta', text: [T.PLATFORMS[hit.platform].label, hit.category, hit.q.mitre.join(', ') || 'Triage'].join(' · ') }));
+  }
+
+  function initQuerySearch() {
+    const index = queryIndex();
+    const input = $('querySearch');
+    const box = $('querySearchResults');
+    input.addEventListener('input', () => {
+      const terms = input.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+      if (!terms.length) { box.replaceChildren(); return; }
+      const hits = index.filter((x) => terms.every((t) => x.text.includes(t)));
+      if (!hits.length) { box.replaceChildren(el('p', { className: 'muted small', text: 'No queries match.' })); return; }
+      box.replaceChildren(
+        el('p', { className: 'muted small', text: `${hits.length} match${hits.length === 1 ? '' : 'es'}${hits.length > 30 ? ' - showing 30' : ''}` }),
+        ...hits.slice(0, 30).map(hitButton)
+      );
+    });
+  }
+
+  // ---------------------------------------------------------------- table / event catalog
+
+  function renderCatalog(containerId, catalog) {
+    const search = $('querySearch');
+    const nameButton = (name) => el('button', {
+      className: 'catalog-name', attrs: { type: 'button', title: 'Find queries that use ' + name },
+      on: { click: () => {
+        search.value = name;
+        search.dispatchEvent(new Event('input'));
+        search.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        search.focus({ preventScroll: true });
+      } }
+    }, name);
+    $(containerId).replaceChildren(...catalog.flatMap((group) => [
+      el('h4', { text: group.category }),
+      el('div', { className: 'field-table-wrap' }, el('table', { className: 'field-table catalog-table' },
+        el('tbody', null, group.items.map((item) => el('tr', null,
+          el('td', null, el('div', { className: 'catalog-names' }, item.names.map(nameButton))),
+          el('td', { text: item.desc })
+        )))))
+    ]));
+  }
+
+  function initCatalog() {
+    renderCatalog('defenderCatalog', T.defenderCatalog);
+    renderCatalog('crowdstrikeCatalog', T.crowdstrikeCatalog);
+  }
+
+  // ---------------------------------------------------------------- table reference
+
+  let schemaPlatform = 'defender';
+  let schemaSelected = { defender: null, crowdstrike: null };
+
+  function schemaItems() {
+    return schemaPlatform === 'defender' ? T.defenderTables : T.crowdstrikeEvents;
+  }
+
+  function relatedQueries(item) {
+    const index = queryIndex();
+    if (schemaPlatform === 'defender') {
+      const re = new RegExp('\\b' + item.name + '\\b');
+      return index.filter((x) => T.PLATFORMS[x.platform].language === 'kql' && re.test(x.q.query));
+    }
+    const names = item.name.split(' / ');
+    return index.filter((x) => x.platform === 'crowdstrike' && names.some((n) => x.q.query.includes(n)));
+  }
+
+  function itemMatches(item, term) {
+    if (!term) return true;
+    const fields = (item.columns || item.fields).map((c) => c.name + ' ' + c.desc).join(' ');
+    return (item.name + ' ' + item.summary + ' ' + item.huntFor.join(' ') + ' ' + fields).toLowerCase().includes(term);
+  }
+
+  function renderSchemaList() {
+    const term = $('schemaFilter').value.trim().toLowerCase();
+    const items = schemaItems().filter((i) => itemMatches(i, term));
+    const list = $('schemaList');
+    if (!items.length) {
+      list.replaceChildren(el('p', { className: 'muted small', text: 'Nothing matches the filter.' }));
+      $('schemaDetail').replaceChildren();
+      return;
+    }
+    let selected = schemaSelected[schemaPlatform];
+    if (!items.some((i) => i.name === selected)) selected = items[0].name;
+    schemaSelected[schemaPlatform] = selected;
+    list.replaceChildren(...items.map((item) => el('button', {
+      className: 'schema-item',
+      attrs: { type: 'button', 'aria-current': item.name === selected ? 'true' : 'false' },
+      on: { click: () => { schemaSelected[schemaPlatform] = item.name; renderSchemaList(); } }
+    }, el('span', { className: 'item-name', text: item.name }), el('span', { className: 'item-source', text: item.source }))));
+    renderSchemaDetail(items.find((i) => i.name === selected));
+  }
+
+  function renderSchemaDetail(item) {
+    const isDefender = schemaPlatform === 'defender';
+    const rows = (item.columns || item.fields).map((c) => el('tr', null,
+      el('td', null, c.name, c.verify ? el('span', { className: 'tag high verify-badge', text: 'verify', attrs: { title: 'Not confirmed in public sources - check the Falcon Event Data Dictionary' } }) : null),
+      isDefender ? el('td', { className: 'type', text: c.type }) : null,
+      el('td', { text: c.desc })
+    ));
+    const related = relatedQueries(item);
+    setChildren($('schemaDetail'),
+      !isDefender ? el('div', null, el('h4', { text: 'How Falcon events join together' }),
+        el('ul', { className: 'join-notes' }, T.crowdstrikeJoinNotes.map((n) => el('li', { text: n })))) : null,
+      el('h3', null, item.name, el('span', { className: 'tag accent', text: item.source }),
+        item.docs ? extLink(item.docs, 'Microsoft docs', 'tag') : null),
+      el('p', { text: item.summary }),
+      el('h4', { text: 'Use it to hunt for' }),
+      el('ul', null, item.huntFor.map((h) => el('li', { text: h }))),
+      el('h4', { text: isDefender ? 'Key columns' : 'Key fields' }),
+      el('div', { className: 'field-table-wrap' }, el('table', { className: 'field-table' },
+        el('thead', null, el('tr', null, el('th', { text: isDefender ? 'Column' : 'Field' }), isDefender ? el('th', { text: 'Type' }) : null, el('th', { text: 'What it tells you' }))),
+        el('tbody', null, rows))),
+      item.actionTypes && item.actionTypes.length ? el('div', null, el('h4', { text: 'Common ActionType values' }),
+        el('div', { className: 'tags' }, item.actionTypes.map((a) => el('code', { className: 'tag', text: a })))) : null,
+      el('h4', { text: 'Sample record (illustrative)' }),
+      el('div', { className: 'code-block' }, copyButton(() => JSON.stringify(item.sample, null, 2)), el('pre', { text: JSON.stringify(item.sample, null, 2), attrs: { tabindex: '0' } })),
+      el('h4', { text: 'Starter query' }),
+      el('div', { className: 'code-block' }, copyButton(() => item.starter), el('pre', { text: item.starter, attrs: { tabindex: '0' } })),
+      el('h4', { text: `Library queries using ${isDefender ? 'this table' : 'this event'} (${related.length})` }),
+      related.length
+        ? el('div', { className: 'related-list' }, related.map(hitButton))
+        : el('p', { className: 'muted small', text: 'None yet - the starter query above is a good place to begin.' })
+    );
+  }
+
+  function initSchema() {
+    document.querySelectorAll('[data-schema-platform]').forEach((btn) => btn.addEventListener('click', () => {
+      schemaPlatform = btn.dataset.schemaPlatform;
+      document.querySelectorAll('[data-schema-platform]').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+      renderSchemaList();
+    }));
+    $('schemaFilter').addEventListener('input', renderSchemaList);
+    renderSchemaList();
   }
 
   // ---------------------------------------------------------------- clock + boot
@@ -613,6 +787,9 @@
     initOsint();
     initIoc();
     initQueries();
+    initQuerySearch();
+    initCatalog();
+    initSchema();
     $('generateHypotheses').addEventListener('click', renderHypotheses);
     initFeeds();
   }

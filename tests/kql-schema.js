@@ -38,7 +38,27 @@ module.exports = {
     'SubjectUserName:string', 'SubjectDomainName:string', 'SubjectAccount:string', 'ServiceName:string', 'ShareName:string',
     'ShareLocalPath:string', 'RelativeTargetName:string', 'ObjectName:string', 'ObjectType:string', 'Properties:string',
     'AccessMask:string', 'Status:string', 'SubStatus:string', 'FailureReason:string', 'CommandLine:string',
-    'NewProcessName:string', 'ParentProcessName:string', 'Process:string', 'EventData:string', 'ServiceFileName:string'
+    'NewProcessName:string', 'ParentProcessName:string', 'Process:string', 'EventData:string', 'ServiceFileName:string',
+    'MemberName:string', 'MemberSid:string', 'TargetSid:string', 'ServiceType:string', 'ServiceStartType:int',
+    'ServiceAccount:string', 'SubjectUserSid:string', 'SubjectLogonId:string', 'TargetLogonId:string',
+    'AuthenticationPackageName:string', 'LogonProcessName:string', 'ElevatedToken:string', 'SamAccountName:string'
+  ]),
+  AuditLogs: cols([
+    'TimeGenerated:datetime', 'OperationName:string', 'Category:string', 'Result:string', 'ResultReason:string',
+    'ResultDescription:string', 'ActivityDisplayName:string', 'ActivityDateTime:datetime', 'AADOperationType:string',
+    'InitiatedBy:dynamic', 'TargetResources:dynamic', 'AdditionalDetails:dynamic', 'LoggedByService:string',
+    'CorrelationId:string', 'Identity:string', 'Id:string'
+  ]),
+  OfficeActivity: cols([
+    'TimeGenerated:datetime', 'Operation:string', 'OfficeWorkload:string', 'RecordType:string', 'UserId:string',
+    'UserType:string', 'ClientIP:string', 'ResultStatus:string', 'OfficeObjectId:string', 'Parameters:string',
+    'SourceFileName:string', 'SourceFileExtension:string', 'Site_Url:string', 'UserAgent:string',
+    'MailboxOwnerUPN:string', 'TargetUserOrGroupName:string', 'TargetUserOrGroupType:string'
+  ]),
+  AzureActivity: cols([
+    'TimeGenerated:datetime', 'Caller:string', 'CallerIpAddress:string', 'OperationNameValue:string',
+    'ActivityStatusValue:string', 'ActivitySubstatusValue:string', 'CategoryValue:string', 'ResourceGroup:string',
+    'ResourceProviderValue:string', '_ResourceId:string', 'SubscriptionId:string', 'Properties_d:dynamic', 'Authorization_d:dynamic'
   ]),
   CommonSecurityLog: cols([
     'TimeGenerated:datetime', 'DeviceVendor:string', 'DeviceProduct:string', 'DeviceAction:string', 'Activity:string',
@@ -75,6 +95,60 @@ module.exports = {
     'ProcessId:long', 'ProcessCommandLine:string', 'ProcessTokenElevation:string', 'RegistryKey:string',
     'RegistryValueName:string', 'RegistryValueData:string', 'RemoteIP:string', 'RemotePort:int', 'LocalIP:string',
     'LocalPort:int', 'FileOriginUrl:string', 'FileOriginIP:string', 'LogonId:long'
+  ]),
+  DeviceLogonEvents: cols(xdrBase.filter((c) => !c.startsWith('AdditionalFields')), initiatingProcess, [
+    'LogonType:string', 'AccountDomain:string', 'AccountName:string', 'AccountSid:string', 'Protocol:string',
+    'FailureReason:string', 'IsLocalAdmin:bool', 'LogonId:long', 'RemoteDeviceName:string', 'RemoteIP:string',
+    'RemoteIPType:string', 'RemotePort:int', 'AdditionalFields:string'
+  ]),
+  DeviceImageLoadEvents: cols(xdrBase, initiatingProcess, [
+    'FileName:string', 'FolderPath:string', 'SHA1:string', 'SHA256:string', 'MD5:string', 'FileSize:long'
+  ]),
+  DeviceInfo: cols([
+    'Timestamp:datetime', 'TimeGenerated:datetime', 'DeviceId:string', 'DeviceName:string', 'ClientVersion:string',
+    'PublicIP:string', 'OSArchitecture:string', 'OSPlatform:string', 'OSBuild:long', 'OSVersion:string',
+    'IsAzureADJoined:bool', 'JoinType:string', 'LoggedOnUsers:string', 'MachineGroup:string', 'OnboardingStatus:string',
+    'DeviceCategory:string', 'DeviceType:string', 'IsInternetFacing:bool', 'SensorHealthState:string',
+    'ExposureLevel:string', 'AssetValue:string', 'DeviceManualTags:string', 'DeviceDynamicTags:string', 'ReportId:long'
+  ]),
+  IdentityLogonEvents: cols([
+    'Timestamp:datetime', 'ActionType:string', 'Application:string', 'LogonType:string', 'Protocol:string',
+    'FailureReason:string', 'AccountName:string', 'AccountDomain:string', 'AccountUpn:string', 'AccountSid:string',
+    'AccountObjectId:string', 'AccountDisplayName:string', 'DeviceName:string', 'DeviceType:string', 'OSPlatform:string',
+    'IPAddress:string', 'Port:int', 'DestinationDeviceName:string', 'DestinationIPAddress:string', 'DestinationPort:int',
+    'TargetDeviceName:string', 'TargetAccountDisplayName:string', 'Location:string', 'Isp:string', 'ReportId:string',
+    'AdditionalFields:dynamic'
+  ]),
+  CloudAppEvents: cols([
+    'Timestamp:datetime', 'ActionType:string', 'Application:string', 'ApplicationId:int', 'AccountObjectId:string',
+    'AccountId:string', 'AccountDisplayName:string', 'IsAdminOperation:bool', 'DeviceType:string', 'OSPlatform:string',
+    'IPAddress:string', 'IsAnonymousProxy:bool', 'CountryCode:string', 'City:string', 'Isp:string', 'UserAgent:string',
+    'ActivityType:string', 'ActivityObjects:dynamic', 'ObjectName:string', 'ObjectType:string', 'ObjectId:string',
+    'ReportId:string', 'AccountType:string', 'IsExternalUser:bool', 'IsImpersonated:bool', 'RawEventData:dynamic',
+    'AdditionalFields:dynamic', 'UncommonForUser:dynamic', 'OAuthAppId:string'
+  ]),
+  UrlClickEvents: cols([
+    'Timestamp:datetime', 'TimeGenerated:datetime', 'Url:string', 'ActionType:string', 'AccountUpn:string',
+    'Workload:string', 'NetworkMessageId:string', 'ThreatTypes:string', 'DetectionMethods:string', 'IPAddress:string',
+    'IsClickedThrough:bool', 'UrlChain:string', 'ReportId:string', 'AppName:string'
+  ]),
+  EmailUrlInfo: cols([
+    'Timestamp:datetime', 'TimeGenerated:datetime', 'NetworkMessageId:string', 'Url:string', 'UrlDomain:string',
+    'UrlLocation:string', 'UrlChainId:string', 'UrlChainPosition:int', 'ReportId:string'
+  ]),
+  AlertInfo: cols([
+    'Timestamp:datetime', 'TimeGenerated:datetime', 'AlertId:string', 'Title:string', 'Category:string',
+    'Severity:string', 'ServiceSource:string', 'DetectionSource:string', 'AttackTechniques:string'
+  ]),
+  AlertEvidence: cols([
+    'Timestamp:datetime', 'TimeGenerated:datetime', 'AlertId:string', 'Title:string', 'Categories:string',
+    'AttackTechniques:string', 'ServiceSource:string', 'DetectionSource:string', 'EntityType:string',
+    'EvidenceRole:string', 'EvidenceDirection:string', 'FileName:string', 'FolderPath:string', 'SHA1:string',
+    'SHA256:string', 'FileSize:long', 'ThreatFamily:string', 'RemoteIP:string', 'RemoteUrl:string',
+    'AccountName:string', 'AccountDomain:string', 'AccountSid:string', 'AccountObjectId:string', 'AccountUpn:string',
+    'DeviceId:string', 'DeviceName:string', 'LocalIP:string', 'NetworkMessageId:string', 'EmailSubject:string',
+    'Application:string', 'ProcessCommandLine:string', 'RegistryKey:string', 'RegistryValueName:string',
+    'RegistryValueData:string', 'AdditionalFields:string', 'Severity:string'
   ]),
   DeviceTvmSoftwareVulnerabilities: cols([
     'DeviceId:string', 'DeviceName:string', 'OSPlatform:string', 'OSVersion:string', 'OSArchitecture:string',

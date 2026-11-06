@@ -62,6 +62,13 @@ async function openPage(opts = {}) {
   return { page, context, problems };
 }
 
+/** True if any element has a bare "null" text node (an optional child passed to replaceChildren). */
+function strayNullText() {
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  for (let n = walker.nextNode(); n; n = walker.nextNode()) if (n.textContent.trim() === 'null') return true;
+  return false;
+}
+
 async function waitForFeeds(page) {
   await page.waitForFunction(() => /^(Loaded|Could not|Showing)/.test(document.getElementById('feedStatus').textContent), null, { timeout: 30000 });
 }
@@ -86,6 +93,7 @@ test('feeds render safely: no script execution, no javascript: links, UTC times'
   assert.equal(await page.locator('.feed-item').count(), 12);
   assert.ok((await page.locator('.threat-card').count()) >= 1, 'active threats derived from feeds');
   assert.ok((await page.locator('.metric-row').count()) >= 1, 'metrics derived from feeds');
+  assert.equal(await page.evaluate(strayNullText), false, 'no stray "null" text in the intel tab');
   assert.deepEqual(problems, []);
   await context.close();
 });
@@ -203,10 +211,72 @@ test('theme toggle persists across reloads; second load uses the feed cache', as
 test('phone width: no horizontal page scroll', async () => {
   const { page, context } = await openPage({ viewport: { width: 375, height: 800 } });
   await waitForFeeds(page);
-  for (const tab of ['intel', 'hypothesis', 'osint', 'ioc', 'queries']) {
+  for (const tab of ['intel', 'hypothesis', 'osint', 'ioc', 'queries', 'schema']) {
     await page.click('#tabbtn-' + tab);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
     assert.equal(overflow, false, 'horizontal scroll on ' + tab);
   }
+  await context.close();
+});
+
+test('query search finds queries by ATT&CK ID and opens them', async () => {
+  const { page, context } = await openPage({ hash: '#queries' });
+  await page.fill('#querySearch', 'T1003.001');
+  const hits = page.locator('#querySearchResults .search-hit');
+  assert.ok((await hits.count()) >= 3, 'expected several LSASS hunts across platforms');
+  await page.fill('#querySearch', 'TicketEncryptionType');
+  assert.equal(await hits.count(), 1);
+  await hits.first().click();
+  assert.equal(await page.isVisible('#queryDetailsContainer'), true);
+  assert.equal(await page.textContent('#queryTitle'), 'Kerberoasting - RC4 Service Ticket Requests');
+  assert.equal(await page.inputValue('#queryPlatform'), 'sentinel');
+  await page.fill('#querySearch', 'zzzz-no-such-query');
+  assert.match(await page.textContent('#querySearchResults'), /No queries match/);
+  await context.close();
+});
+
+test('table reference: Defender and CrowdStrike tables, filter and related-query links', async () => {
+  const { page, context } = await openPage({ hash: '#schema' });
+  const { defenderTables, crowdstrikeEvents } = require('../../js/tables.js');
+  assert.equal(await page.locator('.schema-item').count(), defenderTables.length);
+  assert.match(await page.textContent('#schemaDetail h3'), /^DeviceProcessEvents/);
+  assert.equal(await page.evaluate(strayNullText), false, 'optional sections must not render as "null"');
+  assert.ok((await page.locator('#schemaDetail .field-table tbody tr').count()) >= 5);
+
+  await page.fill('#schemaFilter', 'QRCode');
+  assert.equal(await page.locator('.schema-item').count(), 1);
+  assert.match(await page.textContent('#schemaDetail h3'), /^EmailUrlInfo/);
+  await page.fill('#schemaFilter', '');
+
+  await page.click('[data-schema-platform="crowdstrike"]');
+  assert.equal(await page.getAttribute('[data-schema-platform="crowdstrike"]', 'aria-pressed'), 'true');
+  assert.equal(await page.locator('.schema-item').count(), crowdstrikeEvents.length);
+  assert.match(await page.textContent('#schemaDetail'), /How Falcon events join together/);
+  assert.equal(await page.evaluate(strayNullText), false, 'optional sections must not render as "null"');
+  await page.locator('.schema-item', { hasText: 'AsepValueUpdate' }).click();
+  assert.ok((await page.locator('#schemaDetail .verify-badge').count()) >= 1, 'unconfirmed fields are flagged');
+
+  await page.locator('.schema-item', { hasText: 'DnsRequest' }).click();
+  const related = page.locator('#schemaDetail .related-list .search-hit');
+  assert.ok((await related.count()) >= 1);
+  await related.first().click();
+  assert.equal(await page.getAttribute('#tabbtn-queries', 'aria-selected'), 'true');
+  assert.equal(await page.inputValue('#queryPlatform'), 'crowdstrike');
+  assert.match(await page.textContent('#queryOutput'), /#event_simpleName=DnsRequest/);
+  await context.close();
+});
+
+test('table/event catalog is shown by default on the query page and links to search', async () => {
+  const { page, context } = await openPage({ hash: '#queries' });
+  const { defenderCatalog, crowdstrikeCatalog } = require('../../js/catalog.js');
+  const count = (c) => c.reduce((n, g) => n + g.items.reduce((m, i) => m + i.names.length, 0), 0);
+  assert.equal(await page.isVisible('#defenderCatalog'), true);
+  assert.equal(await page.isVisible('#crowdstrikeCatalog'), true);
+  assert.equal(await page.locator('#defenderCatalog .catalog-name').count(), count(defenderCatalog));
+  assert.equal(await page.locator('#crowdstrikeCatalog .catalog-name').count(), count(crowdstrikeCatalog));
+  await page.locator('#crowdstrikeCatalog .catalog-name', { hasText: /^DnsRequest$/ }).click();
+  assert.equal(await page.inputValue('#querySearch'), 'DnsRequest');
+  assert.ok((await page.locator('#querySearchResults .search-hit').count()) >= 1);
+  assert.equal(await page.evaluate(strayNullText), false);
   await context.close();
 });
