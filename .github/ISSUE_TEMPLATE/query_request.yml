@@ -1,0 +1,20 @@
+name: Hunting query or feature request
+description: Suggest a new detection query, OSINT tool, IOC type or feature
+labels: [enhancement]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like added?
+    validations:
+      required: true
+  - type: input
+    id: mitre
+    attributes:
+      label: MITRE ATT&CK technique(s), if relevant
+      placeholder: T1003.001
+  - type: textarea
+    id: query
+    attributes:
+      label: Draft query or reference (optional)
+      render: text
