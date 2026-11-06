@@ -1,8 +1,14 @@
 # CyberGator1 - Threat Hunting Command Center 🛡️
 
+[![CI](https://github.com/indocanadian416/THQV/actions/workflows/ci.yml/badge.svg)](https://github.com/indocanadian416/THQV/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+![No build step](https://img.shields.io/badge/build-none%20needed-brightgreen)
+
 **Live Demo:** [https://indocanadian416.github.io/THQV/](https://indocanadian416.github.io/THQV/)
 
 A single-page threat hunting dashboard for SOC analysts, threat hunters and detection engineers. Plain HTML/CSS/JavaScript - no framework, no build step, no backend. Everything except the news feed runs locally in your browser.
+
+![Threat Intel feed](docs/screenshots/threat-intel.png)
 
 ---
 
@@ -53,6 +59,20 @@ Follows your OS preference by default; your choice is remembered.
 
 ---
 
+## 📸 Screenshots
+
+*Screenshots use sample feed data.*
+
+| Hunt hypotheses | OSINT pivoting |
+|---|---|
+| ![Hunt hypotheses](docs/screenshots/hypotheses.png) | ![OSINT keyboard with an indicator](docs/screenshots/osint.png) |
+| **IOC extractor (dark theme)** | **Detection query library** |
+| ![IOC extractor](docs/screenshots/ioc-extractor.png) | ![Detection queries](docs/screenshots/detection-queries.png) |
+
+<p align="center"><img src="docs/screenshots/mobile.png" alt="Mobile layout" width="260"></p>
+
+---
+
 ## 🔒 Security
 
 - All feed content is rendered with `textContent`; links are restricted to `http(s)`. A malicious or compromised feed cannot inject script.
@@ -74,7 +94,8 @@ js/queries.js         Hunting query library
 js/osint.js           OSINT tools and indicator pivot URLs
 js/hypothesis.js      Rule-based hypothesis builder
 js/app.js             UI wiring
-tests/                Node test suite (node:test)
+tests/                Unit tests (node:test) and tests/e2e/ browser tests (Playwright)
+docs/screenshots/     README screenshots
 ```
 
 Each `js/` module works both as a plain browser script (attaches to `window.THQV`) and as a Node module for testing.
@@ -100,11 +121,16 @@ python3 -m http.server 8000   # then open http://localhost:8000
 
 Requires Node.js 18+.
 ```bash
-npm install     # installs @kusto/language-service-next (dev only)
-npm test        # unit tests + KQL parse/type-check of every query
-npm run check   # syntax check of every browser script
+npm install                        # dev tools only: Kusto parser + Playwright
+npm test                           # 49 unit tests + KQL parse/type-check of every query
+npx playwright install chromium    # once
+npm run test:e2e                   # 9 browser tests against the real page
+npm run check                      # syntax check of every browser script
 ```
-The tests cover IOC extraction/export, URL and HTML sanitising, feed date parsing, OSINT URL building, hypothesis generation, and validate **every KQL query** (library and generated) with Microsoft's Kusto parser against the table schemas in `tests/kql-schema.js` (taken from Microsoft Learn). LogScale queries are linted for legacy SPL syntax. CI runs the suite on every push and pull request.
+- **Unit tests** cover IOC extraction/export, URL and HTML sanitising, feed date parsing, OSINT URL building and hypothesis generation, and validate **every KQL query** (library and generated) with Microsoft's Kusto parser against the table schemas in `tests/kql-schema.js` (taken from Microsoft Learn). LogScale queries are linted for legacy SPL syntax.
+- **Browser tests** load `index.html` in headless Chromium with mocked feeds containing XSS payloads, `javascript:` links, failing sources and UTC timestamps, then drive every tab: tabs/keyboard, OSINT pivots and popups, IOC extraction and downloads, query library, hypotheses, theme persistence, feed cache and phone-width layout.
+
+CI runs both on every push and pull request.
 
 ---
 
@@ -129,9 +155,7 @@ The tests cover IOC extraction/export, URL and HTML sanitising, feed date parsin
 
 ## 🤝 Contributing
 
-1. Fork the repo and create a feature branch
-2. `npm install && npm test`
-3. Open a pull request
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, tests and how to add queries, OSINT tools or hypothesis rules. Report security issues privately - see [SECURITY.md](SECURITY.md). Release notes are in [CHANGELOG.md](CHANGELOG.md).
 
 ---
 

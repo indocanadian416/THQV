@@ -386,7 +386,7 @@ a.tag:hover { text-decoration: underline; }
 
 footer { text-align: center; color: var(--text-tertiary); padding: 2rem; background: var(--surface); border-top: 1px solid var(--border); font-size: .875rem; }
 footer div + div { margin-top: .5rem; }
-footer a { color: var(--accent); }
+footer a, .hypothesis-item a, .threat-card h4 a { color: var(--accent); }
 
 @media (max-width: 768px) {
   header, .content { padding-left: 1rem; padding-right: 1rem; }
