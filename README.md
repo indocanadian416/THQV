@@ -2,228 +2,145 @@
 
 **Live Demo:** [https://indocanadian416.github.io/THQV/](https://indocanadian416.github.io/THQV/)
 
-A comprehensive, single-page threat hunting dashboard designed for Security Operations Centers (SOCs), threat hunters, and detection engineers. Built with pure HTML/CSS/JavaScript - no frameworks required.
+A single-page threat hunting dashboard for SOC analysts, threat hunters and detection engineers. Plain HTML/CSS/JavaScript - no framework, no build step, no backend. Everything except the news feed runs locally in your browser.
 
 ---
 
 ## 🚀 Features
 
-### 1. **Threat Intelligence Feed**
-- Real-time cybersecurity news aggregation from 5+ trusted sources:
-  - BleepingComputer
-  - The Hacker News
-  - Krebs on Security
-  - SecurityWeek
-  - Dark Reading
-- Intelligent auto-tagging (Ransomware, Zero-Day, APT, Phishing, Malware)
-- Time-based filtering (24h, 7d, all-time)
-- Live search across articles
-- Full 450-character article descriptions
-- Clickable links opening in new tabs
+### 1. Threat Intel feed
+- Aggregates BleepingComputer, The Hacker News, Krebs on Security, SecurityWeek and Dark Reading (via the free [rss2json.com](https://rss2json.com) proxy).
+- Auto-tags articles: Ransomware, Zero-Day, Vulnerability, APT, Phishing, Malware, Data Breach, Supply Chain.
+- Time filters (today / 24h / 7d / all) and live search.
+- **Active Threats** and **Feed Metrics** are computed from the last 7 days of loaded articles (tag counts, CVEs mentioned, sources) - nothing is hard-coded.
+- Results are cached for 15 minutes; if the proxy is down or rate-limited the page says which sources failed and falls back to the cache.
 
-### 2. **AI Hypothesis Generator**
-Generates threat hunting hypotheses from live threat intelligence using 5 unique templates:
-- Shadow IT exploitation analysis
-- APT activity masking detection
-- Phishing campaign weaponization
-- Supply chain risk investigation
-- Insider threat amplification
+### 2. Hunt Hypothesis Builder (rule-based)
+Turns the articles currently shown into up to 10 hunt hypotheses. **This is rule-based, not AI**: each article is matched on what it contains and the best rule builds a Microsoft Defender XDR advanced hunting query from the article's own details:
 
-Each hypothesis includes:
-- Contextualized threat scenario
-- MITRE ATT&CK TTPs
-- Actionable hunt queries (KQL format)
+| Rule | Triggered by | Generated hunt |
+|---|---|---|
+| CVE exposure | CVE IDs in the article | `DeviceTvmSoftwareVulnerabilities` for those CVEs |
+| IOC retro-hunt | Defanged IPs/domains in the article | `DeviceNetworkEvents` for those indicators |
+| Ransomware | Ransomware tag/keywords | Mass file-rename bursts |
+| Phishing | Phishing tag/keywords | Delivered email with subjects matching headline keywords |
+| Supply chain | npm/PyPI/package/supply-chain | Package managers spawning shells/downloaders |
+| APT | APT / state-sponsored / backdoor | Rare outbound destinations (low-volume C2) |
+| Malware | Malware / stealer / loader | LOLBins downloading payloads |
+| Fallback | anything else | Uploads to personal cloud storage |
 
-### 3. **OSINT Tools Keyboard (A-Z)**
-26 threat intelligence platforms accessible via keyboard shortcuts or click:
-- **A** - AbuseIPDB
-- **B** - BGPView
-- **C** - Censys
-- **D** - DNSTrails
-- **V** - VirusTotal
-- **S** - Shodan
-- And 20 more...
+Each hypothesis links the source article and the MITRE ATT&CK techniques.
 
-**Usage:** Press any key (A-Z) while on the OSINT tab to instantly open that tool.
+### 3. OSINT keyboard (A-Z) with indicator pivoting
+Paste an indicator (IP, domain, URL, hash, CVE - defanged is fine) and click a tile or press its letter. Tiles marked **lookup** open the result page directly (VirusTotal, AbuseIPDB, Shodan, GreyNoise, OTX, ThreatFox, urlscan, X-Force, Talos, …). Tools without a stable deep link open their home page and copy the indicator to the clipboard. Letter shortcuts are ignored while typing in a field.
 
-### 4. **IOC Extractor**
-Automatically extracts and defangs indicators of compromise:
-- **IPs:** Converts `8[.]8[.]8[.]8` → `8.8.8.8`
-- **Domains:** Validates and extracts domain names
-- **URLs:** Full URL extraction with defanging (`hxxp` → `http`)
-- **Hashes:** MD5, SHA-1, SHA-256 detection
+### 4. IOC Extractor
+- Extracts **IPv4, IPv6, domains, URLs, email addresses, MD5 / SHA-1 / SHA-256 / SHA-512 hashes and CVE IDs**.
+- Re-fangs defanged input: `hxxp(s)`, `fxp`, `[.]`, `(.)`, `{.}`, `[dot]`, `[:]`, `[://]`, `[@]`, `[at]`.
+- Filters out file names that look like domains (`invoice.pdf`, `run.ps1`), invalid IPs (`1.2.3.999`), version strings, times and MAC addresses.
+- Export as TXT, JSON or CSV, optionally defanged. CSV values are quoted and protected against spreadsheet formula injection.
 
-**Export formats:** TXT, JSON, CSV
+### 5. Detection query library
+23 hunting queries across 3 platforms, 8 categories and 27 ATT&CK techniques:
+- **Microsoft Sentinel (KQL)** - SigninLogs, SecurityEvent, CommonSecurityLog, DnsEvents and Defender XDR tables
+- **Microsoft Defender XDR advanced hunting (KQL)** - endpoint and Defender for Identity tables
+- **CrowdStrike Falcon LogScale (CQL)** - ProcessRollup2, NetworkConnectIP4, FileOpenInfo
 
-### 5. **MITRE ATT&CK Detection Queries**
-14 MITRE techniques with detection queries for 4 SIEM platforms:
-- Microsoft Sentinel (KQL)
-- Splunk (SPL)
-- CrowdStrike Falcon (LogScale)
-- Elastic SIEM (Lucene)
+Every query lists the data source it needs. **All KQL is parsed and type-checked** against the documented table schemas with Microsoft's own Kusto parser in the test suite (see below), so syntax errors and non-existent columns are caught automatically. Thresholds and exclusions still need tuning for your environment.
 
-**Techniques covered:**
-- T1059 - Command Interpreter
-- T1566 - Phishing
-- T1621 - MFA Fatigue
-- T1486 - Ransomware Encryption
-- And 10 more...
-
-### 6. **Dark/Light Theme Toggle**
-Perplexity-style theme switcher with persistent preferences (stored in localStorage).
+### 6. Dark/light theme
+Follows your OS preference by default; your choice is remembered.
 
 ---
 
-## 📸 Screenshots
+## 🔒 Security
 
-### Threat Intel Feed
-![Threat Intel](https://img.shields.io/badge/Status-Live-brightgreen)
-
-### Dark Theme
-![Dark Mode](https://img.shields.io/badge/Theme-Dark%2FLight-blue)
-
----
-
-## 🛠️ Tech Stack
-
-- **Pure HTML5/CSS3/JavaScript** (no frameworks)
-- **RSS Proxy:** rss2json.com API
-- **Icons:** Font Awesome 6
-- **Hosting:** GitHub Pages
+- All feed content is rendered with `textContent`; links are restricted to `http(s)`. A malicious or compromised feed cannot inject script.
+- Strict Content-Security-Policy: scripts only from this site, styles/fonts only from this site and jsDelivr, network only to rss2json.
+- Font Awesome is loaded with Subresource Integrity (SRI).
+- External links and OSINT tabs open with `noopener noreferrer`.
 
 ---
 
-## 🚀 Quick Start
+## 🗂️ Project structure
 
-### Option 1: Use Live Demo
-Simply visit: [https://indocanadian416.github.io/THQV/](https://indocanadian416.github.io/THQV/)
-
-### Option 2: Self-Host
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/indocanadian416/THQV.git
-   cd THQV
-   ```
-
-2. Open `index.html` in any modern browser:
-   ```bash
-   open index.html  # macOS
-   start index.html # Windows
-   xdg-open index.html # Linux
-   ```
-
-### Option 3: Deploy to Your Own GitHub Pages
-1. Fork this repository
-2. Go to Settings → Pages
-3. Source: `Deploy from a branch`
-4. Branch: `main` → `/root`
-5. Save
-
-Your site will be live at `https://YOUR-USERNAME.github.io/THQV/`
-
----
-
-## 📋 Usage Guide
-
-### Threat Intel Tab
-1. Wait 5-10 seconds for feeds to load
-2. Use time filters to narrow results (24h recommended)
-3. Search bar for keyword filtering
-4. Click any article title to open source
-
-### AI Hypothesis Generator
-1. Ensure threat intel feeds are loaded first
-2. Click "Generate Hypotheses"
-3. Wait 1-2 seconds for AI processing
-4. Review 10 unique hunting scenarios
-
-### OSINT Tools
-- **Click method:** Click any tool tile
-- **Keyboard method:** Press corresponding letter key (A-Z)
-
-### IOC Extractor
-1. Paste threat intelligence text (supports defanged IOCs)
-2. Click "Extract IOCs"
-3. Review categorized results
-4. Export via TXT/JSON/CSV buttons
-
-### Detection Queries
-1. Select MITRE technique from dropdown
-2. View multi-platform queries
-3. Click "Copy" button to clipboard
-
----
-
-## 🔧 Customization
-
-### Add More RSS Feeds
-Edit line 65 in `index.html`:
-```javascript
-const rssFeeds=['https://example.com/feed.xml'];
+```
+index.html            Page markup (no inline scripts or styles)
+css/styles.css        Styles and light/dark theme tokens
+js/theme-init.js      Applies the saved theme before first paint
+js/utils.js           Escaping, safe URLs, HTML-to-text, feed date parsing, safe storage
+js/ioc.js             IOC re-fang / extract / classify / export
+js/queries.js         Hunting query library
+js/osint.js           OSINT tools and indicator pivot URLs
+js/hypothesis.js      Rule-based hypothesis builder
+js/app.js             UI wiring
+tests/                Node test suite (node:test)
 ```
 
-### Modify OSINT Tools
-Edit line 120+ in `index.html`:
-```javascript
-const osintTools=[{key:'A',name:'ToolName',url:'https://...'}];
-```
-
-### Add Detection Queries
-Edit `detections` object starting at line 35.
+Each `js/` module works both as a plain browser script (attaches to `window.THQV`) and as a Node module for testing.
 
 ---
 
-## 🐛 Known Limitations
+## 🚀 Quick start
 
-- RSS feed loading depends on rss2json.com availability
-- Some RSS feeds may be rate-limited (10 articles max per feed)
-- IOC extraction uses regex (may miss complex obfuscations)
-- Detection queries are examples (tune for your environment)
+**Use it:** visit the [live demo](https://indocanadian416.github.io/THQV/).
+
+**Run locally:** clone and open `index.html` in a modern browser, or serve the folder:
+```bash
+git clone https://github.com/indocanadian416/THQV.git
+cd THQV
+python3 -m http.server 8000   # then open http://localhost:8000
+```
+
+**Deploy your own:** fork → Settings → Pages → Deploy from a branch → `main` / root.
+
+---
+
+## 🧪 Tests
+
+Requires Node.js 18+.
+```bash
+npm install     # installs @kusto/language-service-next (dev only)
+npm test        # unit tests + KQL parse/type-check of every query
+npm run check   # syntax check of every browser script
+```
+The tests cover IOC extraction/export, URL and HTML sanitising, feed date parsing, OSINT URL building, hypothesis generation, and validate **every KQL query** (library and generated) with Microsoft's Kusto parser against the table schemas in `tests/kql-schema.js` (taken from Microsoft Learn). LogScale queries are linted for legacy SPL syntax. CI runs the suite on every push and pull request.
+
+---
+
+## 🔧 Customisation
+
+- **Feeds:** edit `FEEDS` in `js/app.js`. If you add a new proxy host, also add it to `connect-src` in the CSP `<meta>` tag in `index.html`.
+- **OSINT tools:** edit `osintTools` in `js/osint.js`. Add a `build(value, type)` function and `types` to enable direct lookups.
+- **Queries:** add entries to `huntingQueries` in `js/queries.js` (`name`, `mitre`, `requires`, `desc`, `query`). If a KQL query uses a new table or column, add it to `tests/kql-schema.js` after checking Microsoft's docs; `npm test` will tell you if anything doesn't parse.
+- **Hypothesis rules:** edit `RULES` in `js/hypothesis.js`.
+
+---
+
+## 🐛 Known limitations
+
+- The news feed depends on the free rss2json.com service (rate limited, ~10-15 items per feed). The page caches results and reports failures, but cannot fetch feeds without it.
+- IOC extraction is regex-based. File-like TLDs (`.zip`, `.sh`, `.py`, `.mov`) are treated as file names, not domains.
+- CrowdStrike LogScale queries are linted but cannot be executed outside Falcon; field availability depends on your sensor policy (e.g. `FileOpenInfo`).
+- Some OSINT tools (Censys, IPVoid, Joe Sandbox, Maltiverse, Netlas, ONYPHE, Pulsedive, YARAify, ZoomEye) open their home page because they have no stable public deep-link format.
+- Queries are starting points - tune thresholds, exclusions and time windows before scheduling them.
 
 ---
 
 ## 🤝 Contributing
 
-Contributions welcome! Please:
-1. Fork the repo
-2. Create a feature branch
-3. Test thoroughly
-4. Submit a pull request
-
-**Ideas for contributions:**
-- Additional MITRE techniques
-- More OSINT tools
-- Improved IOC regex patterns
-- Dark theme refinements
+1. Fork the repo and create a feature branch
+2. `npm install && npm test`
+3. Open a pull request
 
 ---
 
 ## 📜 License
 
-MIT License - feel free to use for personal or commercial projects.
-
----
+[MIT](LICENSE)
 
 ## 👤 Author
 
-**Pratik (CyberGator)**
-- GitHub: [@indocanadian416](https://github.com/indocanadian416)
+**Pratik (CyberGator)** - GitHub: [@indocanadian416](https://github.com/indocanadian416)
 
----
-
-## 🌟 Star This Repo
-
-If you find this useful, please ⭐ star this repository!
-
----
-
-## 📞 Support
-
-For issues or questions:
-1. Check [Issues](https://github.com/indocanadian416/THQV/issues)
-2. Open a new issue with detailed description
-3. Include browser/OS information
-
----
-
-**Last Updated:** December 2025
+For issues or questions, open an [issue](https://github.com/indocanadian416/THQV/issues) with your browser/OS details.
