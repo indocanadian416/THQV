@@ -16,7 +16,7 @@
         { names: ['DeviceProcessEvents'], desc: 'Captures process creation events, executable filenames, parent-child process lineage, file hashes (SHA256), and command-line arguments.' },
         { names: ['DeviceFileEvents'], desc: 'Logs file creation, modification, deletion, and renaming actions on host endpoints.' },
         { names: ['DeviceNetworkEvents'], desc: 'Records inbound and outbound TCP/UDP socket network connections, remote IP addresses, ports, protocol types, and initiating processes.' },
-        { names: ['DeviceEvents'], desc: 'Audits endpoint security events, including USB drive mounts, BitLocker status changes, and custom defender action triggers.' },
+        { names: ['DeviceEvents'], desc: 'Audits endpoint security events, including antivirus detections, USB drive mounts, exploit protection and ASR triggers, and other Defender sensor events.' },
         { names: ['DeviceLogonEvents'], desc: 'Tracks local and network authentication events on endpoints (interactive, RDP, batch, and service logons).' },
         { names: ['DeviceInfo'], desc: 'Provides host hardware specs, OS platform/build details, domain membership, and machine enrollment status.' },
         { names: ['DeviceNetworkInfo'], desc: 'Details physical and virtual network adapter configurations, IP assignments, MAC addresses, and active interfaces.' },
@@ -40,7 +40,7 @@
         { names: ['EntraIdSignInEvents'], desc: 'Audits interactive and non-interactive Entra ID (Azure AD) user authentications, capturing IP addresses, location (city/country), User-Agent strings, applications, and error codes.' },
         { names: ['EntraIdSpnSignInEvents'], desc: 'Tracks authentication events for service principals and workload identities.' },
         { names: ['IdentityLogonEvents'], desc: 'Captures on-premises Active Directory and domain controller authentications (Kerberos, NTLM).' },
-        { names: ['IdentityDirectoryEvents'], desc: 'Audits identity object changes in Entra ID and Active Directory (user provisioning, group membership changes).' },
+        { names: ['IdentityDirectoryEvents'], desc: 'Audits on-premises Active Directory changes captured by Defender for Identity on domain controllers (password changes, group membership changes, account enable/disable).' },
         { names: ['IdentityQueryEvents'], desc: 'Tracks LDAP and Active Directory directory queries for reconnaissance detection.' },
         { names: ['IdentityInfo'], desc: 'Provides user profile metadata, job titles, departments, manager details, and risk levels.' }
       ]
@@ -114,7 +114,7 @@
         { names: ['FileWritten'], desc: 'General file creation or modification write operation on the endpoint filesystem.' },
         { names: ['PeFileWritten'], desc: 'Specific write event when a Portable Executable file (.exe, .dll, .sys) is written to disk.' },
         { names: ['ELFFileWritten'], desc: 'Linux-specific file write event for Executable and Linkable Format (ELF) binaries.' },
-        { names: ['AsepFileWritten'], desc: 'Auto-Start Execution Point file write event, indicating file creation/modification in persistence locations (e.g., Startup folders, Run keys).' },
+        { names: ['AsepFileWritten'], desc: 'Auto-Start Execution Point file write event, indicating file creation/modification in persistence locations (e.g., Startup folders).' },
         { names: ['NewExecutableWritten'], desc: 'Triggered when a brand-new executable file is written to the filesystem for the first time.' },
         { names: ['NewScriptWritten'], desc: 'Triggered when a script file (.ps1, .vbs, .js, .bat, .sh) is written to disk.' },
         { names: ['DocumentFileWritten'], desc: 'File write event specifically for document files (.pdf, .docx, .xlsx, .zip, .iso, .img).' },
