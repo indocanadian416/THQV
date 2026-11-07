@@ -105,14 +105,20 @@
       match: (a, x) => x.ips.length + x.domains.length > 0,
       variants: [
         (a, { iocs: x }) => {
+          // Indicators stay defanged on the page (1.2.3[.]4, evil[.]com); the query
+          // refangs them itself when it runs, so it still works when copied as-is.
+          const refang = (name, values) => 'let ' + name + ' = toscalar(print V = ' + kqlList(values.map(ioc.defang)) +
+            ' | mv-expand V | summarize make_list(replace_string(tostring(V), "[.]", ".")));\n';
+          const lets = (x.ips.length ? refang('IocIPs', x.ips) : '') + (x.domains.length ? refang('IocDomains', x.domains) : '');
           const parts = [];
-          if (x.ips.length) parts.push('RemoteIP in (' + kqlList(x.ips) + ')');
-          if (x.domains.length) parts.push('RemoteUrl has_any (' + kqlList(x.domains) + ')');
+          if (x.ips.length) parts.push('RemoteIP in (IocIPs)');
+          if (x.domains.length) parts.push('RemoteUrl has_any (IocDomains)');
           return {
             title: 'Retro-hunt the indicators published in this report',
             hypothesis: 'The report lists ' + (x.ips.length + x.domains.length) + ' network indicator(s). If any host in our environment contacted them, the campaign may already have reached us.',
             ttps: [{ id: 'T1071', name: 'Application Layer Protocol' }],
-            query: 'DeviceNetworkEvents\n' +
+            query: '// Indicators are defanged on purpose - the query converts them back when it runs.\n' + lets +
+              'DeviceNetworkEvents\n' +
               '| where Timestamp > ago(30d)\n' +
               '| where ' + parts.join('\n    or ') + '\n' +
               '| summarize Connections = count(), FirstSeen = min(Timestamp), LastSeen = max(Timestamp),\n' +

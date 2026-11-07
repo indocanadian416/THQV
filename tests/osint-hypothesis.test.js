@@ -61,8 +61,9 @@ test('hypotheses pick the right rule from article content', () => {
   const h = buildHypotheses(articles, 20);
   assert.deepEqual(h.map((x) => x.rule), ['cve', 'ioc', 'ransomware', 'phishing', 'supply-chain', 'apt', 'malware', 'exfil']);
   assert.match(h[0].query, /CVE-2025-0282/);
-  assert.match(h[1].query, /185\.220\.101\.4/);
-  assert.match(h[1].query, /update-check\.net/);
+  // Indicators appear only defanged in the generated query (refanged by KQL at run time).
+  assert.ok(h[1].query.includes('185[.]220[.]101[.]4') && h[1].query.includes('update-check[.]net'), h[1].query);
+  assert.ok(!h[1].query.includes('185.220.101.4') && !h[1].query.includes('update-check.net'), 'live indicator shown on the page');
   assert.doesNotMatch(h[7].query, /example\.com/, 'plain (non-defanged) vendor links are not treated as IOCs');
 });
 
